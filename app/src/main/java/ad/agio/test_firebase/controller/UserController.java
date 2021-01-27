@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 import ad.agio.test_firebase.domain.User;
 
@@ -36,6 +37,11 @@ public class UserController {
         this.mAuth = FirebaseAuth.getInstance();
     }
 
+    public UserController() {
+        this.mDatabase = FirebaseDatabase.getInstance().getReference();
+        this.mAuth = FirebaseAuth.getInstance();
+    }
+
     /**
      * write new user to realtime database
      * @param user
@@ -44,12 +50,10 @@ public class UserController {
         mDatabase.child("users").child(user.getId()).setValue(user)
                 .addOnSuccessListener(aVoid -> {
                     // Write was successful!
-                    Toast.makeText(ctx, "저장을 완료했습니다.", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "저장을 완료했습니다.");
                 })
                 .addOnFailureListener(e -> {
                     // Write failed
-                    Toast.makeText(ctx, "저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "저장을 실패했습니다.");
                 });
 
@@ -60,7 +64,7 @@ public class UserController {
      * @param id
      */
     public void readUser(String id){
-        mDatabase.child("users").child(id).addValueEventListener(new ValueEventListener() {
+        mDatabase.child("users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
@@ -79,6 +83,35 @@ public class UserController {
                 Log.w("FireBaseData", "loadPost:onCancelled", databaseError.toException());
             }
         });
+    }
+
+    /**
+     * read userData from realtime database.
+     *
+     * @param id
+     */
+    public void readName(String id, Consumer<String> consumer) {
+        mDatabase.child("users")
+                .child(id)
+                .child("userName")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String post = dataSnapshot.getValue(String.class);
+                        if (post != null) {
+                            consumer.accept(post);
+                        } else {
+                            Log.d("readName", "데이터가 없습니다.");
+                            loginListener.failure(null);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Getting Post failed, log a message
+                        Log.w("FireBaseData", "loadPost:onCancelled", databaseError.toException());
+                    }
+                });
     }
 
     public void editUserData(User user, String tag, String value){

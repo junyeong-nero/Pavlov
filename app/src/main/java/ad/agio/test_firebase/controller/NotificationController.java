@@ -26,7 +26,7 @@ public class NotificationController {
 
     public NotificationController(Consumer<Notification> consumer) {
         this.mDatabase = FirebaseDatabase.getInstance().getReference().child("notification");
-        this.mDatabase.addValueEventListener(new ValueEventListener() {
+        this.mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
