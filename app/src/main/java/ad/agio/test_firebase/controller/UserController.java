@@ -1,6 +1,9 @@
 package ad.agio.test_firebase.controller;
 
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -13,11 +16,27 @@ public class UserController {
     static public String TAG = "UserController";
 
     private final FirebaseFirestore mFirestore;
-    private String ID;
+    private final FirebaseAuth mAuth;
+    private String UID;
 
     public UserController() {
         this.mFirestore = FirebaseFirestore.getInstance();
-        this.ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        this.mAuth = FirebaseAuth.getInstance();
+        this.UID = mAuth.getCurrentUser().getUid();
+    }
+
+    public String getUID() {
+        checkValidUser();
+        return mAuth.getCurrentUser().getUid();
+    }
+
+    public void checkValidUser() {
+        try {
+            if (mAuth.getCurrentUser() == null)
+                throw new IllegalAccessException("checkValidUser: it is not valid user");
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -34,10 +53,13 @@ public class UserController {
                 .collection("users")
                 .get()
                 .addOnCompleteListener(snapshot -> {
-                    for (QueryDocumentSnapshot post : snapshot.getResult()) {
-                        consumer.accept(post.toObject(User.class));
+                    if (snapshot.isSuccessful()) {
+                        for (QueryDocumentSnapshot post : snapshot.getResult()) {
+                            consumer.accept(post.toObject(User.class));
+                        }
                     }
-                });
+                })
+                .addOnFailureListener(e -> e.printStackTrace());
     }
 
     public void readUser(String uid, Consumer<User> consumer) {
@@ -57,7 +79,8 @@ public class UserController {
     }
 
     public void readUser(Consumer<User> consumer) {
-        readUser(ID, consumer);
+        checkValidUser();
+        readUser(UID, consumer);
     }
 
     public void updateUser(String uid, String tag, String value) {
