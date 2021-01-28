@@ -49,7 +49,7 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         mAuth = FirebaseAuth.getInstance();
-        userController = new UserController(getContext());
+        userController = new UserController();
         return binding.getRoot();
     }
 
@@ -57,16 +57,11 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        userController.setLoginListener(new UserController.LoginListener() {
-            @Override
-            public void success(User find) {
-                currentUser = find;
-                setProfile(find);
-                binding.textView.setText(find.toString());
-                super.success(find);
-            }
+        userController.readUser(user -> {
+            currentUser = user;
+            setProfile(user);
+            binding.textView.setText(user.toString());
         });
-        userController.readUser(mAuth.getUid());
 
         binding.buttonSignout.setOnClickListener(v -> {
             mAuth.signOut();
@@ -79,8 +74,8 @@ public class ProfileFragment extends Fragment {
             TedBottomPicker.with(getActivity())
                     .show(uri -> {
                         binding.imageProfile.setImageURI(uri);
-                        UserController userController = new UserController(getContext());
-                        userController.editUserData(mAuth.getUid(), "profile", uri.getPath());
+                        UserController userController = new UserController();
+                        userController.updateUser(mAuth.getUid(), "profile", uri.getPath());
                         Log.d(TAG, uri.getPath());
                     });
         });

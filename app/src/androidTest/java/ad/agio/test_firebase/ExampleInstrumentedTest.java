@@ -32,9 +32,6 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void readTest() {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        UserController userController = new UserController(appContext, mDatabase);
-        userController.readUser();
+
     }
 }

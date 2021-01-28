@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivitySearchBinding;
 import ad.agio.test_firebase.domain.User;
 
@@ -49,16 +50,14 @@ public class SearchActivity extends AppCompatActivity {
             finish();
         });
 
+        Predicate<User> condition = user -> user.getUserName().contains(binding.editQuery.getText().toString());
         binding.button.setOnClickListener(v -> {
             // 20 ~ 40대를 위한 lambda expression
-            Predicate<User> condition = user -> user.getUserName().contains(binding.editQuery.getText().toString());
-            searchFromFirestore();
             search(condition);
         });
 
         binding.editQuery.setOnKeyListener((v, actionId, event) -> {
             if (actionId == KeyEvent.KEYCODE_ENTER) {
-                Predicate<User> condition = user -> user.getUserName().contains(binding.editQuery.getText().toString());
                 search(condition);
             }
             return false;
@@ -67,60 +66,71 @@ public class SearchActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
 
-    public void searchFromFirestore() {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("users")
-                .get()
-                .addOnCompleteListener(snapshot -> {
-                    for (QueryDocumentSnapshot document : snapshot.getResult()) {
-                        Log.d(TAG, document.getId() + " => " + document.getData());
-                        User user = (User) document.getData();
-                        user.
-                    }
-                });
-
-    }
-
     public void search(Predicate<User> condition) {
         binding.textviewLog.removeAllViews();
-        Query query = mDatabase.child("users").orderByChild("type");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                        // TODO: handle the post
-                        if(postSnapshot.getValue(User.class) != null) {
-                            User post = postSnapshot.getValue(User.class);
-                            if (condition.test(post)) {
-                                Log.d(TAG, post.toString());
-                                LayoutInflater layoutInflater = getLayoutInflater();
-                                View view = layoutInflater.inflate(R.layout.inflate_profile, null);
-                                TextView nick = view.findViewById(R.id.text_nickname);
-                                ImageButton button = view.findViewById(R.id.button_chat);
-                                nick.setText(post.getUserName());
+        UserController controller = new UserController();
+        controller.readAllUsers(user -> {
+            if (user != null && condition.test(user)) {
+                LayoutInflater layoutInflater = getLayoutInflater();
+                View view = layoutInflater.inflate(R.layout.inflate_profile, null);
+                TextView nick = view.findViewById(R.id.text_nickname);
+                ImageButton button = view.findViewById(R.id.button_chat);
+                nick.setText(user.getUserName());
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                if(auth.getCurrentUser() == null)
+                    throw new IllegalStateException("it is not valid user");
 
-                                FirebaseAuth auth = FirebaseAuth.getInstance();
-
-                                if(auth.getCurrentUser() == null)
-                                    throw new IllegalStateException("it is not valid user");
-
-                                button.setOnClickListener(v -> {
-                                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
-                                    chat.putExtra("receiver", post.getId());
-                                    chat.putExtra("sender", auth.getUid());
-                                    startActivity(chat);
-                                });
-                                binding.textviewLog.addView(view);
-                            }
-                        }
-                    }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                button.setOnClickListener(v -> {
+                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
+                    chat.putExtra("receiver", user.getId());
+                    chat.putExtra("sender", auth.getUid());
+                    startActivity(chat);
+                });
+                binding.textviewLog.addView(view);
             }
         });
     }
+
+//    public void search(Predicate<User> condition) {
+//        binding.textviewLog.removeAllViews();
+//        Query query = mDatabase.child("users").orderByChild("type");
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                    for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+//                        // TODO: handle the post
+//                        if(postSnapshot.getValue(User.class) != null) {
+//                            User post = postSnapshot.getValue(User.class);
+//                            if (condition.test(post)) {
+//                                Log.d(TAG, post.toString());
+//                                LayoutInflater layoutInflater = getLayoutInflater();
+//                                View view = layoutInflater.inflate(R.layout.inflate_profile, null);
+//                                TextView nick = view.findViewById(R.id.text_nickname);
+//                                ImageButton button = view.findViewById(R.id.button_chat);
+//                                nick.setText(post.getUserName());
+//
+//                                FirebaseAuth auth = FirebaseAuth.getInstance();
+//
+//                                if(auth.getCurrentUser() == null)
+//                                    throw new IllegalStateException("it is not valid user");
+//
+//                                button.setOnClickListener(v -> {
+//                                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
+//                                    chat.putExtra("receiver", post.getId());
+//                                    chat.putExtra("sender", auth.getUid());
+//                                    startActivity(chat);
+//                                });
+//                                binding.textviewLog.addView(view);
+//                            }
+//                        }
+//                    }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                // Getting Post failed, log a message
+//                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+//            }
+//        });
+//    }
 }

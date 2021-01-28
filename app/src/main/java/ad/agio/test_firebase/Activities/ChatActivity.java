@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,8 +26,6 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference chatDatabase;
     private Chat mChat;
     private String senderName;
-    boolean check = false;
-    boolean check2 = false;
 
     private final ValueEventListener listener = new ValueEventListener() {
         @Override
@@ -65,8 +62,8 @@ public class ChatActivity extends AppCompatActivity {
         mChat.setChatId("hello");
 
         UserController controller = new UserController();
-        controller.readName(mChat.getSenderId(), name -> {
-            senderName = name;
+        controller.readUser(mChat.getSenderId(), user -> {
+            senderName = user.getUserName();
         });
 
         DatabaseReference database = FirebaseDatabase.getInstance().getReference()

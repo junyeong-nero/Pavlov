@@ -47,13 +47,11 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "createUserWithEmail:success");
                         Toast.makeText(getApplicationContext(), "Authentication success!",
                                 Toast.LENGTH_SHORT).show();
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        mUser.setId(user.getUid()); // UID!
-                        UserController userController = new UserController(this);
+                        UserController userController = new UserController();
+                        mUser.setId(mAuth.getCurrentUser().getUid()); // UID!
                         userController.writeNewUser(mUser);
                     } else {
                         // If sign in fails, display a message to the user.
