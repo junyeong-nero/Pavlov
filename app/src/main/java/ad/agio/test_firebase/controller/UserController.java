@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -28,12 +29,14 @@ public class UserController {
 
     private Context ctx;
     private DatabaseReference mDatabase;
+    private FirebaseFirestore mFirestore;
     private FirebaseAuth mAuth;
     static public String TAG = "UserController";
 
     public UserController(Context context) {
         this.ctx = context;
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
+        this.mFirestore = FirebaseFirestore.getInstance();
         this.mAuth = FirebaseAuth.getInstance();
     }
 
@@ -57,6 +60,7 @@ public class UserController {
                     Log.d(TAG, "저장을 실패했습니다.");
                 });
 
+        mFirestore.collection("users").add(user);
     }
 
     /**
@@ -85,11 +89,6 @@ public class UserController {
         });
     }
 
-    /**
-     * read userData from realtime database.
-     *
-     * @param id
-     */
     public void readName(String id, Consumer<String> consumer) {
         mDatabase.child("users")
                 .child(id)
@@ -114,9 +113,7 @@ public class UserController {
                 });
     }
 
-    public void editUserData(User user, String tag, String value){
-        mDatabase.child("users").child(user.getId()).child(tag).setValue(value);
-    }
+
 
     public void editUserData(String id, String tag, String value){
         mDatabase.child("users").child(id).child(tag).setValue(value);

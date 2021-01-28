@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -120,10 +121,12 @@ public class ChatActivity extends AppCompatActivity {
 
         binding.editText.setOnKeyListener((v, actionId, event) -> {
             if (actionId == KeyEvent.KEYCODE_ENTER) {
-                String temp = mChat.getText();
-                temp += "\n" + "[" + senderName + "]:" + binding.editText.getText();
+                String temp = mChat.getText() + "[" + senderName + "]:" + binding.editText.getText() + "\n";
                 mChat.setText(temp);
                 chatDatabase.setValue(mChat);
+
+                binding.editText.setText("");
+                binding.scroll.post(() -> binding.scroll.fullScroll(View.FOCUS_DOWN));
             }
             return false;
         });
@@ -131,6 +134,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.buttonSend.setOnClickListener(v -> {
             String temp = mChat.getText();
             temp += "\n" + "[" + senderName + "]:" + binding.editText.getText();
+            binding.editText.setText("");
             mChat.setText(temp);
             chatDatabase.setValue(mChat);
         });

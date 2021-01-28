@@ -27,8 +27,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        viewBinding = true
+        dataBinding = true
     }
 }
 
@@ -44,11 +45,13 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.2'
 
     //firebase
-    implementation platform('com.google.firebase:firebase-bom:26.2.0')
+    implementation platform('com.google.firebase:firebase-bom:26.3.0')
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-database:19.6.0'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-storage'
-    implementation 'com.google.firebase:firebase-database:19.6.0'
     implementation 'com.google.firebase:firebase-auth'
+
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // imagePicker

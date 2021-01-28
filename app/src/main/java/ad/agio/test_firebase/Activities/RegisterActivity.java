@@ -61,8 +61,6 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                     }
-
-                    // ...
                 });
     }
 }

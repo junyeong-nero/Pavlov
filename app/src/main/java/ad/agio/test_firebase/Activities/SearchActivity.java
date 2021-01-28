@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
@@ -21,6 +22,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.core.FirestoreClient;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -38,6 +42,7 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySearchBinding.inflate(getLayoutInflater());
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         setContentView(binding.getRoot());
 
         binding.buttonBack.setOnClickListener(v -> {
@@ -47,14 +52,37 @@ public class SearchActivity extends AppCompatActivity {
         binding.button.setOnClickListener(v -> {
             // 20 ~ 40대를 위한 lambda expression
             Predicate<User> condition = user -> user.getUserName().contains(binding.editQuery.getText().toString());
+            searchFromFirestore();
             search(condition);
+        });
+
+        binding.editQuery.setOnKeyListener((v, actionId, event) -> {
+            if (actionId == KeyEvent.KEYCODE_ENTER) {
+                Predicate<User> condition = user -> user.getUserName().contains(binding.editQuery.getText().toString());
+                search(condition);
+            }
+            return false;
         });
     }
 
     private DatabaseReference mDatabase;
 
+    public void searchFromFirestore() {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("users")
+                .get()
+                .addOnCompleteListener(snapshot -> {
+                    for (QueryDocumentSnapshot document : snapshot.getResult()) {
+                        Log.d(TAG, document.getId() + " => " + document.getData());
+                        User user = (User) document.getData();
+                        user.
+                    }
+                });
+
+    }
+
     public void search(Predicate<User> condition) {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        binding.textviewLog.removeAllViews();
         Query query = mDatabase.child("users").orderByChild("type");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -67,8 +95,8 @@ public class SearchActivity extends AppCompatActivity {
                                 Log.d(TAG, post.toString());
                                 LayoutInflater layoutInflater = getLayoutInflater();
                                 View view = layoutInflater.inflate(R.layout.inflate_profile, null);
-                                TextView nick = (TextView) view.findViewById(R.id.text_nickname);
-                                ImageButton button = (ImageButton) view.findViewById(R.id.button_chat);
+                                TextView nick = view.findViewById(R.id.text_nickname);
+                                ImageButton button = view.findViewById(R.id.button_chat);
                                 nick.setText(post.getUserName());
 
                                 FirebaseAuth auth = FirebaseAuth.getInstance();
