@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Test_Firebase.NoActionBar">
-        <activity android:name=".Activities.ChatActivity"></activity>
+        <activity android:name=".Activities.MatchActivity"></activity>
+        <activity android:name=".Activities.ChatActivity" />
         <activity android:name=".Activities.SearchActivity" />
         <activity android:name=".Activities.PermissionActivity">
             <intent-filter>

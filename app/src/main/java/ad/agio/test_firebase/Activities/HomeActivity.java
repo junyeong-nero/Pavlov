@@ -31,14 +31,9 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.buttonProfile.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
-        });
-
-        binding.buttonFloating.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, SearchActivity.class));
-            Snackbar.make(v, "floating button", 500).show();
-        });
+        binding.buttonProfile.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
+        binding.buttonFloating.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, SearchActivity.class)));
+        binding.buttonMain.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, MatchActivity.class)));
 
 
 //        BiConsumer<String, String> consumer = (title, content) -> {

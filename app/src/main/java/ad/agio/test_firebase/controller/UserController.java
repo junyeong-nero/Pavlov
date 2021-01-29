@@ -7,6 +7,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import ad.agio.test_firebase.domain.User;
@@ -30,19 +31,19 @@ public class UserController {
         return mAuth.getCurrentUser().getUid();
     }
 
+    public boolean isAuth() {
+        return mAuth.getCurrentUser() != null;
+    }
+
     public void checkValidUser() {
         try {
-            if (mAuth.getCurrentUser() == null)
+            if (!isAuth())
                 throw new IllegalAccessException("checkValidUser: it is not valid user");
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * write new user to realtime database
-     * @param user
-     */
     public void writeNewUser(User user) {
         mFirestore.collection("users")
                 .document(user.getId()).set(user);
@@ -54,12 +55,16 @@ public class UserController {
                 .get()
                 .addOnCompleteListener(snapshot -> {
                     if (snapshot.isSuccessful()) {
-                        for (QueryDocumentSnapshot post : snapshot.getResult()) {
+                        for (QueryDocumentSnapshot post : Objects.requireNonNull(snapshot.getResult())) {
                             consumer.accept(post.toObject(User.class));
                         }
                     }
                 })
-                .addOnFailureListener(e -> e.printStackTrace());
+                .addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    public void readMe(Consumer<User> consumer) {
+        readUser(UID, consumer);
     }
 
     public void readUser(String uid, Consumer<User> consumer) {
@@ -68,10 +73,7 @@ public class UserController {
                 .document(uid)
                 .get()
                 .addOnCompleteListener(snapshot -> {
-                    User user = snapshot.getResult().toObject(User.class);
-                    if (user.getId().equals(uid)) {
-                        consumer.accept(user);
-                    }
+                    consumer.accept(snapshot.getResult().toObject(User.class));
                 })
                 .addOnFailureListener(snapshot -> {
                     consumer.accept(null);
