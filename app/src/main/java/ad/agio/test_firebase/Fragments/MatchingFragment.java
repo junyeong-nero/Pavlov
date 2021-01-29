@@ -68,7 +68,7 @@ public class MatchingFragment extends Fragment {
         matchController.setChangeListener(new MatchController.EventListener() {
             @Override
             public void change(ArrayList<User> list) {
-//                list.forEach(user -> Log.d(TAG, user.getId()));
+                list.forEach(user -> Log.d(TAG, user.getId()));
                 User any = list.stream().findAny().get();
                 AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                 builder.setTitle("매칭성공")
@@ -78,7 +78,8 @@ public class MatchingFragment extends Fragment {
                             chat.putExtra("receiver", currentUser.getId());
                             chat.putExtra("sender", any.getId());
                             startActivity(chat);
-                        });
+                        })
+                        .show();
             }
 
         });
