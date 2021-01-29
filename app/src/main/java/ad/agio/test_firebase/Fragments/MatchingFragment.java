@@ -1,5 +1,7 @@
 package ad.agio.test_firebase.Fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +19,9 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
+import ad.agio.test_firebase.Activities.ChatActivity;
 import ad.agio.test_firebase.Activities.RegisterActivity;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.DataController;
@@ -39,7 +43,7 @@ public class MatchingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mAuth = FirebaseAuth.getInstance();
@@ -49,35 +53,56 @@ public class MatchingFragment extends Fragment {
 
     private User currentUser;
     private boolean isMatching = false;
+    private UserController userController;
+    private MatchController matchController;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        UserController userController = new UserController();
-        MatchController matchController = new MatchController();
+        userController = new UserController();
+        matchController = new MatchController();
 
-        userController.readMe(user -> {
-            currentUser = user;
-        });
+        userController.readMe(user -> currentUser = user);
 
         matchController.setChangeListener(new MatchController.EventListener() {
             @Override
             public void change(ArrayList<User> list) {
-                list.forEach(user -> Log.d(TAG, user.getId()));
+//                list.forEach(user -> Log.d(TAG, user.getId()));
+                User any = list.stream().findAny().get();
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("매칭성공")
+                        .setMessage(any.toString())
+                        .setPositiveButton("좋아요", (dialog, which) -> {
+                            Intent chat = new Intent(requireContext(), ChatActivity.class);
+                            chat.putExtra("receiver", currentUser.getId());
+                            chat.putExtra("sender", any.getId());
+                            startActivity(chat);
+                        });
             }
+
         });
 
         binding.buttonMatch.setOnClickListener(v -> {
             if(!isMatching) {
+                binding.textIndicator.setText("매칭중..");
                 matchController.addMatcher(currentUser);
                 // matchController.findAll(list -> list.forEach(user -> Log.d(TAG, user.getUserName())));
                 matchController.startMatching();
             } else {
+                binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
                 matchController.removeMatcher(currentUser);
                 matchController.pauseMatching();
             }
             isMatching = !isMatching;
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        matchController.pauseMatching();
+        matchController = null;
+        userController = null;
     }
 }
