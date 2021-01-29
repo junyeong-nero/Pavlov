@@ -2,6 +2,7 @@ package ad.agio.test_firebase.controller;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,8 +21,12 @@ public class MatchController {
     static public String TAG = "MatchController";
 
     private DatabaseReference mDatabase;
+    private UserController userController;
+    private AuthController authController;
 
     public MatchController() {
+        userController = new UserController();
+        authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
                 .child("matches");
     }
@@ -45,7 +50,7 @@ public class MatchController {
             ArrayList<User> list = new ArrayList<>();
             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 User post = snapshot.getValue(User.class);
-                if(post != null)
+                if(post != null && !post.getId().equals(authController.getUID()))
                     list.add(post);
             }
             changeListener.change(list);

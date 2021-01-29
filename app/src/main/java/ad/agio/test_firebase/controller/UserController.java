@@ -17,31 +17,13 @@ public class UserController {
     static public String TAG = "UserController";
 
     private final FirebaseFirestore mFirestore;
-    private final FirebaseAuth mAuth;
+    private AuthController authController;
     private String UID;
 
     public UserController() {
         this.mFirestore = FirebaseFirestore.getInstance();
-        this.mAuth = FirebaseAuth.getInstance();
-        this.UID = mAuth.getCurrentUser().getUid();
-    }
-
-    public String getUID() {
-        checkValidUser();
-        return mAuth.getCurrentUser().getUid();
-    }
-
-    public boolean isAuth() {
-        return mAuth.getCurrentUser() != null;
-    }
-
-    public void checkValidUser() {
-        try {
-            if (!isAuth())
-                throw new IllegalAccessException("checkValidUser: it is not valid user");
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        this.authController = new AuthController();
+        this.UID = authController.getUID();
     }
 
     public void writeNewUser(User user) {
@@ -50,8 +32,21 @@ public class UserController {
     }
 
     public void readAllUsers(Consumer<User> consumer) {
+//        mFirestore
+//                .collection("users")
+//                .get()
+//                .addOnCompleteListener(snapshot -> {
+//                    if (snapshot.isSuccessful()) {
+//                        for (QueryDocumentSnapshot post : Objects.requireNonNull(snapshot.getResult())) {
+//                            consumer.accept(post.toObject(User.class));
+//                        }
+//                    }
+//                })
+//                .addOnFailureListener(Throwable::printStackTrace);
+
         mFirestore
                 .collection("users")
+                .whereEqualTo("type", "public")
                 .get()
                 .addOnCompleteListener(snapshot -> {
                     if (snapshot.isSuccessful()) {
@@ -81,7 +76,7 @@ public class UserController {
     }
 
     public void readUser(Consumer<User> consumer) {
-        checkValidUser();
+        authController.checkValidUser();
         readUser(UID, consumer);
     }
 

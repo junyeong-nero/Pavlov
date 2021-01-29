@@ -10,6 +10,7 @@ import ad.agio.test_firebase.Fragments.LoginFragment;
 import ad.agio.test_firebase.Fragments.MatchingFragment;
 import ad.agio.test_firebase.Fragments.ProfileFragment;
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityMatchBinding;
 
@@ -23,7 +24,7 @@ public class MatchActivity extends AppCompatActivity {
         binding = ActivityMatchBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        UserController controller = new UserController();
+        AuthController controller = new AuthController();
         controller.checkValidUser();
 
         binding.buttonBack.setOnClickListener(v -> finish());

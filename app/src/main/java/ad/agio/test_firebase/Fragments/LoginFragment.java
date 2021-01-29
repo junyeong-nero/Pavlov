@@ -67,7 +67,7 @@ public class LoginFragment extends Fragment {
 
     private void loginAuth(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(getActivity(), task -> {
+                .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "signInWithEmail:success");
                         loginSuccess(email, password);

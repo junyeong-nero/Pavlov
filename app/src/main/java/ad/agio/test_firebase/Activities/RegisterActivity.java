@@ -35,11 +35,10 @@ public class RegisterActivity extends AppCompatActivity {
         binding.buttonRegister.setOnClickListener(v -> {
             mUser = new User();
             mUser.setEmail(binding.etEmail.getText().toString().trim());
-            mUser.setPassword(binding.etPw.getText().toString().trim());
             mUser.setAge(Integer.parseInt(binding.etAge.getText().toString().trim()));
             mUser.setUserName(binding.etUserName.getText().toString().trim());
 
-            createAuth(mUser.getEmail(), mUser.getPassword());
+            createAuth(mUser.getEmail(), binding.etPw.getText().toString().trim());
         });
     }
 

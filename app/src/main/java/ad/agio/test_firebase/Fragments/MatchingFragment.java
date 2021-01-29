@@ -69,17 +69,30 @@ public class MatchingFragment extends Fragment {
             @Override
             public void change(ArrayList<User> list) {
                 list.forEach(user -> Log.d(TAG, user.getId()));
-                User any = list.stream().findAny().get();
-                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                builder.setTitle("매칭성공")
-                        .setMessage(any.toString())
-                        .setPositiveButton("좋아요", (dialog, which) -> {
-                            Intent chat = new Intent(requireContext(), ChatActivity.class);
-                            chat.putExtra("receiver", currentUser.getId());
-                            chat.putExtra("sender", any.getId());
-                            startActivity(chat);
-                        })
-                        .show();
+                Optional<User> any = list.stream().findAny();
+                if (!any.isPresent()) {
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("그곳에는 아무도 없었다.")
+                            .setMessage("죄송해요. 매칭을 하는 사람이 없어요!")
+                            .setPositiveButton("미안해요", (dialog, which) -> {
+                                Intent chat = new Intent(requireContext(), ChatActivity.class);
+                                chat.putExtra("receiver", currentUser.getId());
+                                chat.putExtra("sender", any.get().getId());
+                                startActivity(chat);
+                            })
+                            .show();
+                } else {
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("매칭성공")
+                            .setMessage(any.toString())
+                            .setPositiveButton("좋아요", (dialog, which) -> {
+                                Intent chat = new Intent(requireContext(), ChatActivity.class);
+                                chat.putExtra("receiver", currentUser.getId());
+                                chat.putExtra("sender", any.get().getId());
+                                startActivity(chat);
+                            })
+                            .show();
+                }
             }
 
         });
