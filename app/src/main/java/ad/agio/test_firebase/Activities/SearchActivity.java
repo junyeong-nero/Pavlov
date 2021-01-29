@@ -11,9 +11,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.function.Predicate;
 
 import ad.agio.test_firebase.R;
@@ -74,7 +71,7 @@ public class SearchActivity extends AppCompatActivity {
                 ImageButton button = view.findViewById(R.id.button_chat);
                 button.setOnClickListener(v -> {
                     Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
-                    chat.putExtra("receiver", user.getId());
+                    chat.putExtra("receiver", user.getUid());
                     chat.putExtra("sender", authController.getUID());
                     startActivity(chat);
                     finish();

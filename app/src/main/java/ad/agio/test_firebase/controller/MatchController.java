@@ -2,7 +2,6 @@ package ad.agio.test_firebase.controller;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,7 +9,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -20,19 +18,19 @@ public class MatchController {
 
     static public String TAG = "MatchController";
 
-    private DatabaseReference mDatabase;
+    private DatabaseReference sendingDatabase;
     private UserController userController;
     private AuthController authController;
 
     public MatchController() {
         userController = new UserController();
         authController = new AuthController();
-        mDatabase = FirebaseDatabase.getInstance().getReference()
+        sendingDatabase = FirebaseDatabase.getInstance().getReference()
                 .child("matches");
     }
 
     public void addMatcher(User user) {
-        mDatabase.child(user.getId())
+        sendingDatabase.child(user.getUid())
                 .setValue(user)
                 .addOnSuccessListener(o -> {
                     // success
@@ -41,7 +39,7 @@ public class MatchController {
     }
 
     public void removeMatcher(User user) {
-        mDatabase.child(user.getId()).removeValue();
+        sendingDatabase.child(user.getUid()).removeValue();
     }
 
     private ValueEventListener listener = new ValueEventListener() {
@@ -50,10 +48,10 @@ public class MatchController {
             ArrayList<User> list = new ArrayList<>();
             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 User post = snapshot.getValue(User.class);
-                if(post != null && !post.getId().equals(authController.getUID()))
+                if(post != null && !post.getUid().equals(authController.getUID()))
                     list.add(post);
             }
-            changeListener.change(list);
+            sendListener.send(list);
         }
 
         @Override
@@ -62,29 +60,41 @@ public class MatchController {
         }
     };
 
-    private EventListener changeListener;
-    public void setChangeListener(EventListener listener) {
-        this.changeListener = listener;
+    private EventListener sendListener;
+    public void setSendListener(EventListener listener) {
+        this.sendListener = listener;
     }
 
     public abstract static class EventListener {
-        protected abstract void change(ArrayList<User> list);
+        protected abstract void send(ArrayList<User> list);
     }
 
     public void startMatching() {
-        mDatabase.addValueEventListener(listener);
+        sendingDatabase.addValueEventListener(listener);
+    }
+    public void pauseMatching() {
+        sendingDatabase.removeEventListener(listener);
     }
 
-    public void pauseMatching() {
-        mDatabase.removeEventListener(listener);
+    public void matched() {
+        pauseMatching();
+        sendingDatabase = null;
     }
 
     public void findAll(Consumer<ArrayList<User>> consumer) {
         findUserBy(user -> true, consumer);
     }
 
+    public void findUserByName(String name, Consumer<ArrayList<User>> consumer) {
+        findUserBy(user -> user.getUserName().equals(name), consumer);
+    }
+
+    public void findUserByUid(String name, Consumer<ArrayList<User>> consumer) {
+        findUserBy(user -> user.getUid().equals(name), consumer);
+    }
+
     public void findUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
-        mDatabase.get()
+        sendingDatabase.get()
                 .addOnSuccessListener(dataSnapshot -> {
                     ArrayList<User> list = new ArrayList<>();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {

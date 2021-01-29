@@ -1,33 +1,25 @@
 package ad.agio.test_firebase.Fragments;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 import ad.agio.test_firebase.Activities.ChatActivity;
-import ad.agio.test_firebase.Activities.RegisterActivity;
-import ad.agio.test_firebase.R;
-import ad.agio.test_firebase.controller.DataController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
-import ad.agio.test_firebase.databinding.FragmentLoginBinding;
 import ad.agio.test_firebase.databinding.FragmentMatchingBinding;
 import ad.agio.test_firebase.domain.User;
 
@@ -65,19 +57,19 @@ public class MatchingFragment extends Fragment {
 
         userController.readMe(user -> currentUser = user);
 
-        matchController.setChangeListener(new MatchController.EventListener() {
+        matchController.setSendListener(new MatchController.EventListener() {
             @Override
-            public void change(ArrayList<User> list) {
-                list.forEach(user -> Log.d(TAG, user.getId()));
+            public void send(ArrayList<User> list) {
+                list.forEach(user -> Log.d(TAG, user.getUid()));
                 Optional<User> any = list.stream().findAny();
-                if (!any.isPresent()) {
+                if (currentUser != null && !any.isPresent()) {
                     new AlertDialog.Builder(requireContext())
                             .setTitle("그곳에는 아무도 없었다.")
                             .setMessage("죄송해요. 매칭을 하는 사람이 없어요!")
                             .setPositiveButton("미안해요", (dialog, which) -> {
                                 Intent chat = new Intent(requireContext(), ChatActivity.class);
-                                chat.putExtra("receiver", currentUser.getId());
-                                chat.putExtra("sender", any.get().getId());
+                                chat.putExtra("receiver", currentUser.getUid());
+                                chat.putExtra("sender", any.get().getUid());
                                 startActivity(chat);
                             })
                             .show();
@@ -86,10 +78,7 @@ public class MatchingFragment extends Fragment {
                             .setTitle("매칭성공")
                             .setMessage(any.toString())
                             .setPositiveButton("좋아요", (dialog, which) -> {
-                                Intent chat = new Intent(requireContext(), ChatActivity.class);
-                                chat.putExtra("receiver", currentUser.getId());
-                                chat.putExtra("sender", any.get().getId());
-                                startActivity(chat);
+
                             })
                             .show();
                 }
@@ -98,17 +87,19 @@ public class MatchingFragment extends Fragment {
         });
 
         binding.buttonMatch.setOnClickListener(v -> {
-            if(!isMatching) {
-                binding.textIndicator.setText("매칭중..");
-                matchController.addMatcher(currentUser);
-                // matchController.findAll(list -> list.forEach(user -> Log.d(TAG, user.getUserName())));
-                matchController.startMatching();
-            } else {
-                binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                matchController.removeMatcher(currentUser);
-                matchController.pauseMatching();
+            if (currentUser != null) {
+                if(!isMatching) {
+                    binding.textIndicator.setText("매칭중..");
+                    matchController.addMatcher(currentUser);
+                    // matchController.findAll(list -> list.forEach(user -> Log.d(TAG, user.getUserName())));
+                    matchController.startMatching();
+                } else {
+                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                    matchController.removeMatcher(currentUser);
+                    matchController.pauseMatching();
+                }
+                isMatching = !isMatching;
             }
-            isMatching = !isMatching;
         });
     }
 

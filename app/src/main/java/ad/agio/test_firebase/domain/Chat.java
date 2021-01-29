@@ -7,19 +7,12 @@ public class Chat {
     private String chatId;
 
     public String getChatId() {
-        return chatId;
+        return senderId + "|" + receiverId;
     }
 
-    public void setChatId(String chatId) {
-        this.chatId = chatId;
+    public String getReverseChatId() {
+        return receiverId + "|" + senderId;
     }
-//    public String getChatId() {
-//        return senderId + "|" + receiverId;
-//    }
-//
-//    public String getReverseChatId() {
-//        return receiverId + "|" + senderId;
-//    }
 
     public String getSenderId() {
         return senderId;

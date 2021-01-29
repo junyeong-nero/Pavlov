@@ -1,9 +1,5 @@
 package ad.agio.test_firebase.controller;
 
-import android.util.Log;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -28,7 +24,7 @@ public class UserController {
 
     public void writeNewUser(User user) {
         mFirestore.collection("users")
-                .document(user.getId()).set(user);
+                .document(user.getUid()).set(user);
     }
 
     public void readAllUsers(Consumer<User> consumer) {
@@ -87,7 +83,7 @@ public class UserController {
 
     public void updateUser(User user) {
         mFirestore.collection("users")
-                .document(user.getId())
+                .document(user.getUid())
                 .set(user);
     }
 }

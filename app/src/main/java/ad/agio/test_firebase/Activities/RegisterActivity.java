@@ -7,7 +7,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityRegisterBinding;
@@ -50,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Authentication success!",
                                 Toast.LENGTH_SHORT).show();
                         UserController userController = new UserController();
-                        mUser.setId(mAuth.getCurrentUser().getUid()); // UID!
+                        mUser.setUid(mAuth.getCurrentUser().getUid()); // UID!
                         userController.writeNewUser(mUser);
                     } else {
                         // If sign in fails, display a message to the user.

@@ -8,9 +8,18 @@ public class User {
     private String userName;
     private String email;
     private int age;
-    private String id;
+    private String uid;
     private String profile = "";
     private String type = "private";
+    private boolean isMatching = false;
+
+    public boolean isMatching() {
+        return isMatching;
+    }
+
+    public void setMatching(boolean matching) {
+        isMatching = matching;
+    }
 
     public String getType() {
         return type;
@@ -28,12 +37,12 @@ public class User {
         this.profile = profile;
     }
 
-    public String getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public int getAge() {
@@ -70,7 +79,7 @@ public class User {
                 "userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", age='" + age + '\'' +
-                ", id='" + id + '\'' +
+                ", id='" + uid + '\'' +
                 '}';
     }
 }
