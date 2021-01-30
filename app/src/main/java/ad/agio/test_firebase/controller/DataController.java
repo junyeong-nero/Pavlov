@@ -3,9 +3,13 @@ package ad.agio.test_firebase.controller;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class DataController {
     final static public String TAG = "DataController";
+    public void LOGGING(String text) {
+        Log.d(TAG, text);
+    }
 
     private Context ctx;
     private SharedPreferences preferences;

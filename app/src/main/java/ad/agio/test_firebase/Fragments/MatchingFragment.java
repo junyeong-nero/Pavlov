@@ -1,6 +1,7 @@
 package ad.agio.test_firebase.Fragments;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
@@ -85,13 +89,21 @@ public class MatchingFragment extends Fragment {
                     binding.textIndicator.setText("매칭중..");
                     matchController.startMatching(
                             user -> true,
-                            list -> new AlertDialog.Builder(requireContext())
-                            .setTitle("매칭성공")
-                            .setMessage(list.stream().findAny().get().getUserName())
-                            .setPositiveButton("좋아요", (dialog, which) -> {
+                            list -> {
+                                CharSequence[] items = new CharSequence[list.size()];
+                                for (int i = 0; i < items.length; i++)
+                                    items[i] = list.get(i).getUserName();
 
-                            })
-                            .show());
+                                new AlertDialog.Builder(requireContext())
+                                        .setTitle("매칭성공")
+                                        .setItems(items, (dialog, which) -> {
+                                            matchController.match(list.get(which));
+                                        })
+                                        .setNegativeButton("안할래용", (dialog, which) -> {
+
+                                        })
+                                        .show();
+                            });
                 } else {
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
                     matchController.pauseReceiving();

@@ -2,6 +2,7 @@ package ad.agio.test_firebase.controller;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -64,9 +65,9 @@ public class UserController {
         readUser(UID, consumer);
     }
 
-    public void updateUser(String uid, String tag, String value) {
+    public void updateUser(String tag, Object value) {
         mFirestore.collection("users")
-                .document(uid).update(tag, value);
+                .document(authController.getUid()).update(tag, value);
     }
 
     public void updateUser(User user) {

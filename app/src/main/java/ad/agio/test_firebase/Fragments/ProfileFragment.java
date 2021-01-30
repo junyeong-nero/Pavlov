@@ -75,7 +75,7 @@ public class ProfileFragment extends Fragment {
                     .show(uri -> {
                         binding.imageProfile.setImageURI(uri);
                         UserController userController = new UserController();
-                        userController.updateUser(mAuth.getUid(), "profile", uri.getPath());
+                        userController.updateUser("profile", uri.getPath());
                         Log.d(TAG, uri.getPath());
                     });
         });

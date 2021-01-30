@@ -11,11 +11,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.utils.Utils;
 
 public class MatchController {
 
@@ -65,8 +67,7 @@ public class MatchController {
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             String value = snapshot.child("matcher").getValue(String.class);
             if(value != null && !value.equals("")) {
-                LOGGING(value); // TODO add relation is need
-                receive(snapshot.getValue(User.class));
+                receive(value);
             }
         }
 
@@ -92,8 +93,26 @@ public class MatchController {
         });
     }
 
+    private ValueEventListener confirmListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            String post = snapshot.getValue(String.class);
+            assert post != null;
+            if (post.equals("success")) {
+                LOGGING("match: success");
+            } else if (post.equals("fail")) {
+                LOGGING("match: fail");
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+
+        }
+    };
+
     public void match(User user) {
-        String chatId = "hello"; // TODO 랜덤 chatId generator
+        String chatId = Utils.randomWord(); // TODO 랜덤 chatId generator
 
         mDatabase.child(user.getUid()).child("match").setValue(chatId); // 내꺼다 찜하기
 
@@ -108,27 +127,18 @@ public class MatchController {
         db.setValue(chat);
 
         // Check chat's match child
-        db.child("match").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String post = snapshot.getValue(String.class);
-                assert post != null;
-                if (post.equals("success")) {
-                    LOGGING("match: success");
-                } else if(post.equals("fail")) {
-                    LOGGING("match: fail");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        db.child("match").addValueEventListener(confirmListener);
+        stopReceiving();
    }
 
-    public void receive(User user) {
-
+    public void receive(String chatId) {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference()
+                .child("chat")
+                .child(chatId);
+        db.child("match").setValue("success"); // 성공 메세지 입력
+        db.child("users").child(currentUser.getUid()).setValue(currentUser); // 사용자 데이터 입력
+//        userController.updateUser(); TODO 채팅방 저장
+        stopReceiving();
     }
 
     public void startReceiving(Consumer<ArrayList<User>> consumer) {
