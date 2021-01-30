@@ -1,9 +1,7 @@
 package ad.agio.test_firebase.Fragments;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +12,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-import ad.agio.test_firebase.Activities.ChatActivity;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentMatchingBinding;
@@ -89,9 +83,8 @@ public class MatchingFragment extends Fragment {
             if (currentUser != null) {
                 if(!isMatching) {
                     binding.textIndicator.setText("매칭중..");
-                    // matchController.addMatcher();
-                    // matchController.findAll(list -> list.forEach(user -> Log.d(TAG, user.getUserName())));
-                    matchController.startMatching(user -> true,
+                    matchController.startMatching(
+                            user -> true,
                             list -> new AlertDialog.Builder(requireContext())
                             .setTitle("매칭성공")
                             .setMessage(list.stream().findAny().get().getUserName())
@@ -101,8 +94,7 @@ public class MatchingFragment extends Fragment {
                             .show());
                 } else {
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.removeMatcher();
-                    matchController.pauseMatching();
+                    matchController.pauseReceiving();
                 }
                 isMatching = !isMatching;
             }
@@ -112,7 +104,7 @@ public class MatchingFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        matchController.pauseMatching();
+        matchController.stopReceiving();
         matchController = null;
         userController = null;
     }

@@ -1,33 +1,21 @@
 package ad.agio.test_firebase.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Chat {
-    private String text = "";
-    private String senderId;
-    private String receiverId;
-    private String chatId;
+    public String text = "";
+    public String chatId = "";
+    public String chatName = "";
+    public String match = "";
+    public HashMap<String, User> users = new HashMap<>();
 
     public String getChatId() {
-        return senderId + "|" + receiverId;
+        return chatId;
     }
 
-    public String getReverseChatId() {
-        return receiverId + "|" + senderId;
-    }
-
-    public String getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
-    }
-
-    public String getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(String receiverId) {
-        this.receiverId = receiverId;
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 
     public String getText() {

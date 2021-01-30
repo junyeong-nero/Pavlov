@@ -57,13 +57,8 @@ public class ChatActivity extends AppCompatActivity {
         String sender = intent.getStringExtra("sender");
 
         mChat = new Chat();
-        mChat.setReceiverId(receiver);
-        mChat.setSenderId(sender);
-
-        UserController controller = new UserController();
-        controller.readUser(mChat.getSenderId(), user -> {
-            senderName = user.getUserName();
-        });
+        mChat.chatName = "chat for test";
+        mChat.chatId = "test";
 
         DatabaseReference database = FirebaseDatabase.getInstance().getReference()
                 .child("chat");
