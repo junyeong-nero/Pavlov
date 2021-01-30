@@ -12,7 +12,7 @@ public class AuthController {
         this.mAuth = FirebaseAuth.getInstance();
     }
 
-    public String getUID() {
+    public String getUid() {
         checkValidUser();
         return mAuth.getCurrentUser().getUid();
     }

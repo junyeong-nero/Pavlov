@@ -54,48 +54,54 @@ public class MatchingFragment extends Fragment {
 
         userController = new UserController();
         matchController = new MatchController();
-
         userController.readMe(user -> currentUser = user);
 
-        matchController.setSendListener(new MatchController.EventListener() {
-            @Override
-            public void send(ArrayList<User> list) {
-                list.forEach(user -> Log.d(TAG, user.getUid()));
-                Optional<User> any = list.stream().findAny();
-                if (currentUser != null && !any.isPresent()) {
-                    new AlertDialog.Builder(requireContext())
-                            .setTitle("그곳에는 아무도 없었다.")
-                            .setMessage("죄송해요. 매칭을 하는 사람이 없어요!")
-                            .setPositiveButton("미안해요", (dialog, which) -> {
-                                Intent chat = new Intent(requireContext(), ChatActivity.class);
-                                chat.putExtra("receiver", currentUser.getUid());
-                                chat.putExtra("sender", any.get().getUid());
-                                startActivity(chat);
-                            })
-                            .show();
-                } else {
-                    new AlertDialog.Builder(requireContext())
-                            .setTitle("매칭성공")
-                            .setMessage(any.toString())
-                            .setPositiveButton("좋아요", (dialog, which) -> {
-
-                            })
-                            .show();
-                }
-            }
-
-        });
-
+//        matchController.setReceiveListener(new MatchController.EventListener() {
+//            @Override
+//            public void receive(ArrayList<User> list) {
+//                list.forEach(user -> Log.d(TAG, user.getUid()));
+//                Optional<User> any = list.stream().findAny();
+//                if (currentUser != null && !any.isPresent()) {
+//                    new AlertDialog.Builder(requireContext())
+//                            .setTitle("그곳에는 아무도 없었다.")
+//                            .setMessage("죄송해요. 매칭을 하는 사람이 없어요!")
+//                            .setPositiveButton("미안해요", (dialog, which) -> {
+//                                Intent chat = new Intent(requireContext(), ChatActivity.class);
+//                                chat.putExtra("receiver", currentUser.getUid());
+//                                chat.putExtra("sender", any.get().getUid());
+//                                startActivity(chat);
+//                            })
+//                            .show();
+//                } else {
+//                    new AlertDialog.Builder(requpireContext())
+//                            .setTitle("매칭성공")
+//                            .setMessage(any.toString())
+//                            .setPositiveButton("좋아요", (dialog, which) -> {
+//
+//                            })
+//                            .show();
+//                }
+//            }
+//
+//        });
+//
         binding.buttonMatch.setOnClickListener(v -> {
             if (currentUser != null) {
                 if(!isMatching) {
                     binding.textIndicator.setText("매칭중..");
-                    matchController.addMatcher(currentUser);
+                    // matchController.addMatcher();
                     // matchController.findAll(list -> list.forEach(user -> Log.d(TAG, user.getUserName())));
-                    matchController.startMatching();
+                    matchController.startMatching(user -> true,
+                            list -> new AlertDialog.Builder(requireContext())
+                            .setTitle("매칭성공")
+                            .setMessage(list.stream().findAny().get().getUserName())
+                            .setPositiveButton("좋아요", (dialog, which) -> {
+
+                            })
+                            .show());
                 } else {
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.removeMatcher(currentUser);
+                    matchController.removeMatcher();
                     matchController.pauseMatching();
                 }
                 isMatching = !isMatching;

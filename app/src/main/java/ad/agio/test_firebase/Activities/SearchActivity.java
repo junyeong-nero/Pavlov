@@ -72,7 +72,7 @@ public class SearchActivity extends AppCompatActivity {
                 button.setOnClickListener(v -> {
                     Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
                     chat.putExtra("receiver", user.getUid());
-                    chat.putExtra("sender", authController.getUID());
+                    chat.putExtra("sender", authController.getUid());
                     startActivity(chat);
                     finish();
                 });

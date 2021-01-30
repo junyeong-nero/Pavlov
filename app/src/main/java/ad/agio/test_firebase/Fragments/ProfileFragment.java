@@ -83,7 +83,6 @@ public class ProfileFragment extends Fragment {
 
     public void setProfile(User user) {
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
-        Log.d(TAG, profile);
         if(!profile.equals("")) {
             binding.imageProfile.setImageURI(Uri.parse(profile));
         }

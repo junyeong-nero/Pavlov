@@ -59,7 +59,6 @@ public class ChatActivity extends AppCompatActivity {
         mChat = new Chat();
         mChat.setReceiverId(receiver);
         mChat.setSenderId(sender);
-        mChat.setChatId("hello");
 
         UserController controller = new UserController();
         controller.readUser(mChat.getSenderId(), user -> {

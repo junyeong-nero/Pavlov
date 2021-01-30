@@ -19,7 +19,7 @@ public class UserController {
     public UserController() {
         this.mFirestore = FirebaseFirestore.getInstance();
         this.authController = new AuthController();
-        this.UID = authController.getUID();
+        this.UID = authController.getUid();
     }
 
     public void writeNewUser(User user) {
@@ -28,18 +28,6 @@ public class UserController {
     }
 
     public void readAllUsers(Consumer<User> consumer) {
-//        mFirestore
-//                .collection("users")
-//                .get()
-//                .addOnCompleteListener(snapshot -> {
-//                    if (snapshot.isSuccessful()) {
-//                        for (QueryDocumentSnapshot post : Objects.requireNonNull(snapshot.getResult())) {
-//                            consumer.accept(post.toObject(User.class));
-//                        }
-//                    }
-//                })
-//                .addOnFailureListener(Throwable::printStackTrace);
-
         mFirestore
                 .collection("users")
                 .whereEqualTo("type", "public")
