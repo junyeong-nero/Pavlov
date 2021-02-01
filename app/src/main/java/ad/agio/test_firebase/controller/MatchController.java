@@ -11,7 +11,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -22,6 +21,7 @@ import ad.agio.test_firebase.utils.Utils;
 public class MatchController {
 
     static public String TAG = "MatchController";
+
     public void LOGGING(String text) {
         Log.d(TAG, text);
     }
@@ -31,8 +31,6 @@ public class MatchController {
     private UserController userController;
     private AuthController authController;
     private User currentUser;
-    private Consumer<ArrayList<User>> receiveConsumer;
-
 
     public MatchController() {
         userController = new UserController();
@@ -62,12 +60,13 @@ public class MatchController {
         childDatabase.removeValue();
     }
 
-    private ValueEventListener listener = new ValueEventListener() {
+    // receive
+    private final ValueEventListener listener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             String value = snapshot.child("matcher").getValue(String.class);
-            if(value != null && !value.equals("")) {
-                receive(value);
+            if (value != null && !value.equals("")) {
+                preReceive(value);
             }
         }
 
@@ -77,31 +76,16 @@ public class MatchController {
         }
     };
 
-    private boolean isMatching = false;
-
-    public void startMatching(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
-        findUserBy(condition, list -> { // 일단 matchers 중에서 조건을 만족하는 사람을 찾아본다.
-            if(list.isEmpty()) {
-                // 만족하는 사람이 없으면,
-                isMatching = true;
-                startReceiving(consumer);
-            } else {
-                // 만족하는 사람이 있으면, consumer 실행
-                isMatching = false;
-                consumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
-            }
-        });
-    }
-
-    private ValueEventListener confirmListener = new ValueEventListener() {
+    // confirm
+    private final ValueEventListener confirmListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             String post = snapshot.getValue(String.class);
             assert post != null;
             if (post.equals("success")) {
-                LOGGING("match: success");
+                LOGGING("match: 상대방이 수락함");
             } else if (post.equals("fail")) {
-                LOGGING("match: fail");
+                LOGGING("match: 상대방이 거절함");
             }
         }
 
@@ -111,43 +95,76 @@ public class MatchController {
         }
     };
 
-    public void match(User user) {
-        String chatId = Utils.randomWord(); // TODO 랜덤 chatId generator
+    private Chat mChat;
+    private boolean isMatching = false;
+    private Consumer<ArrayList<User>> matchConsumer = list -> LOGGING(list.toString());
 
+    public void startMatching(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
+        matchConsumer = consumer;
+        findUserBy(condition, list -> { // 일단 matchers 중에서 조건을 만족하는 사람을 찾아본다.
+            if (list.isEmpty()) {
+                // 만족하는 사람이 없으면,
+                isMatching = true;
+                startReceiving();
+            } else {
+                // 만족하는 사람이 있으면, consumer 실행
+                isMatching = false;
+                matchConsumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
+            }
+        });
+    }
+
+    public void match(User user) {
+        // stopReceiving();
+        String chatId = Utils.randomWord(); // TODO 랜덤 chatId generator
         mDatabase.child(user.getUid()).child("match").setValue(chatId); // 내꺼다 찜하기
 
-        Chat chat = new Chat();
-        chat.chatId = chatId;
-        chat.chatName = currentUser.getUserName() + "와 " + user.getUserName() + "의 채팅방";
-        chat.users.put(currentUser.getUid(), currentUser); // 자기 데이터 추가
+        mChat = new Chat();
+        mChat.chatId = chatId;
+        mChat.chatName = currentUser.getUserName() + "와 " + user.getUserName() + "의 채팅방";
+        mChat.users.put(currentUser.getUid(), currentUser); // 자기 데이터 추가
 
         DatabaseReference db = FirebaseDatabase.getInstance().getReference()
                 .child("chat")
-                .child(chat.chatId);
-        db.setValue(chat);
+                .child(mChat.chatId);
+        db.setValue(mChat);
 
         // Check chat's match child
         db.child("match").addValueEventListener(confirmListener);
-        stopReceiving();
-   }
+    }
+
+    public void preReceive(String chatId) {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference()
+                .child("chat");
+
+        db.child(chatId)
+                .get()
+                .addOnSuccessListener(dataSnapshot -> mChat = dataSnapshot.getValue(Chat.class));
+
+        ArrayList<User> list = new ArrayList<>();
+        for (String key : mChat.users.keySet())
+            if (!key.equals(authController.getUid()))
+                list.add(mChat.users.get(key));
+
+        matchConsumer.accept(list);
+    }
+
 
     public void receive(String chatId) {
+        stopReceiving();
         DatabaseReference db = FirebaseDatabase.getInstance().getReference()
                 .child("chat")
                 .child(chatId);
         db.child("match").setValue("success"); // 성공 메세지 입력
         db.child("users").child(currentUser.getUid()).setValue(currentUser); // 사용자 데이터 입력
-//        userController.updateUser(); TODO 채팅방 저장
-        stopReceiving();
     }
 
-    public void startReceiving(Consumer<ArrayList<User>> consumer) {
-        receiveConsumer = consumer;
+    public void startReceiving() {
         addDataWithListener();
     }
 
     public void pauseReceiving() {
-        if(isMatching) {
+        if (isMatching) {
             removeData();
         }
     }
@@ -168,8 +185,7 @@ public class MatchController {
                     ArrayList<User> list = new ArrayList<>();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         User post = snapshot.getValue(User.class);
-                        String matcher = snapshot.child("matcher").getValue(String.class);
-                        if(condition.test(post) && !matcher.equals("already"))
+                        if (condition.test(post))
                             list.add(post);
                     }
                     consumer.accept(list);
