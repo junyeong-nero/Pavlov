@@ -31,9 +31,10 @@ public class MatchController {
     private AuthController authController;
     private User currentUser;
 
-    public boolean isMatching = false;
+    public boolean isMatching;
 
     public MatchController() {
+        isMatching = false;
         userController = new UserController();
         authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
@@ -53,6 +54,7 @@ public class MatchController {
         childDatabase
                 .setValue(currentUser)
                 .addOnSuccessListener(task -> childDatabase
+                        .child("matcher")
                         .addValueEventListener(receiveListener));
     }
 
@@ -65,8 +67,8 @@ public class MatchController {
     private final ValueEventListener receiveListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
-            String value = snapshot.child("matcher").getValue(String.class);
-            if (value != null && !value.equals("")) {
+            String value = snapshot.getValue(String.class);
+            if (snapshot.exists() && !value.equals("")) {
                 preReceive(value);
             }
         }
@@ -83,10 +85,11 @@ public class MatchController {
     public void startMatching(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
         matchConsumer = consumer;
         findUserBy(condition, list -> { // 일단 matchers 중에서 조건을 만족하는 사람을 찾아본다.
-            if (list.isEmpty()) { // 만족하는 사람이 없으면
+            if (list == null || list.isEmpty()) { // 만족하는 사람이 없으면
                 startReceiving(); // receiver 작동
             } else {
                 // 만족하는 사람이 있으면, consumer 실행
+                LOGGING("사람이 있어요");
                 isMatching = false;
                 matchConsumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
             }
@@ -109,12 +112,12 @@ public class MatchController {
             matchResult(result);
             chatController.removeConfirmListener(); // 삭 - 제
         }); // receiver 이 허락을 하는지 체크.
-
     }
 
     public void matchResult(String result) {
         if (result.equals("success")) {
             LOGGING("matchResult: success");
+            pauseReceiving();
             // TODO 성공시 매칭장소, 시간, 견종등을 나타내는 액티비티로 이동
             // TODO chatId 저장.
         } else if (result.equals("fail")) {
@@ -131,6 +134,8 @@ public class MatchController {
     }
 
     public void preReceive(String chatId) {
+        if(!isMatching)
+            throw new IllegalArgumentException("why!");
         ChatController chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> matchConsumer.accept(users));
@@ -150,19 +155,15 @@ public class MatchController {
     }
 
     public void pauseReceiving() {
-        removeData();
         isMatching = false;
-    }
-
-    public void stopReceiving() {
         removeData();
-        isMatching = false;
-        mDatabase = null;
     }
 
     public void findUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
-        mDatabase.get()
-                .addOnSuccessListener(dataSnapshot -> {
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
                     ArrayList<User> list = new ArrayList<>();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         User post = snapshot.getValue(User.class);
@@ -170,7 +171,26 @@ public class MatchController {
                             list.add(post);
                     }
                     consumer.accept(list);
-                })
-                .addOnFailureListener(Throwable::printStackTrace);
+                } else {
+                    consumer.accept(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                LOGGING(error.getMessage());
+            }
+        });
+//        mDatabase.get()
+//                .addOnSuccessListener(dataSnapshot -> {
+//                    ArrayList<User> list = new ArrayList<>();
+//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                        User post = snapshot.getValue(User.class);
+//                        if (condition.test(post))
+//                            list.add(post);
+//                    }
+//                    consumer.accept(list);
+//                })
+//                .addOnFailureListener(Throwable::printStackTrace);
     }
 }

@@ -20,7 +20,9 @@ public class ChatController {
 
     public ChatController(String chatId) {
         this.chatId = chatId;
-        this.db = FirebaseDatabase.getInstance().getReference().child("chat").child(chatId);
+        this.db = FirebaseDatabase.getInstance().getReference()
+                .child("chat")
+                .child(chatId);
     }
 
     public void writeChat(Chat chat) {

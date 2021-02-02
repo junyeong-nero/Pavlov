@@ -1,24 +1,17 @@
 package ad.agio.test_firebase.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import com.google.api.Logging;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.MatchController;
@@ -29,6 +22,11 @@ import ad.agio.test_firebase.domain.Notification;
 import ad.agio.test_firebase.domain.User;
 
 public class HomeActivity extends AppCompatActivity {
+
+    String TAG = "HomeActivity";
+    public void LOGGING(String text) {
+        Log.d(TAG, text);
+    }
 
     private ActivityHomeBinding binding;
 
@@ -58,21 +56,27 @@ public class HomeActivity extends AppCompatActivity {
         userController = new UserController();
         userController.readMe(user -> {
             currentUser = user;
+            binding.buttonMain.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(getApplicationContext(), R.color.primary)
+            ));
         });
 
+        matchController = new MatchController();
         binding.buttonMain.setOnClickListener(v -> {
-            matchController = new MatchController();
+            if(matchController == null)
+                matchController = new MatchController();
             if (currentUser != null) {
                 if(!matchController.isMatching) {
+                    LOGGING("match: start");
                     binding.textIndicator.setText("매칭중..");
                     matchController.startMatching(
-                            user -> true,
+                            user -> true, // condition
                             list -> {
                                 CharSequence[] items = new CharSequence[list.size()];
                                 for (int i = 0; i < items.length; i++)
                                     items[i] = list.get(i).getUserName();
 
-                                new AlertDialog.Builder(getApplicationContext())
+                                new AlertDialog.Builder(HomeActivity.this)
                                         .setTitle("매칭성공")
                                         .setItems(items, (dialog, which) -> {
                                             if(matchController.isMatching) // receiving 하는 중
@@ -81,11 +85,17 @@ public class HomeActivity extends AppCompatActivity {
                                                 matchController.match(list.get(which));
                                         })
                                         .setNegativeButton("안할래용", (dialog, which) -> {
+                                            binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                                            matchController.pauseReceiving();
+                                        })
+                                        .setOnDismissListener(dialog -> {
+                                            binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
                                             matchController.pauseReceiving();
                                         })
                                         .show();
                             });
                 } else {
+                    LOGGING("match: finish");
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
                     matchController.pauseReceiving();
                 }
@@ -97,7 +107,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         if(matchController != null)
-            matchController.stopReceiving();
+            matchController.pauseReceiving();
         matchController = null;
         userController = null;
     }
@@ -105,7 +115,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         if(matchController != null)
-            matchController.stopReceiving();
+            matchController.pauseReceiving();
         matchController = null;
         userController = null;
         super.onStop();
