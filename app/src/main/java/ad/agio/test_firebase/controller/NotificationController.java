@@ -21,28 +21,20 @@ import ad.agio.test_firebase.domain.User;
 public class NotificationController {
 
     final static public String TAG = "NotificationController";
+    public void LOGGING(String text) {
+        Log.d(TAG, text);
+    }
 
-    private DatabaseReference mDatabase;
+    private final DatabaseReference mDatabase;
 
-    public NotificationController(Consumer<Notification> consumer) {
+    public NotificationController() {
         this.mDatabase = FirebaseDatabase.getInstance().getReference().child("notification");
-        this.mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                Notification notification = dataSnapshot.getValue(Notification.class);
-                if(notification != null){
-                    consumer.accept(notification);
-                } else {
-                    Log.d(TAG, "데이터가 없습니다.");
-                }
-            }
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-            }
-        });
+    public void readNotification(Consumer<Notification> consumer) {
+        mDatabase.get()
+                .addOnSuccessListener(dataSnapshot -> consumer.accept(dataSnapshot
+                        .getValue(Notification.class)))
+                .addOnFailureListener(e -> LOGGING("readNotification: read failed"));
     }
 }

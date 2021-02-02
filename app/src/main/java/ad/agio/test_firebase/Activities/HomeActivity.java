@@ -3,9 +3,13 @@ package ad.agio.test_firebase.Activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
@@ -16,7 +20,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;
+import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
 import ad.agio.test_firebase.domain.Notification;
 import ad.agio.test_firebase.domain.User;
@@ -33,19 +40,74 @@ public class HomeActivity extends AppCompatActivity {
 
         binding.buttonProfile.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
         binding.buttonFloating.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, SearchActivity.class)));
-        binding.buttonMain.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, MatchActivity.class)));
 
-
-//        BiConsumer<String, String> consumer = (title, content) -> {
-//            binding.textTitle.setText(title);
-//            binding.textContent.setText(content);
-//        };
-
-        Consumer<Notification> consumer = notification -> {
+        NotificationController controller = new NotificationController();
+        controller.readNotification(notification -> {
             binding.textTitle.setText(notification.getTitle());
             binding.textContent.setText(notification.getContent());
-        };
+        });
 
-        NotificationController controller = new NotificationController(consumer);
+        setting();
+    }
+
+    private User currentUser;
+    private UserController userController;
+    private MatchController matchController;
+
+    public void setting() {
+        userController = new UserController();
+        userController.readMe(user -> {
+            currentUser = user;
+        });
+
+        binding.buttonMain.setOnClickListener(v -> {
+            matchController = new MatchController();
+            if (currentUser != null) {
+                if(!matchController.isMatching) {
+                    binding.textIndicator.setText("매칭중..");
+                    matchController.startMatching(
+                            user -> true,
+                            list -> {
+                                CharSequence[] items = new CharSequence[list.size()];
+                                for (int i = 0; i < items.length; i++)
+                                    items[i] = list.get(i).getUserName();
+
+                                new AlertDialog.Builder(getApplicationContext())
+                                        .setTitle("매칭성공")
+                                        .setItems(items, (dialog, which) -> {
+                                            if(matchController.isMatching) // receiving 하는 중
+                                                matchController.receive(list.get(which));
+                                            else // matching 하는 중
+                                                matchController.match(list.get(which));
+                                        })
+                                        .setNegativeButton("안할래용", (dialog, which) -> {
+                                            matchController.pauseReceiving();
+                                        })
+                                        .show();
+                            });
+                } else {
+                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                    matchController.pauseReceiving();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(matchController != null)
+            matchController.stopReceiving();
+        matchController = null;
+        userController = null;
+    }
+
+    @Override
+    public void onStop() {
+        if(matchController != null)
+            matchController.stopReceiving();
+        matchController = null;
+        userController = null;
+        super.onStop();
     }
 }

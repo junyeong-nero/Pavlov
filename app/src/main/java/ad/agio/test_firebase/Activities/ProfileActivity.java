@@ -35,7 +35,7 @@ public class ProfileActivity extends AppCompatActivity {
         binding.buttonBack.setOnClickListener(v -> finish());
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if(authController != null && currentUser != null) { // 로그인되어있는 상태
+        if(authController.getUid() != null) { // 로그인되어있는 상태 firestore 부터 정보를 불러오는건 느리다.
             ProfileFragment fragment = new ProfileFragment();
             fragmentTransaction.add(R.id.fragment_container, fragment).commit();
         } else { // 로그인 fragment 실행
