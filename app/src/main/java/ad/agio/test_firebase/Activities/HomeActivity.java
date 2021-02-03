@@ -4,21 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.google.api.Logging;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
-import ad.agio.test_firebase.domain.Notification;
 import ad.agio.test_firebase.domain.User;
 
 public class HomeActivity extends AppCompatActivity {

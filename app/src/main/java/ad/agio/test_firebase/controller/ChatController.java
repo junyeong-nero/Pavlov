@@ -9,7 +9,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.User;
@@ -25,7 +27,7 @@ public class ChatController {
                 .child(chatId);
     }
 
-    public void writeChat(Chat chat) {
+    public void addChat(Chat chat) {
         db.setValue(chat);
     }
 
@@ -33,6 +35,10 @@ public class ChatController {
         db.get()
                 .addOnSuccessListener(dataSnapshot -> consumer.accept(dataSnapshot.getValue(Chat.class)))
                 .addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    public void removeChat() {
+        db.removeValue();
     }
 
     public void writeUser(User user) {
@@ -47,7 +53,6 @@ public class ChatController {
     }
 
     private ValueEventListener confirmListener;
-
     public void addConfirmListener(Consumer<String> consumer) {
         // db/chat/chatId/match 를 확인하는 listener, receiver가 동의했을 때 success 문자열이 들어오는 것을 확인
         confirmListener = new ValueEventListener() {
@@ -67,34 +72,86 @@ public class ChatController {
                 .addValueEventListener(confirmListener);
     }
     public void removeConfirmListener() {
-        db.child("match")
+        if(confirmListener != null)
+            db.child("match")
                 .removeEventListener(confirmListener);
+        confirmListener = null;
     }
 
-    public void readAllUsers(Consumer<ArrayList<User>> consumer) {
-        db.get()
-                .addOnSuccessListener(dataSnapshot -> {
-                    ArrayList<User> list = new ArrayList<>();
-                    Chat chat = dataSnapshot.getValue(Chat.class);
-                    chat.users.forEach( (key, user) -> list.add(user));
-                    consumer.accept(list);
-                })
-                .addOnFailureListener(Throwable::printStackTrace);
-    }
-
-    public void readOtherUsers(Consumer<ArrayList<User>> consumer) {
-        AuthController auth = new AuthController();
+    public void readUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
         db.get()
                 .addOnSuccessListener(dataSnapshot -> {
                     ArrayList<User> list = new ArrayList<>();
                     Chat chat = dataSnapshot.getValue(Chat.class);
                     chat.users.forEach( (key, user) -> {
-                        if(!user.getUid().equals(auth.getUid())) // 내가 아닌것들만 add
+                        if(condition.test(user))
                             list.add(user);
                     });
                     consumer.accept(list);
                 })
                 .addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    public void readAllUsers(Consumer<ArrayList<User>> consumer) {
+        readUserBy(user -> true, consumer);
+    }
+
+    public void readOtherUsers(Consumer<ArrayList<User>> consumer) {
+        AuthController auth = new AuthController();
+        readUserBy(user -> !user.getUid().equals(auth.getUid()), consumer);
+    }
+
+    public void readMe(Consumer<ArrayList<User>> consumer) {
+        AuthController auth = new AuthController();
+        readUserBy(user -> user.getUid().equals(auth.getUid()), consumer);
+    }
+
+    public void sendText(User user, String text) {
+        Calendar cal = Calendar.getInstance();
+        String temp = "[" + user.getUserName() + "] "
+                + "[" + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + "]"
+                + text + "\n";
+
+        if (textListener == null)
+            readText(re -> db.child("text").setValue(re + temp));
+        else
+            db.child("text").setValue(currentText + temp);
+    }
+
+    public void readText(Consumer<String> consumer) {
+        db.child("text")
+                .get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    if(dataSnapshot.exists())
+                        consumer.accept(dataSnapshot.getValue(String.class));
+                });
+    }
+
+    private String currentText;
+    private ValueEventListener textListener;
+    public void addTextListener(Consumer<String> consumer) {
+        textListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    currentText = snapshot.getValue(String.class);
+                    consumer.accept(currentText);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        db.child("text")
+                .addValueEventListener(textListener);
+    }
+
+    public void removeTextListener() {
+        db.child("text")
+                .removeEventListener(textListener);
+        textListener = null;
     }
 
 }

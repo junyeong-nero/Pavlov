@@ -89,12 +89,13 @@ public class MatchController {
                 startReceiving(); // receiver 작동
             } else {
                 // 만족하는 사람이 있으면, consumer 실행
-                LOGGING("사람이 있어요");
                 isMatching = false;
                 matchConsumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
             }
         });
     }
+
+    private ChatController chatController;
 
     public void match(User user) {
         pauseReceiving();
@@ -106,8 +107,8 @@ public class MatchController {
         mChat.chatName = currentUser.getUserName() + "와 " + user.getUserName() + "의 채팅방";
         mChat.users.put(currentUser.getUid(), currentUser); // 자기 데이터 추가
 
-        ChatController chatController = new ChatController(chatId);
-        chatController.writeChat(mChat);
+        chatController = new ChatController(chatId);
+        chatController.addChat(mChat);
         chatController.addConfirmListener(result -> {
             matchResult(result);
             chatController.removeConfirmListener(); // 삭 - 제
@@ -123,10 +124,8 @@ public class MatchController {
         } else if (result.equals("fail")) {
             // chatId 삭제 및 listener 삭제.
             LOGGING("matchResult: fail");
-            FirebaseDatabase.getInstance().getReference()
-                    .child("chat")
-                    .child(mChat.chatId)
-                    .removeValue();
+            chatController.removeChat();
+
             pauseReceiving();
         } else {
             LOGGING("what the type?");
@@ -135,7 +134,7 @@ public class MatchController {
 
     public void preReceive(String chatId) {
         if(!isMatching)
-            throw new IllegalArgumentException("why!");
+            throw new IllegalArgumentException("preReceive");
         ChatController chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> matchConsumer.accept(users));
@@ -160,37 +159,20 @@ public class MatchController {
     }
 
     public void findUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    ArrayList<User> list = new ArrayList<>();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        User post = snapshot.getValue(User.class);
-                        if (condition.test(post))
-                            list.add(post);
+        mDatabase.get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        ArrayList<User> list = new ArrayList<>();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            User post = snapshot.getValue(User.class);
+                            if (condition.test(post))
+                                list.add(post);
+                        }
+                        consumer.accept(list);
+                    } else {
+                        consumer.accept(null);
                     }
-                    consumer.accept(list);
-                } else {
-                    consumer.accept(null);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                LOGGING(error.getMessage());
-            }
-        });
-//        mDatabase.get()
-//                .addOnSuccessListener(dataSnapshot -> {
-//                    ArrayList<User> list = new ArrayList<>();
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        User post = snapshot.getValue(User.class);
-//                        if (condition.test(post))
-//                            list.add(post);
-//                    }
-//                    consumer.accept(list);
-//                })
-//                .addOnFailureListener(Throwable::printStackTrace);
+                })
+                .addOnFailureListener(Throwable::printStackTrace);
     }
 }
