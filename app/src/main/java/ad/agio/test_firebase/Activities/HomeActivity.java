@@ -64,6 +64,11 @@ public class HomeActivity extends AppCompatActivity {
         binding.buttonMain.setOnClickListener(v -> {
             if(matchController == null)
                 matchController = new MatchController();
+            matchController.matchListener = chat -> {
+                Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
+                intent.putExtra("chatId", chat.chatId);
+                startActivity(intent);
+            };
             if (currentUser != null) {
                 if(!matchController.isMatching) {
                     LOGGING("match: start");

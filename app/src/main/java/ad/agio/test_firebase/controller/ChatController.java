@@ -70,12 +70,12 @@ public class ChatController {
 
             }
         };
-        db.child("match") // Check chat's match child
+        db.child("result") // Check chat's match child
                 .addValueEventListener(confirmListener);
     }
     public void removeConfirmListener() {
         if(confirmListener != null)
-            db.child("match")
+            db.child("result")
                 .removeEventListener(confirmListener);
         confirmListener = null;
     }

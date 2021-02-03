@@ -29,7 +29,12 @@ public class MatchController {
     private DatabaseReference childDatabase;
     private UserController userController;
     private AuthController authController;
+    private ChatController chatController;
+
+    private Chat mChat;
     private User currentUser;
+    private Consumer<ArrayList<User>> matchConsumer = list -> LOGGING(list.toString());
+    public Consumer<Chat> matchListener;
 
     public boolean isMatching;
 
@@ -82,9 +87,6 @@ public class MatchController {
         }
     };
 
-    private Chat mChat;
-    private Consumer<ArrayList<User>> matchConsumer = list -> LOGGING(list.toString());
-
     public void startMatching(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
         matchConsumer = consumer;
         findUserBy(condition, list -> { // 일단 matchers 중에서 조건을 만족하는 사람을 찾아본다.
@@ -98,10 +100,7 @@ public class MatchController {
         });
     }
 
-    private ChatController chatController;
-
     public void match(User user) {
-        pauseReceiving();
         String chatId = Utils.randomWord();
         mDatabase.child(user.getUid()).child("matcher").setValue(chatId); // 내꺼다 찜하기
 
@@ -119,15 +118,15 @@ public class MatchController {
     }
 
     public void matchResult(String result) {
+        pauseReceiving();
         if (result.equals("success")) {
             LOGGING("matchResult: success");
-            pauseReceiving();
+            callMatchListener();
             // TODO 성공시 매칭장소, 시간, 견종등을 나타내는 액티비티로 이동
             // TODO chatId 저장.
         } else if (result.equals("fail")) {
             // chatId 삭제 및 listener 삭제.
             LOGGING("matchResult: fail");
-            pauseReceiving();
             chatController.removeChat();
         } else {
             LOGGING("what the type?");
@@ -137,7 +136,6 @@ public class MatchController {
     public void receive(String chatId) {
         if(!isMatching)
             throw new IllegalArgumentException("preReceive");
-        pauseReceiving();
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> matchConsumer.accept(users));
@@ -147,6 +145,7 @@ public class MatchController {
         pauseReceiving();
         chatController.writeUser(currentUser);
         chatController.sendMatchResult("success");
+        callMatchListener();
         // TODO 여기에 무언가 약속장소나, 시간을 db/chat/chatID에 저장하는 그런 기능이 들어가야 한다.
     }
 
@@ -158,6 +157,13 @@ public class MatchController {
     public void pauseReceiving() {
         isMatching = false;
         removeData();
+    }
+
+    public void callMatchListener() {
+        chatController.readChat(chat -> {
+            mChat = chat;
+            matchListener.accept(mChat);
+        });
     }
 
     public void findUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
