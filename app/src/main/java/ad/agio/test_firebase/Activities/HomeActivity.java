@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;
 import ad.agio.test_firebase.controller.UserController;
@@ -40,10 +41,13 @@ public class HomeActivity extends AppCompatActivity {
             binding.textContent.setText(notification.getContent());
         });
 
-        setting();
+        authController = new AuthController();
+        if(authController.isAuth())
+            setting();
     }
 
     private User currentUser;
+    private AuthController authController;
     private UserController userController;
     private MatchController matchController;
 
@@ -75,7 +79,7 @@ public class HomeActivity extends AppCompatActivity {
                                         .setTitle("매칭성공")
                                         .setItems(items, (dialog, which) -> {
                                             if(matchController.isMatching) // receiving 하는 중
-                                                matchController.receive(list.get(which));
+                                                matchController.receiveResult(list.get(which));
                                             else // matching 하는 중
                                                 matchController.match(list.get(which));
                                         })

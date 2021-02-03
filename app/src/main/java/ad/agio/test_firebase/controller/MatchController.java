@@ -63,13 +63,16 @@ public class MatchController {
         childDatabase.removeValue();
     }
 
+    private String previousValue = "";
+    // TODO 왜 여러번 listener 가 작동할까? previousValue 이용해서 일단 막아놓기는 했는데 해결이 필요하다.
     // db/matcher/uid/matcher 을 확인하는 listener, 이곳에 상대방이 생성한 chatId가 들어온다.
     private final ValueEventListener receiveListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             String value = snapshot.getValue(String.class);
-            if (snapshot.exists() && !value.equals("")) {
-                preReceive(value);
+            if (snapshot.exists() && !value.equals(previousValue)) {
+                previousValue = value;
+                receive(value);
             }
         }
 
@@ -100,7 +103,7 @@ public class MatchController {
     public void match(User user) {
         pauseReceiving();
         String chatId = Utils.randomWord();
-        mDatabase.child(user.getUid()).child("match").setValue(chatId); // 내꺼다 찜하기
+        mDatabase.child(user.getUid()).child("matcher").setValue(chatId); // 내꺼다 찜하기
 
         mChat = new Chat();
         mChat.chatId = chatId;
@@ -124,25 +127,24 @@ public class MatchController {
         } else if (result.equals("fail")) {
             // chatId 삭제 및 listener 삭제.
             LOGGING("matchResult: fail");
-            chatController.removeChat();
-
             pauseReceiving();
+            chatController.removeChat();
         } else {
             LOGGING("what the type?");
         }
     }
 
-    public void preReceive(String chatId) {
+    public void receive(String chatId) {
         if(!isMatching)
             throw new IllegalArgumentException("preReceive");
-        ChatController chatController = new ChatController(chatId);
+        pauseReceiving();
+        chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> matchConsumer.accept(users));
     }
 
-    public void receive(User user) {
+    public void receiveResult(User user) {
         pauseReceiving();
-        ChatController chatController = new ChatController(mChat.chatId);
         chatController.writeUser(currentUser);
         chatController.sendMatchResult("success");
         // TODO 여기에 무언가 약속장소나, 시간을 db/chat/chatID에 저장하는 그런 기능이 들어가야 한다.

@@ -38,6 +38,8 @@ public class ChatController {
     }
 
     public void removeChat() {
+        removeTextListener();
+        removeConfirmListener();
         db.removeValue();
     }
 
@@ -59,7 +61,7 @@ public class ChatController {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String post = snapshot.getValue(String.class);
-                if (post != null)
+                if (snapshot.exists() && post != null && !post.equals(""))
                     consumer.accept(post);
             }
 
@@ -81,13 +83,18 @@ public class ChatController {
     public void readUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
         db.get()
                 .addOnSuccessListener(dataSnapshot -> {
-                    ArrayList<User> list = new ArrayList<>();
-                    Chat chat = dataSnapshot.getValue(Chat.class);
-                    chat.users.forEach( (key, user) -> {
-                        if(condition.test(user))
-                            list.add(user);
-                    });
-                    consumer.accept(list);
+                    if (dataSnapshot.exists()) {
+                        ArrayList<User> list = new ArrayList<>();
+                        Chat chat = dataSnapshot.getValue(Chat.class);
+                        assert chat != null;
+                        chat.users.forEach((key, user) -> {
+                            if (condition.test(user))
+                                list.add(user);
+                        });
+                        consumer.accept(list);
+                    } else {
+                        consumer.accept(null);
+                    }
                 })
                 .addOnFailureListener(Throwable::printStackTrace);
     }
