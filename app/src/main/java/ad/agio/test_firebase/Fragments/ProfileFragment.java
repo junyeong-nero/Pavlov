@@ -14,13 +14,13 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Iterator;
 
+import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentProfileBinding;
 import ad.agio.test_firebase.domain.User;
@@ -28,13 +28,11 @@ import gun0912.tedbottompicker.TedBottomPicker;
 
 public class ProfileFragment extends Fragment {
 
-    final private String _tag = "ProfileFragment";
-    private void _logging(String text) {
-        Log.d(_tag, text);
+    private void _log(String text) {
+        Log.d("ProfileFragment", text);
     }
 
     private FragmentProfileBinding binding;
-    private FirebaseAuth mAuth;
     private UserController userController;
     private User currentUser;
 
@@ -50,8 +48,10 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        mAuth = FirebaseAuth.getInstance();
-        userController = new UserController();
+
+        if (new AuthController().isAuth())
+            userController = new UserController();
+
         return binding.getRoot();
     }
 
@@ -61,9 +61,15 @@ public class ProfileFragment extends Fragment {
 
         userController.readUser(user -> {
             currentUser = user;
-            _logging(user.toString());
+            _log(user.toString());
             drawProfile(user);
             setProfileImage(user);
+        });
+
+        binding.buttonNeighbor.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new NeighborAuthFragment(), "NeighborAuthFragment")
+                    .commit();
         });
 
         binding.imageSelect.setOnClickListener(v -> {
@@ -72,7 +78,7 @@ public class ProfileFragment extends Fragment {
                         binding.imageProfile.setImageURI(uri);
                         UserController userController = new UserController();
                         userController.updateUser("profile", uri.getPath());
-                        Log.d(_tag, uri.getPath());
+                        _log(uri.getPath());
                     });
         });
     }

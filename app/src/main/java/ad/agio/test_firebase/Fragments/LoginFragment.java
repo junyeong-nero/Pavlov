@@ -15,9 +15,7 @@ import android.view.ViewGroup;
 
 import android.widget.Toast;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import ad.agio.test_firebase.Activities.RegisterActivity;
 import ad.agio.test_firebase.R;
@@ -26,7 +24,9 @@ import ad.agio.test_firebase.databinding.FragmentLoginBinding;
 
 public class LoginFragment extends Fragment {
 
-    final static public String TAG = "LoginFragment";
+    private void _log(String text) {
+        Log.d("LoginFragment", text);
+    }
 
     private FirebaseAuth mAuth;
     private FragmentLoginBinding binding;
@@ -69,18 +69,11 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "signInWithEmail:success");
+                        _log("signInWithEmail:success");
                         loginSuccess(email, password);
-
-                        // Firebase Analytics - login
-                        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
-                        Bundle bundle = new Bundle();
-                        bundle.putString(FirebaseAnalytics.Param.METHOD, TAG);
-                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
-
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        _log("signInWithEmail:failure");
                         Toast.makeText(getContext(), "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -102,9 +95,8 @@ public class LoginFragment extends Fragment {
         }
 
         // Fragment change
-        ProfileFragment fragment = new ProfileFragment();
-        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit);
-        fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
+        fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment()).commit();
     }
 }
