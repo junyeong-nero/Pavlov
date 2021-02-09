@@ -41,6 +41,20 @@
         android:textStyle="bold"
         android:text="프로필"/>
 
+    <ImageButton
+        android:id="@+id/button_signout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/ripple_circle"
+        android:src="@drawable/ic_fire"
+        android:scaleType="fitXY"
+        android:padding="4dp"
+        app:layout_constraintCircleRadius="1dp"
+        android:cropToPadding="true"
+        android:layout_margin="8dp"/>
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_marginTop="56dp"

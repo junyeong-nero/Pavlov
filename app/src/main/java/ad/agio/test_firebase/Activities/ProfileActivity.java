@@ -28,13 +28,16 @@ public class ProfileActivity extends AppCompatActivity {
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         authController = new AuthController();
         binding.buttonBack.setOnClickListener(v -> finish());
+        binding.buttonSignout.setOnClickListener(v -> {
+            authController.signOut();
+            fragmentTransaction.replace(R.id.fragment_container, new LoginFragment()).commit();
+        });
 
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if(authController.isAuth()) { // 로그인되어있는 상태 firestore 부터 정보를 불러오는건 느리다.
-            ProfileFragment fragment = new ProfileFragment();
-            fragmentTransaction.add(R.id.fragment_container, fragment).commit();
+            fragmentTransaction.add(R.id.fragment_container, new ProfileFragment()).commit();
         } else { // 로그인 fragment 실행
             LoginFragment fragment = new LoginFragment();
             fragmentTransaction

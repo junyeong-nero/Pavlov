@@ -15,12 +15,10 @@ public class UserController {
 
     private final FirebaseFirestore mFirestore;
     private AuthController authController;
-    private String UID;
 
     public UserController() {
         this.mFirestore = FirebaseFirestore.getInstance();
         this.authController = new AuthController();
-        this.UID = authController.getUid();
     }
 
     public void writeNewUser(User user) {
@@ -44,7 +42,7 @@ public class UserController {
     }
 
     public void readMe(Consumer<User> consumer) {
-        readUser(UID, consumer);
+        readUser(authController.getUid(), consumer);
     }
 
     public void readUser(String uid, Consumer<User> consumer) {
@@ -62,7 +60,7 @@ public class UserController {
 
     public void readUser(Consumer<User> consumer) {
         authController.checkValidUser();
-        readUser(UID, consumer);
+        readUser(authController.getUid(), consumer);
     }
 
     public void updateUser(String tag, Object value) {

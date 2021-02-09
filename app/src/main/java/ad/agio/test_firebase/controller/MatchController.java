@@ -20,9 +20,9 @@ import ad.agio.test_firebase.utils.Utils;
 
 public class MatchController {
 
-    static public String TAG = "MatchController";
-    public void LOGGING(String text) {
-        Log.d(TAG, text);
+    static public String _tag = "MatchController";
+    public void _log(String text) {
+        Log.d(_tag, text);
     }
 
     private DatabaseReference mDatabase;
@@ -33,7 +33,7 @@ public class MatchController {
 
     private Chat mChat;
     private User currentUser;
-    private Consumer<ArrayList<User>> matchConsumer = list -> LOGGING(list.toString());
+    private Consumer<ArrayList<User>> matchConsumer = list -> _log(list.toString());
     public Consumer<Chat> matchListener;
 
     public boolean isMatching;
@@ -44,15 +44,18 @@ public class MatchController {
         authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
                 .child("matches");
-        childDatabase = mDatabase.child(authController.getUid());
+    }
+
+    public void prepare() {
         userController.readMe(me -> currentUser = me);
+        childDatabase = mDatabase.child(authController.getUid());
     }
 
     public void addOnlyData(String chatId) {
         currentUser.setMatcher(chatId); // 데이터만 올리는경우, matcher child에 chatId 삽입.
         childDatabase
                 .setValue(currentUser)
-                .addOnSuccessListener(task -> LOGGING("addOnlyData: success"));
+                .addOnSuccessListener(task -> _log("addOnlyData: success"));
     }
 
     public void addDataWithListener() {
@@ -64,11 +67,14 @@ public class MatchController {
     }
 
     public void removeData() {
-        childDatabase.removeEventListener(receiveListener);
-        childDatabase.removeValue();
+        if(childDatabase != null) {
+            childDatabase.removeEventListener(receiveListener);
+            childDatabase.removeValue();
+        }
     }
 
     private String previousValue = "";
+
     // TODO 왜 여러번 listener 가 작동할까? previousValue 이용해서 일단 막아놓기는 했는데 해결이 필요하다.
     // db/matcher/uid/matcher 을 확인하는 listener, 이곳에 상대방이 생성한 chatId가 들어온다.
     private final ValueEventListener receiveListener = new ValueEventListener() {
@@ -120,16 +126,16 @@ public class MatchController {
     public void matchResult(String result) {
         pauseReceiving();
         if (result.equals("success")) {
-            LOGGING("matchResult: success");
+            _log("matchResult: success");
             callMatchListener();
             // TODO 성공시 매칭장소, 시간, 견종등을 나타내는 액티비티로 이동
             // TODO chatId 저장.
         } else if (result.equals("fail")) {
             // chatId 삭제 및 listener 삭제.
-            LOGGING("matchResult: fail");
+            _log("matchResult: fail");
             chatController.removeChat();
         } else {
-            LOGGING("what the type?");
+            _log("what the type?");
         }
     }
 

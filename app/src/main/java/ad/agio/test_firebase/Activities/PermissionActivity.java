@@ -12,7 +12,6 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import ad.agio.test_firebase.databinding.ActivityPermissionBinding;
 
@@ -31,6 +30,8 @@ public class PermissionActivity extends AppCompatActivity {
         arr.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         arr.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         arr.add(Manifest.permission.INTERNET);
+        arr.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        arr.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         requestPermissions(arr);
     }
 
@@ -38,9 +39,9 @@ public class PermissionActivity extends AppCompatActivity {
      * Prompts the us
      */
     private void requestPermissions(ArrayList<String> permissions) {
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                permissions.get(0)) ==
-                PackageManager.PERMISSION_GRANTED) { // already granted
+        boolean b = permissions.stream().allMatch(str -> ContextCompat.checkSelfPermission(
+                this.getApplicationContext(), str) == PackageManager.PERMISSION_GRANTED);
+        if (b) { // already granted
             startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             finish();
         } else {
@@ -59,9 +60,9 @@ public class PermissionActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                boolean b = Arrays.stream(permissions).allMatch(str -> ContextCompat.checkSelfPermission(
+                        this.getApplicationContext(), str) == PackageManager.PERMISSION_GRANTED);
+                if (grantResults.length > 0 && b) {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     finish();
                 }

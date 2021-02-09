@@ -6,30 +6,32 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import ad.agio.test_firebase.R;
+import java.util.Iterator;
+
 import ad.agio.test_firebase.controller.UserController;
-import ad.agio.test_firebase.databinding.FragmentLoginBinding;
 import ad.agio.test_firebase.databinding.FragmentProfileBinding;
 import ad.agio.test_firebase.domain.User;
 import gun0912.tedbottompicker.TedBottomPicker;
-import gun0912.tedbottompicker.TedBottomSheetDialogFragment;
 
 public class ProfileFragment extends Fragment {
 
-    final static public String TAG = "ProfileFragment";
+    final private String _tag = "ProfileFragment";
+    private void _logging(String text) {
+        Log.d(_tag, text);
+    }
 
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
@@ -59,15 +61,9 @@ public class ProfileFragment extends Fragment {
 
         userController.readUser(user -> {
             currentUser = user;
-            setProfile(user);
-            binding.textView.setText(user.toString());
-        });
-
-        binding.buttonSignout.setOnClickListener(v -> {
-            mAuth.signOut();
-            LoginFragment fragment = new LoginFragment();
-            getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment).commit();
+            _logging(user.toString());
+            drawProfile(user);
+            setProfileImage(user);
         });
 
         binding.imageSelect.setOnClickListener(v -> {
@@ -76,12 +72,33 @@ public class ProfileFragment extends Fragment {
                         binding.imageProfile.setImageURI(uri);
                         UserController userController = new UserController();
                         userController.updateUser("profile", uri.getPath());
-                        Log.d(TAG, uri.getPath());
+                        Log.d(_tag, uri.getPath());
                     });
         });
     }
 
-    public void setProfile(User user) {
+    private void drawProfile(User user) {
+        binding.layoutUser.removeAllViews();
+        try {
+            JSONObject obj = new JSONObject(user.toString());
+            Iterator iterator = obj.keys();
+            while (iterator.hasNext()) {
+                String next = iterator.next().toString();
+                TextView textView = new TextView(requireContext());
+                textView.setText(next);
+                binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                EditText editText = new EditText(requireContext());
+                editText.setText(obj.getString(next));
+                binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setProfileImage(User user) {
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
             binding.imageProfile.setImageURI(Uri.parse(profile));

@@ -20,6 +20,9 @@ public class AuthController {
     public boolean isAuth() {
         return mAuth.getCurrentUser() != null;
     }
+    public void signOut() {
+        mAuth.signOut();
+    }
 
     public void checkValidUser() {
         try {
@@ -30,7 +33,7 @@ public class AuthController {
         }
     }
 
-    public void LOGGING(String content) {
+    private void LOGGING(String content) {
         Log.d(TAG, content);
     }
 }

@@ -1,6 +1,8 @@
 package ad.agio.test_firebase.domain;
 
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @IgnoreExtraProperties
 public class User {
@@ -150,11 +152,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userName='" + userName + '\'' +
-                ", email='" + email + '\'' +
-                ", age='" + age + '\'' +
-                ", id='" + uid + '\'' +
-                '}';
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
 }

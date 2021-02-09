@@ -19,9 +19,9 @@ import ad.agio.test_firebase.domain.User;
 
 public class HomeActivity extends AppCompatActivity {
 
-    String TAG = "HomeActivity";
-    public void LOGGING(String text) {
-        Log.d(TAG, text);
+    final private String _tag = "HomeActivity";
+    private void _log(String text) {
+        Log.d(_tag, text);
     }
 
     private ActivityHomeBinding binding;
@@ -41,9 +41,14 @@ public class HomeActivity extends AppCompatActivity {
             binding.textContent.setText(notification.getContent());
         });
 
+        userController = new UserController();
         authController = new AuthController();
+        matchController = new MatchController();
+
         if(authController.isAuth())
-            setting();
+            matchController.prepare();
+
+        setting();
     }
 
     private User currentUser;
@@ -52,26 +57,26 @@ public class HomeActivity extends AppCompatActivity {
     private MatchController matchController;
 
     public void setting() {
-        userController = new UserController();
-        userController.readMe(user -> {
-            currentUser = user;
-            binding.buttonMain.setBackgroundTintList(ColorStateList.valueOf(
-                    ContextCompat.getColor(getApplicationContext(), R.color.primary)
-            ));
-        });
-
-        matchController = new MatchController();
         binding.buttonMain.setOnClickListener(v -> {
-            if(matchController == null)
-                matchController = new MatchController();
-            matchController.matchListener = chat -> {
-                Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
-                intent.putExtra("chatId", chat.chatId);
-                startActivity(intent);
-            };
-            if (currentUser != null) {
+
+            if (authController.isAuth()) {
+                matchController.prepare();
+
+                userController.readMe(user -> {
+                    currentUser = user;
+                    binding.buttonMain.setBackgroundTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(getApplicationContext(), R.color.primary)
+                    ));
+                });
+
+                matchController.matchListener = chat -> {
+                    Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
+                    intent.putExtra("chatId", chat.chatId);
+                    startActivity(intent);
+                };
+
                 if(!matchController.isMatching) {
-                    LOGGING("match: start");
+                    _log("match: start");
                     binding.textIndicator.setText("매칭중..");
                     matchController.startMatching(
                             user -> true, // condition
@@ -99,29 +104,11 @@ public class HomeActivity extends AppCompatActivity {
                                         .show();
                             });
                 } else {
-                    LOGGING("match: finish");
+                    _log("match: finish");
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
                     matchController.pauseReceiving();
                 }
             }
         });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(matchController != null)
-            matchController.pauseReceiving();
-        matchController = null;
-        userController = null;
-    }
-
-    @Override
-    public void onStop() {
-        if(matchController != null)
-            matchController.pauseReceiving();
-        matchController = null;
-        userController = null;
-        super.onStop();
     }
 }
