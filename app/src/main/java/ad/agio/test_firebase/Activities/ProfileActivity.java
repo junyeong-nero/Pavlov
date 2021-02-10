@@ -37,7 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
         authController = new AuthController();
         binding.buttonBack.setOnClickListener(v -> finish());
         binding.buttonSignout.setOnClickListener(v -> {
-            fragmentTransaction
+            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new LoginFragment(), "LoginFragment");
             authController.signOut();
         });
