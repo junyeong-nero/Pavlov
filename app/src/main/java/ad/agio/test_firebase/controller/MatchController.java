@@ -44,7 +44,6 @@ public class MatchController {
         authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
                 .child("matches");
-        mDatabase.setValue("0");
         if(authController.isAuth())
             prepare();
     }
@@ -191,9 +190,13 @@ public class MatchController {
                     if (dataSnapshot.exists()) {
                         ArrayList<User> list = new ArrayList<>();
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            assert snapshot != null;
                             User post = snapshot.getValue(User.class);
-                            if (condition.test(post) && post.getUid() != currentUser.getUid())
+                            if (post != null && condition.test(post)
+                                    && !post.getUid().equals(currentUser.getUid())
+                                    && !post.getUserName().equals("GHOST")) {
                                 list.add(post);
+                            }
                         }
                         consumer.accept(list);
                     } else {
