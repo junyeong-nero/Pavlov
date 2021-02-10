@@ -30,6 +30,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
@@ -55,16 +56,13 @@ public class NeighborAuthFragment extends Fragment implements OnMapReadyCallback
     }
 
     private FragmentNeighborAuthBinding binding;
-    private AuthController authController;
     private UserController userController;
-    private User currentUser;
 
     private GoogleMap map;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     private final LatLng defaultLocation = new LatLng(-33.8523341, 151.2106085);
     private static final int DEFAULT_ZOOM = 17;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean locationPermissionGranted;
     private Location lastKnownLocation;
 
@@ -77,10 +75,7 @@ public class NeighborAuthFragment extends Fragment implements OnMapReadyCallback
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentNeighborAuthBinding.inflate(inflater, container, false);
-
-        authController = new AuthController();
         userController = new UserController();
-        userController.readMe(me -> currentUser = me);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         final SupportMapFragment mapFragment = (SupportMapFragment) requireActivity().getSupportFragmentManager()
@@ -96,12 +91,7 @@ public class NeighborAuthFragment extends Fragment implements OnMapReadyCallback
             UserController userController = new UserController();
             userController.updateUser("neighbor",
                     getAddress(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-
-            FragmentManager supportFragmentManager = requireActivity().getSupportFragmentManager();
-            Fragment fragment = supportFragmentManager.findFragmentByTag("NeighborAuthFragment");
-            if (fragment != null) {
-                supportFragmentManager.beginTransaction().remove(fragment);
-            }
+            Snackbar.make(binding.buttonCheck, "동네인증 완료!", 500).show();
         });
 
         return binding.getRoot();
@@ -134,10 +124,10 @@ public class NeighborAuthFragment extends Fragment implements OnMapReadyCallback
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.getResult();
                         if (lastKnownLocation != null) {
+                            _log(lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude());
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(lastKnownLocation.getLatitude(),
                                             lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                            _log(lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude());
                             binding.textNeighbor.setText(
                                     getAddress(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
                         }
@@ -170,8 +160,8 @@ public class NeighborAuthFragment extends Fragment implements OnMapReadyCallback
             stringBuilder.append(address.getLocality()).append(" "); //시
             stringBuilder.append(address.getSubLocality()).append(" "); //구
             stringBuilder.append(address.getThoroughfare()); //동
-            //return stringBuilder.toString();
-            return address.getAddressLine(0);
+            return address.getThoroughfare();
+//            return address.getAddressLine(0);
         } catch (IOException e) {
             e.printStackTrace();
             return "no address";

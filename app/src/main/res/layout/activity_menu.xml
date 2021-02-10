@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.NeighborActivity">
+    tools:context=".Activities.MenuActivity">
 
     <View
         app:layout_constraintTop_toTopOf="parent"
@@ -39,14 +39,13 @@
         android:layout_marginLeft="56dp"
         android:textColor="@color/white"
         android:textStyle="bold"
-        android:text="동네인증"/>
+        android:text="더보기"/>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container"
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:orientation="vertical"
         android:layout_marginTop="56dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </androidx.fragment.app.FragmentContainerView>
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

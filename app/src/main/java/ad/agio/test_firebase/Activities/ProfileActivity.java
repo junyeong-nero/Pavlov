@@ -18,6 +18,7 @@ import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityProfileBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.utils.RequestCodes;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -36,10 +37,14 @@ public class ProfileActivity extends AppCompatActivity {
         fragmentTransaction.setReorderingAllowed(true);
         authController = new AuthController();
         binding.buttonBack.setOnClickListener(v -> finish());
-        binding.buttonSignout.setOnClickListener(v -> {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new LoginFragment(), "LoginFragment");
+        binding.buttonMenu.setOnClickListener(v -> {
+            startActivityForResult(new Intent(ProfileActivity.this, MenuActivity.class),
+                    RequestCodes.MENU_ACTIVITY);
+        });
+        binding.buttonMenu.setOnLongClickListener(v -> {
+            finish();
             authController.signOut();
+            return true;
         });
 
         Intent intent = getIntent();
@@ -62,6 +67,5 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
     }
-
 
 }

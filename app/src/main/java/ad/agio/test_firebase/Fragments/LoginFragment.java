@@ -36,6 +36,15 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        mAuth = FirebaseAuth.getInstance();
+        binding = FragmentLoginBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -54,15 +63,6 @@ public class LoginFragment extends Fragment {
             binding.etEmail.setText(dataController.readData("email"));
             binding.etPw.setText(dataController.readData("password"));
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        mAuth = FirebaseAuth.getInstance();
-        binding = FragmentLoginBinding.inflate(inflater, container, false);
-        return binding.getRoot();
     }
 
     private void loginAuth(String email, String password) {

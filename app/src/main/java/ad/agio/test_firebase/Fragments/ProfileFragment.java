@@ -1,11 +1,13 @@
 package ad.agio.test_firebase.Fragments;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,11 +21,13 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
+import ad.agio.test_firebase.Activities.NeighborActivity;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentProfileBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.utils.RequestCodes;
 import gun0912.tedbottompicker.TedBottomPicker;
 
 public class ProfileFragment extends Fragment {
@@ -48,10 +52,6 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-
-        if (new AuthController().isAuth())
-            userController = new UserController();
-
         return binding.getRoot();
     }
 
@@ -59,6 +59,7 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        userController = new UserController();
         userController.readUser(user -> {
             currentUser = user;
             _log(user.toString());
@@ -67,9 +68,8 @@ public class ProfileFragment extends Fragment {
         });
 
         binding.buttonNeighbor.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new NeighborAuthFragment(), "NeighborAuthFragment")
-                    .commit();
+            startActivityForResult(new Intent(requireContext(), NeighborActivity.class),
+                    RequestCodes.NEIGHBOR_ACTIVITY);
         });
 
         binding.imageSelect.setOnClickListener(v -> {
@@ -108,6 +108,32 @@ public class ProfileFragment extends Fragment {
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
             binding.imageProfile.setImageURI(Uri.parse(profile));
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case RequestCodes.NEIGHBOR_ACTIVITY:
+                _log("NEIGHBOR_ACTIVITY");
+                userController.readUser(user -> {
+                    currentUser = user;
+                    _log(user.toString());
+                    drawProfile(user);
+                    setProfileImage(user);
+                });
+                break;
+
+            case RequestCodes.MENU_ACTIVITY:
+                if(!new AuthController().isAuth()) {
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new LoginFragment()).commit();
+                }
+                break;
+
+            default:
+                _log("default!");
         }
     }
 }

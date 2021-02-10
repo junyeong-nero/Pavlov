@@ -17,8 +17,9 @@
     <TextView
         android:id="@+id/text_neighbor"
         android:layout_marginTop="56dp"
-        android:textSize="24dp"
+        android:textSize="16dp"
         android:text="동네"
+        android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map"
