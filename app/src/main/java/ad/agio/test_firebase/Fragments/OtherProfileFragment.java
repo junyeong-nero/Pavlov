@@ -50,16 +50,11 @@ public class OtherProfileFragment extends Fragment {
         matchController = new MatchController();
         matchController.setChatController(chatId);
         matchController.matchListener = chat -> {
+            requireActivity().finish();
             Intent intent = new Intent(requireContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
         };
-    }
-
-    @Override
-
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

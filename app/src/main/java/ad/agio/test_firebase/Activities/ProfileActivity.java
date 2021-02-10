@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.google.gson.Gson;
 
@@ -41,11 +42,15 @@ public class ProfileActivity extends AppCompatActivity {
             startActivityForResult(new Intent(ProfileActivity.this, MenuActivity.class),
                     RequestCodes.MENU_ACTIVITY);
         });
+
         binding.buttonMenu.setOnLongClickListener(v -> {
             finish();
             authController.signOut();
             return true;
         });
+
+        if(!authController.isAuth())
+            binding.buttonMenu.setVisibility(View.GONE);
 
         Intent intent = getIntent();
         if (intent.hasExtra("isMatching") && intent.hasExtra("user")) {

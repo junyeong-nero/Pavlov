@@ -36,6 +36,7 @@ public class MatchController {
     public Consumer<Chat> matchListener;
 
     public boolean isMatching;
+    public boolean isPreparing = false;
 
     public MatchController() {
         isMatching = false;
@@ -43,6 +44,7 @@ public class MatchController {
         authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
                 .child("matches");
+        mDatabase.setValue("0");
         if(authController.isAuth())
             prepare();
     }
@@ -52,6 +54,7 @@ public class MatchController {
     }
 
     public void prepare() {
+        isPreparing = true;
         userController.readMe(me -> currentUser = me);
         childDatabase = mDatabase.child(authController.getUid());
     }
@@ -146,7 +149,7 @@ public class MatchController {
 
     public void receive(String chatId) {
         if(!isMatching)
-            throw new IllegalArgumentException("preReceive");
+            _log("preReceive");
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> matchConsumer.accept(users));

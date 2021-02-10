@@ -52,29 +52,22 @@ public class HomeActivity extends AppCompatActivity {
         setting();
     }
 
-    private User currentUser;
     private AuthController authController;
     private UserController userController;
     private MatchController matchController;
 
     public void setting() {
+
+        matchController.matchListener = chat -> {
+            Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
+            intent.putExtra("chatId", chat.chatId);
+            startActivity(intent);
+        };
+
         binding.buttonMain.setOnClickListener(v -> {
-
             if (authController.isAuth()) {
-                matchController.prepare();
-
-                userController.readMe(user -> {
-                    currentUser = user;
-                    binding.buttonMain.setBackgroundTintList(ColorStateList.valueOf(
-                            ContextCompat.getColor(getApplicationContext(), R.color.primary)
-                    ));
-                });
-
-                matchController.matchListener = chat -> {
-                    Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
-                    intent.putExtra("chatId", chat.chatId);
-                    startActivity(intent);
-                };
+                if(!matchController.isPreparing)
+                    matchController.prepare();
 
                 if(!matchController.isMatching) {
                     _log("match: start");
