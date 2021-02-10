@@ -138,6 +138,8 @@ public class NeighborAuthFragment extends Fragment implements OnMapReadyCallback
                                     new LatLng(lastKnownLocation.getLatitude(),
                                             lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                             _log(lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude());
+                            binding.textNeighbor.setText(
+                                    getAddress(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
                         }
                     } else {
                         _log("Current location is null. Using defaults.");

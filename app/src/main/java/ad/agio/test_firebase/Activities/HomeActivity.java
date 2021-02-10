@@ -9,6 +9,7 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 
+import ad.agio.test_firebase.Fragments.OtherProfileFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
@@ -88,10 +89,22 @@ public class HomeActivity extends AppCompatActivity {
                                 new AlertDialog.Builder(HomeActivity.this)
                                         .setTitle("매칭성공")
                                         .setItems(items, (dialog, which) -> {
-                                            if(matchController.isMatching) // receiving 하는 중
-                                                matchController.receiveResult(list.get(which));
-                                            else // matching 하는 중
-                                                matchController.match(list.get(which));
+                                            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+
+                                            if(matchController.getChat() != null)
+                                                intent.putExtra("chatId", matchController.getChat().chatId);
+                                            else
+                                                intent.putExtra("chatId", "fake");
+
+                                            intent.putExtra("isMatching", matchController.isMatching);
+                                            intent.putExtra("user", list.get(which).toString());
+                                            _log(list.get(which).toString());
+                                            startActivity(intent);
+
+//                                            if(matchController.isMatching) // receiving 하는 중
+//                                                matchController.receiveResult(list.get(which));
+//                                            else // matching 하는 중
+//                                                matchController.match(list.get(which));
                                         })
                                         .setNegativeButton("안할래용", (dialog, which) -> {
                                             binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");

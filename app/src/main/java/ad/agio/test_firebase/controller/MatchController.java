@@ -20,9 +20,8 @@ import ad.agio.test_firebase.utils.Utils;
 
 public class MatchController {
 
-    static public String _tag = "MatchController";
     public void _log(String text) {
-        Log.d(_tag, text);
+        Log.d(this.getClass().getSimpleName(), text);
     }
 
     private DatabaseReference mDatabase;
@@ -44,6 +43,12 @@ public class MatchController {
         authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
                 .child("matches");
+        if(authController.isAuth())
+            prepare();
+    }
+
+    public Chat getChat() {
+        return mChat;
     }
 
     public void prepare() {
@@ -147,6 +152,11 @@ public class MatchController {
         chatController.readOtherUsers(users -> matchConsumer.accept(users));
     }
 
+    public void setChatController(String chatId) {
+        chatController = new ChatController(chatId);
+        chatController.readChat(chat -> mChat = chat);
+    }
+
     public void receiveResult(User user) {
         pauseReceiving();
         chatController.writeUser(currentUser);
@@ -179,7 +189,7 @@ public class MatchController {
                         ArrayList<User> list = new ArrayList<>();
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             User post = snapshot.getValue(User.class);
-                            if (condition.test(post))
+                            if (condition.test(post) && post.getUid() != currentUser.getUid())
                                 list.add(post);
                         }
                         consumer.accept(list);
