@@ -194,7 +194,8 @@ public class MatchController {
                             User post = snapshot.getValue(User.class);
                             if (post != null && condition.test(post)
                                     && !post.getUid().equals(currentUser.getUid())
-                                    && !post.getUserName().equals("GHOST")) {
+                                    && !post.getUserName().equals("GHOST")
+                                    && !post.getUserName().equals("")) {
                                 list.add(post);
                             }
                         }
