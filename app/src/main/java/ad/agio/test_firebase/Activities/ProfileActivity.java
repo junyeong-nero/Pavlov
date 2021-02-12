@@ -1,11 +1,13 @@
 package ad.agio.test_firebase.Activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.google.gson.Gson;
 
@@ -32,6 +34,8 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(binding.getRoot());
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -43,11 +47,11 @@ public class ProfileActivity extends AppCompatActivity {
                     RequestCodes.MENU_ACTIVITY);
         });
 
-        binding.buttonMenu.setOnLongClickListener(v -> {
-            finish();
-            authController.signOut();
-            return true;
-        });
+//        binding.buttonMenu.setOnLongClickListener(v -> {
+//            finish();
+//            authController.signOut();
+//            return true;
+//        });
 
         if(!authController.isAuth())
             binding.buttonMenu.setVisibility(View.GONE);
@@ -73,4 +77,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case RequestCodes.MENU_ACTIVITY:
+                finish();
+                break;
+        }
+    }
 }

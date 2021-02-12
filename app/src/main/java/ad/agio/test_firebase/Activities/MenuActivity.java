@@ -32,6 +32,7 @@ public class MenuActivity extends AppCompatActivity {
         hashMap.put("로그아웃", (v) -> {
             AuthController authController = new AuthController();
             authController.signOut();
+            finish();
         });
 
         for (String key : hashMap.keySet()) {
