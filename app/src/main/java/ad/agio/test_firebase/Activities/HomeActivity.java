@@ -9,6 +9,9 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 import ad.agio.test_firebase.Fragments.OtherProfileFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
@@ -75,46 +78,71 @@ public class HomeActivity extends AppCompatActivity {
                     matchController.startMatching(
                             user -> true, // condition
                             list -> {
-                                CharSequence[] items = new CharSequence[list.size()];
-                                for (int i = 0; i < items.length; i++)
-                                    items[i] = list.get(i).getUserName();
+                                Optional<User> user = list.stream().findAny();
+                                _log(user.toString());
 
-                                new AlertDialog.Builder(HomeActivity.this)
-                                        .setTitle("매칭성공")
-                                        .setItems(items, (dialog, which) -> {
-                                            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                                Intent intent = new Intent(HomeActivity.this,
+                                        ProfileActivity.class);
 
-                                            if(matchController.getChat() != null)
-                                                intent.putExtra("chatId", matchController.getChat().chatId);
-                                            else
-                                                intent.putExtra("chatId", "fake");
+                                if (matchController.getChat() != null)
+                                    intent.putExtra("chatId",
+                                            matchController.getChat().chatId);
+                                else
+                                    intent.putExtra("chatId", "fake");
 
-                                            intent.putExtra("isMatching", matchController.isMatching);
-                                            intent.putExtra("user", list.get(which).toString());
-                                            _log(list.get(which).toString());
-                                            startActivity(intent);
+                                intent.putExtra("isMatching", matchController.isMatching);
+                                user.ifPresent(value ->
+                                        intent.putExtra("user", value.toString()));
 
-//                                            if(matchController.isMatching) // receiving 하는 중
-//                                                matchController.receiveResult(list.get(which));
-//                                            else // matching 하는 중
-//                                                matchController.match(list.get(which));
-                                        })
-                                        .setNegativeButton("안할래용", (dialog, which) -> {
-                                            binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                                            matchController.pauseReceiving();
-                                        })
-                                        .setOnDismissListener(dialog -> {
-                                            binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                                            matchController.pauseReceiving();
-                                        })
-                                        .show();
+                                matchFinish();
+                                startActivity(intent);
                             });
                 } else {
-                    _log("match: finish");
-                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.pauseReceiving();
+                    matchFinish();
                 }
             }
         });
+    }
+
+    private void matchFinish() {
+        _log("match: finish");
+        binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+        matchController.pauseReceiving();
+    }
+
+    private void showDialog(ArrayList<User> list) { // for select user to match
+        CharSequence[] items = new CharSequence[list.size()];
+        for (int i = 0; i < items.length; i++)
+            items[i] = list.get(i).getUserName();
+
+        new AlertDialog.Builder(HomeActivity.this)
+                .setTitle("매칭성공")
+                .setItems(items, (dialog, which) -> {
+                    Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+
+                    if (matchController.getChat() != null)
+                        intent.putExtra("chatId", matchController.getChat().chatId);
+                    else
+                        intent.putExtra("chatId", "fake");
+
+                    intent.putExtra("isMatching", matchController.isMatching);
+                    intent.putExtra("user", list.get(which).toString());
+                    _log(list.get(which).toString());
+                    startActivity(intent);
+
+//                    if(matchController.isMatching) // receiving 하는 중
+//                        matchController.receiveResult(list.get(which));
+//                    else // matching 하는 중
+//                        matchController.match(list.get(which));
+                })
+                .setNegativeButton("안할래용", (dialog, which) -> {
+                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                    matchController.pauseReceiving();
+                })
+                .setOnDismissListener(dialog -> {
+                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                    matchController.pauseReceiving();
+                })
+                .show();
     }
 }

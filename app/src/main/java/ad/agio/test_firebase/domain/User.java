@@ -14,7 +14,7 @@ public class User {
     private String email = "";
     private String uid = "";
     private String profile = "";
-    private String type = "private";
+    private String type = "public";
     private String matcher = "";
 
     private float age = -1F;

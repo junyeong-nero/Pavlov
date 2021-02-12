@@ -33,7 +33,8 @@ public class ChatController {
 
     public void readChat(Consumer<Chat> consumer) {
         db.get()
-                .addOnSuccessListener(dataSnapshot -> consumer.accept(dataSnapshot.getValue(Chat.class)))
+                .addOnSuccessListener(dataSnapshot ->
+                        consumer.accept(dataSnapshot.getValue(Chat.class)))
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
@@ -56,7 +57,8 @@ public class ChatController {
 
     private ValueEventListener confirmListener;
     public void addConfirmListener(Consumer<String> consumer) {
-        // db/chat/chatId/match 를 확인하는 listener, receiver 동의했을 때 success 문자열이 들어오는 것을 확인
+        // db/chat/chatId/match 를 확인하는 listener
+        // receiver 동의했을 때 success 문자열이 들어오는 것을 확인
         confirmListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

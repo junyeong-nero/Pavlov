@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,7 +35,7 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mAuth = FirebaseAuth.getInstance();
@@ -48,14 +47,14 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.buttonLogin.setOnClickListener(v -> {
+        binding.buttonLogin.setOnClickListener(v ->
             loginAuth(binding.etEmail.getText().toString(),
-                    binding.etPw.getText().toString());
-        });
+                    binding.etPw.getText().toString())
+        );
 
-        binding.buttonRegister.setOnClickListener(v -> {
-            startActivity(new Intent(getContext(), RegisterActivity.class));
-        });
+        binding.buttonRegister.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), RegisterActivity.class))
+        );
 
         DataController dataController = new DataController(getContext());
         if (dataController.readData("auto_save").equals("true")) {
@@ -94,9 +93,15 @@ public class LoginFragment extends Fragment {
             dataController.saveData("auto_save", "false");
         }
 
+        // menu button visible
+        requireActivity().findViewById(R.id.button_menu).setVisibility(View.VISIBLE);
+
         // Fragment change
-        FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit);
-        fragmentTransaction.replace(R.id.fragment_container, new ProfileFragment()).commit();
+        FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager()
+                .beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fragment_fade_enter,
+                R.anim.fragment_fade_exit);
+        fragmentTransaction.replace(R.id.fragment_container,
+                new ProfileFragment(), "ProfileFragment").commit();
     }
 }

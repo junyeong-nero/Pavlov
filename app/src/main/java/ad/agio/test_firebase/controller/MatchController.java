@@ -24,12 +24,11 @@ public class MatchController {
         Log.d(this.getClass().getSimpleName(), text);
     }
 
-    private DatabaseReference mDatabase;
     private DatabaseReference childDatabase;
-    private UserController userController;
-
-    private AuthController authController;
     private ChatController chatController;
+    private final DatabaseReference mDatabase;
+    private final UserController userController;
+    private final AuthController authController;
 
     private Chat mChat;
     private User currentUser;
@@ -86,9 +85,12 @@ public class MatchController {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             String value = snapshot.getValue(String.class);
-            if (snapshot.exists() && !value.equals(previousValue)) {
-                previousValue = value;
-                receive(value);
+            if (snapshot.exists()) {
+                assert value != null;
+                if (!value.equals(previousValue)) {
+                    previousValue = value;
+                    receive(value);
+                }
             }
         }
 
@@ -158,6 +160,7 @@ public class MatchController {
     }
 
     public void receiveResult(User user) {
+        _log("receiveResult\n" + user.toString());
         pauseReceiving();
         chatController.writeUser(currentUser);
         chatController.sendMatchResult("success");
