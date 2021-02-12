@@ -1,6 +1,5 @@
-package ad.agio.test_firebase.Activities;
+package ad.agio.test_firebase.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,15 +7,10 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.ChatController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityChatBinding;
 import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.User;

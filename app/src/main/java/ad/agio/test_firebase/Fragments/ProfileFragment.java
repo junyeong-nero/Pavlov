@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +20,7 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
-import ad.agio.test_firebase.Activities.NeighborActivity;
+import ad.agio.test_firebase.activities.NeighborActivity;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.UserController;

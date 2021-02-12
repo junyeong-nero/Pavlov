@@ -1,4 +1,4 @@
-package ad.agio.test_firebase.Activities;
+package ad.agio.test_firebase.activities;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,14 +11,11 @@ import android.view.WindowManager;
 
 import com.google.gson.Gson;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import ad.agio.test_firebase.Fragments.LoginFragment;
 import ad.agio.test_firebase.Fragments.OtherProfileFragment;
 import ad.agio.test_firebase.Fragments.ProfileFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityProfileBinding;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.RequestCodes;
@@ -27,8 +24,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ActivityProfileBinding binding;
     private AuthController authController;
-    private UserController userController;
-    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +37,10 @@ public class ProfileActivity extends AppCompatActivity {
         fragmentTransaction.setReorderingAllowed(true);
         authController = new AuthController();
         binding.buttonBack.setOnClickListener(v -> finish());
-        binding.buttonMenu.setOnClickListener(v -> {
+        binding.buttonMenu.setOnClickListener(v ->
             startActivityForResult(new Intent(ProfileActivity.this, MenuActivity.class),
-                    RequestCodes.MENU_ACTIVITY);
-        });
+                    RequestCodes.MENU_ACTIVITY)
+        );
 
 //        binding.buttonMenu.setOnLongClickListener(v -> {
 //            finish();

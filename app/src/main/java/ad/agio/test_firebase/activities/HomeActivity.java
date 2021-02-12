@@ -1,19 +1,15 @@
-package ad.agio.test_firebase.Activities;
+package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import ad.agio.test_firebase.Fragments.OtherProfileFragment;
-import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;

@@ -1,4 +1,4 @@
-package ad.agio.test_firebase.Activities;
+package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 

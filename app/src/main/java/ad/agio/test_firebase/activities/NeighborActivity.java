@@ -1,4 +1,4 @@
-package ad.agio.test_firebase.Activities;
+package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,7 +7,6 @@ import android.os.Bundle;
 import ad.agio.test_firebase.Fragments.NeighborAuthFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.databinding.ActivityNeighborBinding;
-import ad.agio.test_firebase.utils.RequestCodes;
 
 public class NeighborActivity extends AppCompatActivity {
 

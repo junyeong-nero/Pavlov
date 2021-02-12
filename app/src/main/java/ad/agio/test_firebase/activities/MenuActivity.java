@@ -1,4 +1,4 @@
-package ad.agio.test_firebase.Activities;
+package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,10 +6,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Consumer;
 

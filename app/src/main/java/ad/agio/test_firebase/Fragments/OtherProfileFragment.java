@@ -3,7 +3,6 @@ package ad.agio.test_firebase.Fragments;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.service.autofill.FieldClassification;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,14 +19,10 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
-import ad.agio.test_firebase.Activities.ChatActivity;
-import ad.agio.test_firebase.Activities.HomeActivity;
-import ad.agio.test_firebase.R;
-import ad.agio.test_firebase.controller.AuthController;
+import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentOtherProfileBinding;
-import ad.agio.test_firebase.databinding.FragmentProfileBinding;
 import ad.agio.test_firebase.domain.User;
 import gun0912.tedbottompicker.TedBottomPicker;
 

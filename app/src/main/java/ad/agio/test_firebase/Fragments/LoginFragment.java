@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import ad.agio.test_firebase.Activities.RegisterActivity;
+import ad.agio.test_firebase.activities.RegisterActivity;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.DataController;
 import ad.agio.test_firebase.databinding.FragmentLoginBinding;
