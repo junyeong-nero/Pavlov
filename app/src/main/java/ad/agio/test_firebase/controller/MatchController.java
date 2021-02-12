@@ -27,6 +27,7 @@ public class MatchController {
     private DatabaseReference mDatabase;
     private DatabaseReference childDatabase;
     private UserController userController;
+
     private AuthController authController;
     private ChatController chatController;
 
@@ -53,16 +54,13 @@ public class MatchController {
     }
 
     public void prepare() {
-        isPreparing = true;
-        userController.readMe(me -> currentUser = me);
-        childDatabase = mDatabase.child(authController.getUid());
-    }
-
-    public void addOnlyData(String chatId) {
-        currentUser.setMatcher(chatId); // 데이터만 올리는경우, matcher child에 chatId 삽입.
-        childDatabase
-                .setValue(currentUser)
-                .addOnSuccessListener(task -> _log("addOnlyData: success"));
+        if(authController.isAuth()) {
+            isPreparing = true;
+            userController.readMe(me -> currentUser = me);
+            childDatabase = mDatabase.child(authController.getUid());
+        } else {
+            _log("it is not authenticated");
+        }
     }
 
     public void addDataWithListener() {

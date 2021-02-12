@@ -1,5 +1,7 @@
 package ad.agio.test_firebase.controller;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -11,7 +13,9 @@ import ad.agio.test_firebase.domain.User;
 
 public class UserController {
 
-    static public String TAG = "UserController";
+    private void _log(String s) {
+        Log.d(this.getClass().getSimpleName(), s);
+    }
 
     private final FirebaseFirestore mFirestore;
     private AuthController authController;
@@ -42,7 +46,10 @@ public class UserController {
     }
 
     public void readMe(Consumer<User> consumer) {
-        readUser(authController.getUid(), consumer);
+        if(authController.isAuth())
+            readUser(authController.getUid(), consumer);
+        else
+            _log("it is not authenticated");
     }
 
     public void readUser(String uid, Consumer<User> consumer) {

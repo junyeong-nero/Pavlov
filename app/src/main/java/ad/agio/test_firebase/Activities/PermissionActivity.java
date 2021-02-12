@@ -9,10 +9,14 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.service.autofill.FieldClassification;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ad.agio.test_firebase.controller.AuthController;
+import ad.agio.test_firebase.controller.MatchController;
+import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityPermissionBinding;
 
 public class PermissionActivity extends AppCompatActivity {
@@ -42,8 +46,7 @@ public class PermissionActivity extends AppCompatActivity {
         boolean b = permissions.stream().allMatch(str -> ContextCompat.checkSelfPermission(
                 this.getApplicationContext(), str) == PackageManager.PERMISSION_GRANTED);
         if (b) { // already granted
-            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-            finish();
+            init();
         } else {
             ActivityCompat.requestPermissions(this,
                     permissions.toArray(new String[0]),
@@ -63,10 +66,26 @@ public class PermissionActivity extends AppCompatActivity {
                 boolean b = Arrays.stream(permissions).allMatch(str -> ContextCompat.checkSelfPermission(
                         this.getApplicationContext(), str) == PackageManager.PERMISSION_GRANTED);
                 if (grantResults.length > 0 && b) {
-                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                    finish();
+                    init();
                 }
             }
+        }
+    }
+
+    public void init() {
+
+        // Data cache prepare
+
+        UserController userController = new UserController();
+        MatchController matchController = new MatchController();
+        AuthController authController = new AuthController();
+
+        if(authController.isAuth()) {
+            matchController.prepare();
+            userController.readMe(me -> {
+                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                finish();
+            });
         }
     }
 }
