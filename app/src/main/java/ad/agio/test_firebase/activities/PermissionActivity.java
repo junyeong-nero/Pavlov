@@ -79,12 +79,15 @@ public class PermissionActivity extends AppCompatActivity {
         MatchController matchController = new MatchController();
         AuthController authController = new AuthController();
 
-        if(authController.isAuth()) {
-            matchController.prepare();
-            userController.readMe(me -> {
-                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                finish();
-            });
-        }
+        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+        finish();
+
+//        if(authController.isAuth()) {
+//            matchController.prepare();
+//            userController.readMe(me -> {
+//                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+//                finish();
+//            });
+//        }
     }
 }

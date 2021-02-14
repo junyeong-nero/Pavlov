@@ -24,6 +24,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ActivityProfileBinding binding;
     private AuthController authController;
+    private FragmentTransaction fragmentTransaction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,10 @@ public class ProfileActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(binding.getRoot());
 
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setReorderingAllowed(true);
         authController = new AuthController();
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setReorderingAllowed(true);
+
         binding.buttonBack.setOnClickListener(v -> finish());
         binding.buttonMenu.setOnClickListener(v ->
             startActivityForResult(new Intent(ProfileActivity.this, MenuActivity.class),
@@ -52,23 +54,61 @@ public class ProfileActivity extends AppCompatActivity {
             binding.buttonMenu.setVisibility(View.GONE);
 
         Intent intent = getIntent();
-        if (intent.hasExtra("isMatching") && intent.hasExtra("user")) {
-            Gson gson = new Gson();
-            fragmentTransaction.add(R.id.fragment_container, new OtherProfileFragment(
-                    intent.getBooleanExtra("isMatching", false),
-                    gson.fromJson(intent.getStringExtra("user"), User.class),
-                    intent.getStringExtra("chatId"))
-            ).commit();
-        } else {
-            if (authController.isAuth()) { // 로그인되어있는 상태 firestore 부터 정보를 불러오는건 느리다.
-                fragmentTransaction
-                        .add(R.id.fragment_container, new ProfileFragment(), "ProfileFragment")
-                        .commit();
-            } else { // 로그인 fragment 실행
-                fragmentTransaction
-                        .add(R.id.fragment_container, new LoginFragment(), "LoginFragment")
-                        .commit();
+        // boolean : isReceiving
+        // JSON String : user
+        // String : chatId
+
+        if(intent.hasExtra("type")) {
+            String type = intent.getStringExtra("type");
+            assert type != null;
+            switch (type) {
+                case "home":
+                    fragmentTransaction.add(R.id.fragment_container,
+                            new OtherProfileFragment(
+                                    intent.getBooleanExtra("isMatching", false),
+                                    new Gson().fromJson(intent.getStringExtra("user"), User.class),
+                                    intent.getStringExtra("chatId")
+                            ),
+                            "OtherProfileFragmentHome"
+                    ).commit();
+                    break;
+
+                case "search":
+                    fragmentTransaction.add(R.id.fragment_container,
+                            new OtherProfileFragment(
+                                    intent.getBooleanExtra("isMatching", false),
+                                    new Gson().fromJson(intent.getStringExtra("user"), User.class),
+                                    intent.getStringExtra("chatId")
+                            ),
+                            "OtherProfileFragmentSearch"
+                    ).commit();
+                    break;
+
+                case "appoint": // TODO 수락하는 fragment 기능 추가해야됨.
+                    fragmentTransaction.add(R.id.fragment_container,
+                            new OtherProfileFragment(
+                                    intent.getBooleanExtra("isMatching", true),
+                                    new Gson().fromJson(intent.getStringExtra("user"), User.class),
+                                    intent.getStringExtra("chatId")
+                            ),
+                            "OtherProfileFragmentAppoint"
+                    ).commit();
+                    break;
             }
+        } else {
+            showMyProfile();
+        }
+    }
+
+    private void showMyProfile() {
+        if (authController.isAuth()) { // 로그인되어있는 상태 firestore 부터 정보를 불러오는건 느리다.
+            fragmentTransaction
+                    .add(R.id.fragment_container, new ProfileFragment(), "ProfileFragment")
+                    .commit();
+        } else { // 로그인 fragment 실행
+            fragmentTransaction
+                    .add(R.id.fragment_container, new LoginFragment(), "LoginFragment")
+                    .commit();
         }
     }
 

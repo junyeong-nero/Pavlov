@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import org.json.JSONException;
@@ -19,7 +20,9 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
+import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
+import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentOtherProfileBinding;
@@ -35,12 +38,14 @@ public class OtherProfileFragment extends Fragment {
     private FragmentOtherProfileBinding binding;
     private UserController userController;
     private MatchController matchController;
-    private User currentUser;
-    private boolean isMatching;
+    private User otherUser;
+    private String chatId;
+    private boolean isReceiving;
 
-    public OtherProfileFragment(boolean isMatching, User user, String chatId) {
-        this.isMatching = isMatching;
-        this.currentUser = user;
+    public OtherProfileFragment(boolean isReceiving, User user, String chatId) {
+        this.isReceiving = isReceiving;
+        this.otherUser = user;
+        this.chatId = chatId;
 
         matchController = new MatchController();
         matchController.setChatController(chatId);
@@ -62,8 +67,8 @@ public class OtherProfileFragment extends Fragment {
         if(matchController == null)
             matchController = new MatchController();
 
-        drawProfile(currentUser);
-        setProfileImage(currentUser);
+        drawProfile(otherUser);
+        setProfileImage(otherUser);
 
         return binding.getRoot();
     }
@@ -72,12 +77,22 @@ public class OtherProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.buttonMatch.setOnClickListener(v -> {
-            if(isMatching) // receiving 하는 중
-                matchController.receiveResult(currentUser);
-            else // matching 하는 중
-                matchController.match(currentUser);
-        });
+        String tag = getTag();
+        if(tag == null)
+            _log("tag is null");
+        else {
+            switch (tag) {
+                case "OtherProfileFragmentHome":
+                    buttonAppointment();
+                    buttonMatch();
+                    break;
+
+                case "OtherProfileFragmentSearch":
+                case "OtherProfileFragmentAppoint":
+                    buttonAppointment();
+                    break;
+            }
+        }
 
         binding.imageSelect.setOnClickListener(v -> {
             TedBottomPicker.with(getActivity())
@@ -87,6 +102,32 @@ public class OtherProfileFragment extends Fragment {
                         userController.updateUser("profile", uri.getPath());
                         _log(uri.getPath());
                     });
+        });
+    }
+
+    private void buttonMatch() {
+        binding.buttonAppointment.setText("매칭");
+        binding.buttonAppointment.setBackgroundColor(
+                ContextCompat.getColor(requireContext(), R.color.primary));
+        binding.buttonMatch.setOnClickListener(v -> {
+            if(isReceiving)
+                matchController.receiveResult(otherUser);
+            else
+                matchController.match(otherUser);
+        });
+    }
+
+    private void buttonAppointment() {
+        binding.buttonAppointment.setText("약속");
+        binding.buttonAppointment.setBackgroundColor(
+                ContextCompat.getColor(requireContext(), R.color.quantum_bluegrey700));
+        binding.buttonAppointment.setOnClickListener(v -> {
+            if(isReceiving) {
+                new AppointController().appoint(chatId);
+            } else {
+                new AppointController().request(otherUser.getUid());
+                requireActivity().finish();
+            }
         });
     }
 

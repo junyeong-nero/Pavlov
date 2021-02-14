@@ -4,6 +4,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
+
 @IgnoreExtraProperties
 public class User {
 
@@ -15,27 +17,38 @@ public class User {
     private String uid = "";
     private String profile = "";
     private String type = "public";
-    private String matcher = "";
+    private String chatId = "";
+    private String arrayChatId = "";
 
     private float age = -1F;
+
     private float manner = -1F;
+
     private boolean isMatching = false;
-
-    public String getMatcher() {
-        return matcher;
-    }
-    public void setMatcher(String matcher) {
-        this.matcher = matcher;
-    }
-
     // 강아지
+
     private String dog_name = "네로";
     private String dog_breed = "길고양이";
     private String dog_sex = "남자";
     private float dog_age = 10F;
-
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
+
+    public String getArrayChatId() {
+        return arrayChatId;
+    }
+
+    public void setArrayChatId(String arrayChatId) {
+        this.arrayChatId = arrayChatId;
+    }
+
+    public String getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 
     public String getUserName() {

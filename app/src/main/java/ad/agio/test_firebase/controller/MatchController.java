@@ -35,11 +35,11 @@ public class MatchController {
     private Consumer<ArrayList<User>> matchConsumer = list -> _log(list.toString());
     public Consumer<Chat> matchListener;
 
-    public boolean isMatching;
+    public boolean isReceiving;
     public boolean isPreparing = false;
 
     public MatchController() {
-        isMatching = false;
+        isReceiving = false;
         userController = new UserController();
         authController = new AuthController();
         mDatabase = FirebaseDatabase.getInstance().getReference()
@@ -66,7 +66,7 @@ public class MatchController {
         childDatabase
                 .setValue(currentUser)
                 .addOnSuccessListener(task -> childDatabase
-                        .child("matcher")
+                        .child("chatId")
                         .addValueEventListener(receiveListener));
     }
 
@@ -80,7 +80,7 @@ public class MatchController {
     private String previousValue = "";
 
     // TODO 왜 여러번 listener 가 작동할까? previousValue 이용해서 일단 막아놓기는 했는데 해결이 필요하다.
-    // db/matcher/uid/matcher 을 확인하는 listener, 이곳에 상대방이 생성한 chatId가 들어온다.
+    // db/matches/uid/chatId 을 확인하는 listener, 이곳에 상대방이 생성한 chatId가 들어온다.
     private final ValueEventListener receiveListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -107,7 +107,7 @@ public class MatchController {
                 startReceiving(); // receiver 작동
             } else {
                 // 만족하는 사람이 있으면, consumer 실행
-                isMatching = false;
+                isReceiving = false;
                 matchConsumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
             }
         });
@@ -115,7 +115,7 @@ public class MatchController {
 
     public void match(User user) {
         String chatId = Utils.randomWord();
-        mDatabase.child(user.getUid()).child("matcher").setValue(chatId); // 내꺼다 찜하기
+        mDatabase.child(user.getUid()).child("chatId").setValue(chatId); // 내꺼다 찜하기
 
         mChat = new Chat();
         mChat.chatId = chatId;
@@ -127,7 +127,7 @@ public class MatchController {
         chatController.addConfirmListener(result -> {
             matchResult(result);
             chatController.removeConfirmListener(); // 삭 - 제
-        }); // receiver 이 허락을 하는지 체크.
+        }); // receiver 이x 허락을 하는지 체크.
     }
 
     public void matchResult(String result) {
@@ -135,28 +135,22 @@ public class MatchController {
         if (result.equals("success")) {
             _log("matchResult: success");
             callMatchListener();
-            // TODO 성공시 매칭장소, 시간, 견종등을 나타내는 액티비티로 이동
             // TODO chatId 저장.
         } else if (result.equals("fail")) {
             // chatId 삭제 및 listener 삭제.
             _log("matchResult: fail");
             chatController.removeChat();
         } else {
-            _log("what the type?");
+            _log("matchResult : type error");
         }
     }
 
     public void receive(String chatId) {
-        if(!isMatching)
+        if(!isReceiving)
             _log("preReceive");
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> matchConsumer.accept(users));
-    }
-
-    public void setChatController(String chatId) {
-        chatController = new ChatController(chatId);
-        chatController.readChat(chat -> mChat = chat);
     }
 
     public void receiveResult(User user) {
@@ -168,13 +162,18 @@ public class MatchController {
         // TODO 여기에 무언가 약속장소나, 시간을 db/chat/chatID에 저장하는 그런 기능이 들어가야 한다.
     }
 
+    public void setChatController(String chatId) {
+        chatController = new ChatController(chatId);
+        chatController.readChat(chat -> mChat = chat);
+    }
+
     public void startReceiving() {
-        isMatching = true;
+        isReceiving = true;
         addDataWithListener();
     }
 
     public void pauseReceiving() {
-        isMatching = false;
+        isReceiving = false;
         removeData();
     }
 

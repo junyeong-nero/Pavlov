@@ -11,19 +11,21 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivitySearchBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.utils.RequestCodes;
 
 public class SearchActivity extends AppCompatActivity {
 
-    final static public String TAG = "SearchActivity";
-    public void LOGGING(String content) {
-        Log.d(TAG, content);
+    public void _log(String content) {
+        Log.e(this.getClass().getSimpleName(), content);
     }
 
     private ActivitySearchBinding binding;
@@ -46,7 +48,6 @@ public class SearchActivity extends AppCompatActivity {
             search(condition);
         });
 
-        // TODO enterkey 를 통한 search에서 두번 수행되는 버그.
         binding.editQuery.setOnKeyListener((v, actionId, event) -> {
             if (actionId == KeyEvent.KEYCODE_ENTER) {
                 search(condition);
@@ -66,14 +67,19 @@ public class SearchActivity extends AppCompatActivity {
                 TextView nick = view.findViewById(R.id.text_nickname);
                 nick.setText(user.getUserName());
 
-                Log.d(TAG, user.getUserName());
+                _log(user.toString());
 
                 ImageButton button = view.findViewById(R.id.button_chat);
                 button.setOnClickListener(v -> {
-                    Intent chat = new Intent(getApplicationContext(), ChatActivity.class);
-                    chat.putExtra("receiver", user.getUid());
-                    chat.putExtra("sender", authController.getUid());
-                    startActivity(chat);
+                    Intent intent = new Intent(this, ProfileActivity.class);
+                    Optional<User> opt = Optional.of(user);
+                    opt.ifPresent(value -> {
+                        intent.putExtra("type", "search");
+                        intent.putExtra("isReceiving", true); // is not receiving
+                        intent.putExtra("user", value.toString());
+                        intent.putExtra("chatId", value.getChatId());
+                    });
+                    startActivityForResult(intent, RequestCodes.SEARCH_ACTIVITY);
                     finish();
                 });
                 binding.textviewLog.addView(view);

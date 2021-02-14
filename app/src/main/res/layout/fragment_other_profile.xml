@@ -52,10 +52,22 @@
 
     <Button
         android:id="@+id/button_match"
-        android:text="매칭"
+        android:text="매칭 불가능"
+        android:textColor="@color/white"
+        android:layout_marginEnd="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@color/primary"
+        android:background="@color/quantum_grey"
         android:layout_width="match_parent"
+        android:layout_height="56dp" />
+
+    <Button
+        android:id="@+id/button_appointment"
+        android:text="약속 불가능"
+        app:layout_constraintStart_toEndOf="@id/button_match"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/white"
+        android:background="@color/quantum_grey"
+        android:layout_width="100dp"
         android:layout_height="56dp" />
 
 
