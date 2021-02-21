@@ -13,18 +13,15 @@ import java.util.Optional;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.services.AppointService;
 
 public class HomeActivity extends AppCompatActivity {
 
-    final private String _tag = "HomeActivity";
     private void _log(String text) {
-        Log.d(_tag, text);
+        Log.e(this.getClass().getSimpleName(), text);
     }
-
     private ActivityHomeBinding binding;
 
     @Override
@@ -42,7 +39,6 @@ public class HomeActivity extends AppCompatActivity {
             binding.textContent.setText(notification.getContent());
         });
 
-        userController = new UserController();
         authController = new AuthController();
         matchController = new MatchController();
 
@@ -54,7 +50,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void serviceStart() {
-        startService(new Intent(this, AppointService.class));
+        if(authController.isAuth())
+            startService(new Intent(this, AppointService.class));
     }
 
     private void serviceStop() {
@@ -62,12 +59,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private AuthController authController;
-    private UserController userController;
     private MatchController matchController;
 
     public void setting() {
 
-        matchController.matchListener = chat -> { // match is finished!
+        matchController.matchCompleteListener = chat -> { // match is finished!
             Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
@@ -90,16 +86,18 @@ public class HomeActivity extends AppCompatActivity {
 
                                 user.ifPresent(value -> {
                                     Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-                                    intent.putExtra("type", "home");
-                                    intent.putExtra("isMatching", matchController.isReceiving);
+                                    intent.putExtra("type", "match");
+                                    intent.putExtra("isReceiving", matchController.isReceiving);
+                                    // request => false, receive => true
                                     intent.putExtra("user", value.toString());
 
                                     if (matchController.getChat() != null)
                                         intent.putExtra("chatId", matchController.getChat().chatId);
+                                        // receive 하는 경우 chatId가 존재함.
                                     else
                                         intent.putExtra("chatId", "fake");
+                                        // request 하는 경우 chatId가 없음.
 
-                                    _log(value.toString());
                                     startActivity(intent);
                                 });
                             });
@@ -113,9 +111,10 @@ public class HomeActivity extends AppCompatActivity {
     private void matchFinish() {
         _log("match: finish");
         binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-        matchController.pauseReceiving();
+        matchController.pauseReceive();
     }
 
+    @Deprecated
     private void showDialog(ArrayList<User> list) { // for select user to match
         CharSequence[] items = new CharSequence[list.size()];
         for (int i = 0; i < items.length; i++)
@@ -139,11 +138,11 @@ public class HomeActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("안할래용", (dialog, which) -> {
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.pauseReceiving();
+                    matchController.pauseReceive();
                 })
                 .setOnDismissListener(dialog -> {
                     binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.pauseReceiving();
+                    matchController.pauseReceive();
                 })
                 .show();
     }

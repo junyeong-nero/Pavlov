@@ -59,11 +59,11 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         userController = new UserController();
-        userController.readUser(user -> {
-            currentUser = user;
-            _log(user.toString());
-            drawProfile(user);
-            setProfileImage(user);
+        userController.readMe(me -> {
+            currentUser = me;
+            drawProfile(me);
+            setProfileImage(me);
+            _log(me.toString());
         });
 
         binding.buttonNeighbor.setOnClickListener(v -> {
@@ -116,11 +116,11 @@ public class ProfileFragment extends Fragment {
         switch (requestCode) {
             case RequestCodes.NEIGHBOR_ACTIVITY:
                 _log("NEIGHBOR_ACTIVITY");
-                userController.readUser(user -> {
-                    currentUser = user;
-                    _log(user.toString());
-                    drawProfile(user);
-                    setProfileImage(user);
+                userController.readMe(me -> {
+                    currentUser = me;
+                    _log(me.toString());
+                    drawProfile(me);
+                    setProfileImage(me);
                 });
                 break;
 

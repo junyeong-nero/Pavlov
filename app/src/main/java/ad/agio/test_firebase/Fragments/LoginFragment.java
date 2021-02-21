@@ -48,7 +48,7 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.buttonLogin.setOnClickListener(v ->
-            loginAuth(binding.etEmail.getText().toString(),
+            login(binding.etEmail.getText().toString(),
                     binding.etPw.getText().toString())
         );
 
@@ -64,7 +64,12 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    private void loginAuth(String email, String password) {
+    /**
+     * 로그인
+     * @param email 이메일
+     * @param password 비밀번호
+     */
+    private void login(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
@@ -79,7 +84,12 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-    public void loginSuccess(String email, String password) {
+    /**
+     * 로그인 성공시 호출되는 함수
+     * @param email 계정 이메일
+     * @param password 계정 비밀번호
+     */
+    private void loginSuccess(String email, String password) {
         DataController dataController = new DataController(getContext());
 
         // email, password auto-save

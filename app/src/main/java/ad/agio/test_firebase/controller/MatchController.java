@@ -31,9 +31,9 @@ public class MatchController {
     private final AuthController authController;
 
     private Chat mChat;
-    private User currentUser;
-    private Consumer<ArrayList<User>> matchConsumer = list -> _log(list.toString());
-    public Consumer<Chat> matchListener;
+    private User currentUser, otherUser;
+    private Consumer<ArrayList<User>> otherProfileConsumer = list -> _log(list.toString());
+    public Consumer<Chat> matchCompleteListener;
 
     public boolean isReceiving;
     public boolean isPreparing = false;
@@ -52,6 +52,9 @@ public class MatchController {
         return mChat;
     }
 
+    /**
+     * 매칭전 자신의 프로필과 db에 연결합니다.
+     */
     public void prepare() {
         if(authController.isAuth()) {
             isPreparing = true;
@@ -62,7 +65,11 @@ public class MatchController {
         }
     }
 
-    public void addDataWithListener() {
+    /**
+     * db에 자신의 프로필을 업로드하고
+     * 요청을 받는 리스너를 추가합니다.
+     */
+    private void addDataWithListener() {
         childDatabase
                 .setValue(currentUser)
                 .addOnSuccessListener(task -> childDatabase
@@ -70,7 +77,10 @@ public class MatchController {
                         .addValueEventListener(receiveListener));
     }
 
-    public void removeData() {
+    /**
+     * db에 업로드한 자신의 프로필을 지웁니다.
+     */
+    private void removeData() {
         if(childDatabase != null) {
             childDatabase.removeEventListener(receiveListener);
             childDatabase.removeValue();
@@ -79,15 +89,17 @@ public class MatchController {
 
     private String previousValue = "";
 
-    // TODO 왜 여러번 listener 가 작동할까? previousValue 이용해서 일단 막아놓기는 했는데 해결이 필요하다.
-    // db/matches/uid/chatId 을 확인하는 listener, 이곳에 상대방이 생성한 chatId가 들어온다.
+    /**
+     * db/matches/uid/chatId 을 확인하는 listener
+     * 상대방이 생성한 chatId를 확인하고 receive 함수로 넘겨줌.
+     */
     private final ValueEventListener receiveListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             String value = snapshot.getValue(String.class);
             if (snapshot.exists()) {
                 assert value != null;
-                if (!value.equals(previousValue)) {
+                if (!value.equals(previousValue)) { // 똑같은 정보를 여러번 받는 버그가 있어서 추가함.
                     previousValue = value;
                     receive(value);
                 }
@@ -100,42 +112,57 @@ public class MatchController {
         }
     };
 
+    /**
+     * 매칭을 시작함. receive 할지 혹은 request 할지 여기서 나뉨.
+     * 매칭을 하는 조건과, 매칭시 어떤 행동을 해야하는지 지정해야 함.
+     * @param condition 매칭조건, 성별, 나이, 거리 등
+     * @param consumer 매칭되었을 때 수행될 것
+     */
     public void startMatching(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
-        matchConsumer = consumer;
+        otherProfileConsumer = consumer;
         findUserBy(condition, list -> { // 일단 matchers 중에서 조건을 만족하는 사람을 찾아본다.
             if (list == null || list.isEmpty()) { // 만족하는 사람이 없으면
-                startReceiving(); // receiver 작동
+                startReceive(); // receiver 작동
             } else {
                 // 만족하는 사람이 있으면, consumer 실행
                 isReceiving = false;
-                matchConsumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
+                otherProfileConsumer.accept(list); // receiver 위해서 messaging 하는거 여기서 구현해야됨.
             }
         });
     }
 
-    public void match(User user) {
+    /**
+     * 매칭을 요청함.
+     * @param otherUser 상대방
+     */
+    public void request(User otherUser) {
+        this.otherUser = otherUser;
         String chatId = Utils.randomWord();
-        mDatabase.child(user.getUid()).child("chatId").setValue(chatId); // 내꺼다 찜하기
+        mDatabase.child(otherUser.getUid()).child("chatId").setValue(chatId);
+        // 상대방의 프로필의 chatId에 생성한 chatId를 전송합니다.
 
         mChat = new Chat();
         mChat.chatId = chatId;
-        mChat.chatName = currentUser.getUserName() + "와 " + user.getUserName() + "의 채팅방";
-        mChat.users.put(currentUser.getUid(), currentUser); // 자기 데이터 추가
+        mChat.chatName = currentUser.getUserName() + "와 " + otherUser.getUserName() + "의 채팅방";
+        mChat.users.put(currentUser.getUid(), currentUser); // 자신의 프로필을 채팅방에 추가
 
         chatController = new ChatController(chatId);
-        chatController.addChat(mChat);
+        chatController.writeChat(mChat);
         chatController.addConfirmListener(result -> {
-            matchResult(result);
-            chatController.removeConfirmListener(); // 삭 - 제
-        }); // receiver 이x 허락을 하는지 체크.
+            requestResult(result);
+            chatController.removeConfirmListener(); // 수락을 확인하는 컨트롤러를 삭제합니다.
+        }); // receiver 가 요청을 수락하는지 체크합니다.
     }
 
-    public void matchResult(String result) {
-        pauseReceiving();
+    /**
+     * 매칭 요청이후, 상대방이 수락여부를 컨트롤 합니다.
+     * @param result requestResult, success or fail
+     */
+    public void requestResult(String result) {
+        pauseReceive();
         if (result.equals("success")) {
             _log("matchResult: success");
             callMatchListener();
-            // TODO chatId 저장.
         } else if (result.equals("fail")) {
             // chatId 삭제 및 listener 삭제.
             _log("matchResult: fail");
@@ -145,42 +172,68 @@ public class MatchController {
         }
     }
 
+    /**
+     * 상대방의 요청을 받음. startReceiving 와 연결되어 있습니다.
+     * matchers/myUid/chatId 리스터에 의해서 작동합니다.
+     * @param chatId chatId
+     */
     public void receive(String chatId) {
         if(!isReceiving)
-            _log("preReceive");
+            _log("is not Receiving");
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
-        chatController.readOtherUsers(users -> matchConsumer.accept(users));
+        chatController.readOtherUsers(users -> otherProfileConsumer.accept(users));
     }
 
-    public void receiveResult(User user) {
-        _log("receiveResult\n" + user.toString());
-        pauseReceiving();
+    /**
+     * 상대방의 요청을 수락함.
+     * @param otherUser 상대방
+     */
+    public void receiveResult(User otherUser) {
+        _log("receiveResult\n" + otherUser.toString());
+        this.otherUser = otherUser;
+
+        pauseReceive();
         chatController.writeUser(currentUser);
         chatController.sendMatchResult("success");
         callMatchListener();
-        // TODO 여기에 무언가 약속장소나, 시간을 db/chat/chatID에 저장하는 그런 기능이 들어가야 한다.
+        // TODO 약속장소, 시간을 db/chat/chatID에 저장하는 기능 추가.
     }
 
+    /**
+     * 채팅 컨트롤러를 연결함.
+     * @param chatId chatId
+     */
     public void setChatController(String chatId) {
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
     }
 
-    public void startReceiving() {
+    /**
+     * 요청을 확인하는 리스너를 실행함.
+     */
+    public void startReceive() {
         isReceiving = true;
         addDataWithListener();
     }
 
-    public void pauseReceiving() {
+    /**
+     * 요청을 확인하는 리스너를 중단함.
+     */
+    public void pauseReceive() {
         isReceiving = false;
         removeData();
     }
 
+    /**
+     * 매칭이 완료되었을때 실행해야함.
+     * 채팅창 정보를 읽고 matchCompleteListener을 수행함.
+     */
+    // TODO chatId를 자신 프로필에 저장.
     public void callMatchListener() {
         chatController.readChat(chat -> {
             mChat = chat;
-            matchListener.accept(mChat);
+            matchCompleteListener.accept(mChat);
         });
     }
 
@@ -196,6 +249,7 @@ public class MatchController {
                                     && !post.getUid().equals(currentUser.getUid())
                                     && !post.getUserName().equals("GHOST")
                                     && !post.getUserName().equals("")) {
+                                // root 가 없어져서 client is offline 에러가 발생하지 않도록 GHOST 데이터를 추가해놓았음.
                                 list.add(post);
                             }
                         }

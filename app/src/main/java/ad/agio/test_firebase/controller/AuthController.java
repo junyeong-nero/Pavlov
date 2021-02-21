@@ -5,16 +5,25 @@ import android.util.Log;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class AuthController {
-    public static String TAG = "AuthController";
+    private void _log(String text) {
+        Log.e(this.getClass().getSimpleName(), text);
+    }
     private final FirebaseAuth mAuth;
 
     public AuthController() {
         this.mAuth = FirebaseAuth.getInstance();
     }
 
+    /**
+     * 사용자의 UID를 가져옵니다.
+     * @return
+     */
     public String getUid() {
-        checkValidUser();
-        return mAuth.getCurrentUser().getUid();
+        _log("getUID");
+        if(isAuth())
+            return mAuth.getCurrentUser().getUid();
+        else
+            return "";
     }
 
     public boolean isAuth() {
@@ -24,16 +33,16 @@ public class AuthController {
         mAuth.signOut();
     }
 
+    /**
+     * 사용자가 로그인 되어있는지 확인합니다.
+     */
     public void checkValidUser() {
+        _log("checkValidUsers");
         try {
             if (!isAuth())
                 throw new IllegalAccessException("checkValidUser: it is not valid user");
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    private void LOGGING(String content) {
-        Log.d(TAG, content);
     }
 }

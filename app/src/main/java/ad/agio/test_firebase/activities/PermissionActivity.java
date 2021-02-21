@@ -61,13 +61,11 @@ public class PermissionActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST: {
-                boolean b = Arrays.stream(permissions).allMatch(str -> ContextCompat.checkSelfPermission(
-                        this.getApplicationContext(), str) == PackageManager.PERMISSION_GRANTED);
-                if (grantResults.length > 0 && b) {
-                    init();
-                }
+        if (requestCode == PERMISSIONS_REQUEST) {
+            boolean b = Arrays.stream(permissions).allMatch(str -> ContextCompat.checkSelfPermission(
+                    this.getApplicationContext(), str) == PackageManager.PERMISSION_GRANTED);
+            if (grantResults.length > 0 && b) {
+                init();
             }
         }
     }

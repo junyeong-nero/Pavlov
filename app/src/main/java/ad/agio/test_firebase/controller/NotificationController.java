@@ -31,6 +31,10 @@ public class NotificationController {
         this.mDatabase = FirebaseDatabase.getInstance().getReference().child("notification");
     }
 
+    /**
+     * 공지정보를 받아옵니다.
+     * @param consumer Notification consumer
+     */
     public void readNotification(Consumer<Notification> consumer) {
         mDatabase.get()
                 .addOnSuccessListener(dataSnapshot -> consumer.accept(dataSnapshot

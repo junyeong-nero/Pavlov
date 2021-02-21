@@ -44,12 +44,6 @@ public class ProfileActivity extends AppCompatActivity {
                     RequestCodes.MENU_ACTIVITY)
         );
 
-//        binding.buttonMenu.setOnLongClickListener(v -> {
-//            finish();
-//            authController.signOut();
-//            return true;
-//        });
-
         if(!authController.isAuth())
             binding.buttonMenu.setVisibility(View.GONE);
 
@@ -58,50 +52,27 @@ public class ProfileActivity extends AppCompatActivity {
         // JSON String : user
         // String : chatId
 
+        // type 이 있다면 다른 사람의 프로필을 띄운다.
         if(intent.hasExtra("type")) {
             String type = intent.getStringExtra("type");
             assert type != null;
-            switch (type) {
-                case "home":
-                    fragmentTransaction.add(R.id.fragment_container,
-                            new OtherProfileFragment(
-                                    intent.getBooleanExtra("isMatching", false),
-                                    new Gson().fromJson(intent.getStringExtra("user"), User.class),
-                                    intent.getStringExtra("chatId")
-                            ),
-                            "OtherProfileFragmentHome"
-                    ).commit();
-                    break;
-
-                case "search":
-                    fragmentTransaction.add(R.id.fragment_container,
-                            new OtherProfileFragment(
-                                    intent.getBooleanExtra("isMatching", false),
-                                    new Gson().fromJson(intent.getStringExtra("user"), User.class),
-                                    intent.getStringExtra("chatId")
-                            ),
-                            "OtherProfileFragmentSearch"
-                    ).commit();
-                    break;
-
-                case "appoint": // TODO 수락하는 fragment 기능 추가해야됨.
-                    fragmentTransaction.add(R.id.fragment_container,
-                            new OtherProfileFragment(
-                                    intent.getBooleanExtra("isMatching", true),
-                                    new Gson().fromJson(intent.getStringExtra("user"), User.class),
-                                    intent.getStringExtra("chatId")
-                            ),
-                            "OtherProfileFragmentAppoint"
-                    ).commit();
-                    break;
-            }
+            fragmentTransaction.add(R.id.fragment_container,
+                    new OtherProfileFragment(
+                            type,
+                            intent.getBooleanExtra("isReceiving", false),
+                            new Gson().fromJson(intent.getStringExtra("user"), User.class),
+                            intent.getStringExtra("chatId")
+                    ),
+                    "OtherProfileFragment"
+            ).commit();
         } else {
+            // type 이 없다면 자신의 프로필을 띄운다
             showMyProfile();
         }
     }
 
     private void showMyProfile() {
-        if (authController.isAuth()) { // 로그인되어있는 상태 firestore 부터 정보를 불러오는건 느리다.
+        if (authController.isAuth()) { // 로그인되어있는 상태 Firestore 부터 정보를 불러오는건 느리다.
             fragmentTransaction
                     .add(R.id.fragment_container, new ProfileFragment(), "ProfileFragment")
                     .commit();

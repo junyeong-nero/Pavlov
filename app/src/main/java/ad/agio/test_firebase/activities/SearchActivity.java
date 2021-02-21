@@ -74,10 +74,10 @@ public class SearchActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, ProfileActivity.class);
                     Optional<User> opt = Optional.of(user);
                     opt.ifPresent(value -> {
-                        intent.putExtra("type", "search");
-                        intent.putExtra("isReceiving", true); // is not receiving
+                        intent.putExtra("type", "appoint");
+                        intent.putExtra("isReceiving", false); // is not receiving
                         intent.putExtra("user", value.toString());
-                        intent.putExtra("chatId", value.getChatId());
+                        intent.putExtra("chatId", "fake"); // actually it's empty
                     });
                     startActivityForResult(intent, RequestCodes.SEARCH_ACTIVITY);
                     finish();

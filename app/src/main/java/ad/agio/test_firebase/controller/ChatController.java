@@ -27,7 +27,7 @@ public class ChatController {
                 .child(chatId);
     }
 
-    public void addChat(Chat chat) {
+    public void writeChat(Chat chat) {
         db.setValue(chat);
     }
 

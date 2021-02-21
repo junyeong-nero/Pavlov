@@ -26,7 +26,6 @@ public class DataController {
     public String readData(String tag) {
         return preferences.getString(tag, "");
     }
-
     public void deleteData(String tag) {
         preferences.edit().remove(tag).apply();
     }

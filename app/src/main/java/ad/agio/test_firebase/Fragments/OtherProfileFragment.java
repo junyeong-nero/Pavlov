@@ -38,18 +38,29 @@ public class OtherProfileFragment extends Fragment {
     private FragmentOtherProfileBinding binding;
     private UserController userController;
     private MatchController matchController;
+    private AppointController appointController;
     private User otherUser;
-    private String chatId;
+    private String chatId, type;
     private boolean isReceiving;
 
-    public OtherProfileFragment(boolean isReceiving, User user, String chatId) {
+    public OtherProfileFragment(String type, boolean isReceiving, User user, String chatId) {
         this.isReceiving = isReceiving;
+        this.type = type;
         this.otherUser = user;
         this.chatId = chatId;
 
+        appointController = new AppointController();
+        appointController.appointmentCompleteListener = chat -> {
+            requireActivity().finish();
+            Intent intent = new Intent(requireContext(), ChatActivity.class);
+            intent.putExtra("chatId", chat.chatId);
+            startActivity(intent);
+        };
+
         matchController = new MatchController();
-        matchController.setChatController(chatId);
-        matchController.matchListener = chat -> {
+        if(isReceiving)
+            matchController.setChatController(chatId);
+        matchController.matchCompleteListener = chat -> {
             requireActivity().finish();
             Intent intent = new Intent(requireContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
@@ -77,31 +88,16 @@ public class OtherProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String tag = getTag();
-        if(tag == null)
-            _log("tag is null");
-        else {
-            switch (tag) {
-                case "OtherProfileFragmentHome":
-                    buttonAppointment();
-                    buttonMatch();
-                    break;
-
-                case "OtherProfileFragmentSearch":
-                case "OtherProfileFragmentAppoint":
-                    buttonAppointment();
-                    break;
-            }
+        if (type.equals("match")) {
+            buttonMatch();
+            if(!isReceiving) // 매칭 요청을 하는 경우, 약속 요청도 할 수 있도록
+                buttonAppointment();
+        } else if (type.equals("appoint")) {
+            buttonAppointment();
         }
 
         binding.imageSelect.setOnClickListener(v -> {
-            TedBottomPicker.with(getActivity())
-                    .show(uri -> {
-                        binding.imageProfile.setImageURI(uri);
-                        UserController userController = new UserController();
-                        userController.updateUser("profile", uri.getPath());
-                        _log(uri.getPath());
-                    });
+            // can't change profile image
         });
     }
 
@@ -113,7 +109,7 @@ public class OtherProfileFragment extends Fragment {
             if(isReceiving)
                 matchController.receiveResult(otherUser);
             else
-                matchController.match(otherUser);
+                matchController.request(otherUser);
         });
     }
 
@@ -123,9 +119,9 @@ public class OtherProfileFragment extends Fragment {
                 ContextCompat.getColor(requireContext(), R.color.quantum_bluegrey700));
         binding.buttonAppointment.setOnClickListener(v -> {
             if(isReceiving) {
-                new AppointController().appoint(chatId);
+                appointController.appoint(chatId);
             } else {
-                new AppointController().request(otherUser.getUid());
+                appointController.request(otherUser);
                 requireActivity().finish();
             }
         });

@@ -18,7 +18,6 @@ import ad.agio.test_firebase.domain.User;
 public class ChatActivity extends AppCompatActivity {
 
     private ActivityChatBinding binding;
-    private DatabaseReference chatDatabase;
     private ChatController chatController;
     private AuthController authController;
     private Chat mChat;
