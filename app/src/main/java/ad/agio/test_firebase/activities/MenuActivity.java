@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.databinding.ActivityMenuBinding;
+import ad.agio.test_firebase.utils.RequestCodes;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -29,6 +30,7 @@ public class MenuActivity extends AppCompatActivity {
         hashMap.put("로그아웃", (v) -> {
             AuthController authController = new AuthController();
             authController.signOut();
+            setResult(RequestCodes.LOGOUT);
             finish();
         });
 

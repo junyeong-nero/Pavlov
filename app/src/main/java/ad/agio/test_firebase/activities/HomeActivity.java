@@ -1,5 +1,6 @@
 package ad.agio.test_firebase.activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -64,6 +65,7 @@ public class HomeActivity extends AppCompatActivity {
     public void setting() {
 
         matchController.matchCompleteListener = chat -> { // match is finished!
+            matchFinish();
             Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
@@ -112,6 +114,15 @@ public class HomeActivity extends AppCompatActivity {
         _log("match: finish");
         binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
         matchController.pauseReceive();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (!authController.isAuth()) {
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+            finish();
+        }
     }
 
     @Deprecated

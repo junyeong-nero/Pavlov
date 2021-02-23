@@ -20,7 +20,7 @@ public class UserController {
     private final FirebaseFirestore mFirestore;
     private AuthController authController;
 
-    public UserController() {
+    public UserController() { // TODO 사용자 사진 데이터베이스 업로드
         this.mFirestore = FirebaseFirestore.getInstance();
         this.authController = new AuthController();
     }

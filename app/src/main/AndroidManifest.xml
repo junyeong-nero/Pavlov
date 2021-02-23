@@ -19,7 +19,8 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Test_Firebase.NoActionBar">
+        android:theme="@style/Theme.Test_Firebase">
+        <activity android:name=".activities.LoginActivity"></activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -32,11 +33,12 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <service android:name=".services.AppointService"
+        <service
+            android:name=".services.AppointService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
-        <activity android:name=".activities.MenuActivity"/>
+        <activity android:name=".activities.MenuActivity" />
         <activity android:name=".activities.NeighborActivity" />
         <activity android:name=".activities.ChatActivity" />
         <activity android:name=".activities.SearchActivity" />

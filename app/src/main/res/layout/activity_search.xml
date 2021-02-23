@@ -18,9 +18,9 @@
 
     <ImageButton
         android:id="@+id/button_back"
-        app:layout_constraintRight_toLeftOf="@id/title"
-        app:layout_constraintTop_toTopOf="@id/title"
-        app:layout_constraintBottom_toBottomOf="@id/title"
+        app:layout_constraintRight_toLeftOf="@id/toolbar_title"
+        app:layout_constraintTop_toTopOf="@id/toolbar_title"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar_title"
         android:background="@drawable/ripple_circle"
         android:src="@drawable/ic_arrow_back"
         android:layout_margin="8dp"
@@ -28,7 +28,7 @@
         android:layout_height="40dp"/>
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/toolbar_title"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginLeft="56dp"

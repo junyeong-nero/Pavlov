@@ -116,6 +116,8 @@ public class ProfileFragment extends Fragment {
         switch (requestCode) {
             case RequestCodes.NEIGHBOR_ACTIVITY:
                 _log("NEIGHBOR_ACTIVITY");
+                userController = new UserController();
+                userController.updateUser("neighbor", data.getStringExtra("neighbor"));
                 userController.readMe(me -> {
                     currentUser = me;
                     _log(me.toString());

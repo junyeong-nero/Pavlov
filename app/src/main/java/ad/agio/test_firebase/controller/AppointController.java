@@ -1,5 +1,7 @@
 package ad.agio.test_firebase.controller;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
@@ -16,6 +18,10 @@ import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.Utils;
 
 public class AppointController {
+
+    private void _log(String text) {
+        Log.e(this.getClass().getSimpleName(), text);
+    }
 
     private DatabaseReference db;
     private final AuthController authController;
@@ -63,6 +69,7 @@ public class AppointController {
     public void startReceive(Consumer<ArrayList<User>> consumer) {
         this.receiveConsumer = consumer;
         if (authController.isAuth()) {
+            _log("startReceive");
             db.setValue("empty")
                     .addOnSuccessListener(task -> db.addValueEventListener(receiveListener));
         }
@@ -84,7 +91,7 @@ public class AppointController {
     public void appoint(String chatId) {
         ChatController chatController = new ChatController(chatId);
         chatController.sendMatchResult("success"); // request 가 성공함을 알림.
-        userController.readMe(chatController::writeUser); // 내 프로피을 채팅방에 추가.
+        userController.readMe(chatController::writeUser); // 내 프로필을 채팅방에 추가.
         chatController.readChat(chat -> {
             mChat = chat;
             if(appointmentCompleteListener != null) {

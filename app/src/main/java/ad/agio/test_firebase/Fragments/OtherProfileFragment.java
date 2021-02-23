@@ -22,21 +22,20 @@ import java.util.Iterator;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
+import ad.agio.test_firebase.activities.ProfileActivity;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentOtherProfileBinding;
 import ad.agio.test_firebase.domain.User;
-import gun0912.tedbottompicker.TedBottomPicker;
 
 public class OtherProfileFragment extends Fragment {
 
     private void _log(String text) {
-        Log.d(OtherProfileFragment.class.getSimpleName(), text);
+        Log.d(this.getClass().getSimpleName(), text);
     }
 
     private FragmentOtherProfileBinding binding;
-    private UserController userController;
     private MatchController matchController;
     private AppointController appointController;
     private User otherUser;
@@ -51,20 +50,20 @@ public class OtherProfileFragment extends Fragment {
 
         appointController = new AppointController();
         appointController.appointmentCompleteListener = chat -> {
-            requireActivity().finish();
-            Intent intent = new Intent(requireContext(), ChatActivity.class);
+            Intent intent = new Intent(getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
+            requireActivity().finish();
         };
 
         matchController = new MatchController();
         if(isReceiving)
             matchController.setChatController(chatId);
         matchController.matchCompleteListener = chat -> {
-            requireActivity().finish();
-            Intent intent = new Intent(requireContext(), ChatActivity.class);
+            Intent intent = new Intent(getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
+            requireActivity().finish();
         };
     }
 
@@ -74,7 +73,6 @@ public class OtherProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentOtherProfileBinding.inflate(inflater, container, false);
 
-        userController = new UserController();
         if(matchController == null)
             matchController = new MatchController();
 
@@ -89,10 +87,12 @@ public class OtherProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (type.equals("match")) {
+            _log("onViewCreated:match");
             buttonMatch();
             if(!isReceiving) // 매칭 요청을 하는 경우, 약속 요청도 할 수 있도록
                 buttonAppointment();
         } else if (type.equals("appoint")) {
+            _log("onViewCreated:appoint");
             buttonAppointment();
         }
 
@@ -102,8 +102,8 @@ public class OtherProfileFragment extends Fragment {
     }
 
     private void buttonMatch() {
-        binding.buttonAppointment.setText("매칭");
-        binding.buttonAppointment.setBackgroundColor(
+        binding.buttonMatch.setText("매칭");
+        binding.buttonMatch.setBackgroundColor(
                 ContextCompat.getColor(requireContext(), R.color.primary));
         binding.buttonMatch.setOnClickListener(v -> {
             if(isReceiving)

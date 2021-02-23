@@ -104,7 +104,9 @@ public class LoginFragment extends Fragment {
         }
 
         // menu button visible
-        requireActivity().findViewById(R.id.button_menu).setVisibility(View.VISIBLE);
+        View viewById = requireActivity().findViewById(R.id.button_menu);
+        if(viewById != null)
+            viewById.setVisibility(View.VISIBLE);
 
         // Fragment change
         FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager()

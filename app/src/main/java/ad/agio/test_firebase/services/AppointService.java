@@ -22,15 +22,8 @@ public class AppointService extends Service {
     private AppointController appointController;
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent _intent, int flags, int startId) {
         _log("onStartCommand");
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        _log("onCreate");
         appointController = new AppointController();
 
         appointController.appointmentCompleteListener = chat -> {
@@ -41,7 +34,6 @@ public class AppointService extends Service {
 
         appointController.startReceive(list -> {
             if(!list.isEmpty()) {
-                // TODO notification -> profileActivity
                 Optional<User> user = list.stream().findAny();
                 _log(user.toString());
 
@@ -56,6 +48,7 @@ public class AppointService extends Service {
                 startActivity(intent);
             }
         });
+        return super.onStartCommand(_intent, flags, startId);
     }
 
     @Nullable
