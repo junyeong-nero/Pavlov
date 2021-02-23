@@ -93,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void cook() {
         if(surveyResult != null && !surveyResult.isEmpty()) {
-            currentUser = new User();
+            currentUser = new User(); // TODO 더 많은 정보를 기입해야 함.
             currentUser.setUserName(surveyResult.get(Question.Type.user_name));
             currentUser.setSex(surveyResult.get(1));
             currentUser.setEmail(surveyResult.get(3));

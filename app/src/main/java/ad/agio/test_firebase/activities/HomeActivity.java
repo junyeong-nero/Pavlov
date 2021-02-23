@@ -20,7 +20,7 @@ import ad.agio.test_firebase.services.AppointService;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private void _log(String text) {
+    private void log(String text) {
         Log.e(this.getClass().getSimpleName(), text);
     }
     private ActivityHomeBinding binding;
@@ -78,13 +78,13 @@ public class HomeActivity extends AppCompatActivity {
                     matchController.prepare();
 
                 if(!matchController.isReceiving) {
-                    _log("match: start");
+                    log("match: start");
                     binding.textIndicator.setText("매칭중..");
                     matchController.startMatching(
                             user -> true, // condition
                             list -> {
                                 Optional<User> user = list.stream().findAny();
-                                _log(user.toString());
+                                log(user.toString());
 
                                 user.ifPresent(value -> {
                                     Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
@@ -111,15 +111,28 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void matchFinish() {
-        _log("match: finish");
+        log("match: finish");
         binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
         matchController.pauseReceive();
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        authController = new AuthController();
+        if (!authController.isAuth()) {
+            log("is not auth");
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+            finish();
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        authController = new AuthController();
         if (!authController.isAuth()) {
+            log("is not auth");
             startActivity(new Intent(HomeActivity.this, LoginActivity.class));
             finish();
         }
@@ -144,7 +157,7 @@ public class HomeActivity extends AppCompatActivity {
                     else
                         intent.putExtra("chatId", "fake");
 
-                    _log(list.get(which).toString());
+                    log(list.get(which).toString());
                     startActivity(intent);
                 })
                 .setNegativeButton("안할래용", (dialog, which) -> {

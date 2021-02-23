@@ -7,13 +7,12 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.google.gson.Gson;
 
-import ad.agio.test_firebase.Fragments.LoginFragment;
-import ad.agio.test_firebase.Fragments.OtherProfileFragment;
-import ad.agio.test_firebase.Fragments.ProfileFragment;
+import ad.agio.test_firebase.fragments.LoginFragment;
+import ad.agio.test_firebase.fragments.OtherProfileFragment;
+import ad.agio.test_firebase.fragments.ProfileFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.databinding.ActivityProfileBinding;

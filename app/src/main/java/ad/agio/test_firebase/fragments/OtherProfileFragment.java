@@ -1,4 +1,4 @@
-package ad.agio.test_firebase.Fragments;
+package ad.agio.test_firebase.fragments;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -22,10 +22,8 @@ import java.util.Iterator;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
-import ad.agio.test_firebase.activities.ProfileActivity;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.MatchController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentOtherProfileBinding;
 import ad.agio.test_firebase.domain.User;
 

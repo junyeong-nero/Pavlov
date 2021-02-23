@@ -1,4 +1,4 @@
-package ad.agio.test_firebase.Fragments;
+package ad.agio.test_firebase.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,7 +1,5 @@
-package ad.agio.test_firebase.Fragments;
+package ad.agio.test_firebase.fragments;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,15 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.stream.Collector;
-import java.util.stream.Stream;
-
-import ad.agio.test_firebase.controller.MatchController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentMatchingBinding;
-import ad.agio.test_firebase.domain.User;
 
 public class MatchingFragment extends Fragment {
 
