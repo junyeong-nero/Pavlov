@@ -18,6 +18,7 @@ import ad.agio.test_firebase.domain.User;
 
 public class ChatController {
     public String chatId;
+    private Chat currentChat;
     private DatabaseReference db;
 
     public ChatController(String chatId) {
@@ -25,6 +26,14 @@ public class ChatController {
         this.db = FirebaseDatabase.getInstance().getReference()
                 .child("chat")
                 .child(chatId);
+
+        UserController userController = new UserController();
+        userController.readMe(me -> {
+            // arrayChatId 추가
+            if(!me.getArrayChatId().contains(chatId)) {
+                userController.updateUser("arrayChatId", me.getArrayChatId() + chatId + "\n");
+            }
+        });
     }
 
     public void writeChat(Chat chat) {
@@ -33,8 +42,10 @@ public class ChatController {
 
     public void readChat(Consumer<Chat> consumer) {
         db.get()
-                .addOnSuccessListener(dataSnapshot ->
-                        consumer.accept(dataSnapshot.getValue(Chat.class)))
+                .addOnSuccessListener(dataSnapshot -> {
+                            if(dataSnapshot.exists() && dataSnapshot != null)
+                                consumer.accept(dataSnapshot.getValue(Chat.class));
+                        })
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 

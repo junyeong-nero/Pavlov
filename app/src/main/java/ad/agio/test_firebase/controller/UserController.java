@@ -3,25 +3,30 @@ package ad.agio.test_firebase.controller;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.stream.Stream;
 
 import ad.agio.test_firebase.domain.User;
 
 public class UserController {
 
-    private void _log(String s) {
+    private void log(String s) {
         Log.d(this.getClass().getSimpleName(), s);
     }
 
@@ -38,7 +43,7 @@ public class UserController {
      * @param user user
      */
     public void writeNewUser(User user) {
-        _log("writeNewUser : " + user.toString());
+        log("writeNewUser : " + user.toString());
         mFirestore.collection("users")
                 .document(user.getUid()).set(user);
     }
@@ -49,7 +54,7 @@ public class UserController {
      * @param consumer
      */
     public void readAllUsers(Consumer<User> consumer) {
-        _log("readAllUsers");
+        log("readAllUsers");
         mFirestore
                 .collection("users")
                 .whereEqualTo("type", "public")
@@ -73,7 +78,7 @@ public class UserController {
         if(authController.isAuth())
             readUser(authController.getUid(), consumer);
         else
-            _log("it is not authenticated");
+            log("it is not authenticated");
     }
 
     /**
@@ -116,7 +121,6 @@ public class UserController {
 
     /**
      * 프로필 이미지를 업로드 합니다.
-     * TODO 테스트 필요함.
      * @param path
      * @throws FileNotFoundException
      */
@@ -129,24 +133,28 @@ public class UserController {
         }
     }
 
+    public void readProfileImage(Consumer<byte[]> consumer) {
+        readProfileImage(authController.getUid(), consumer);
+    }
+
     /**
      * 프로필 이미지의 경로를 읽어옵니다.
-     * TODO 테스트 필요함.
      * @return
      */
-    public String readProfileImage() {
+    public void readProfileImage(String uid, Consumer<byte[]> consumer) {
         if (authController.isAuth()) {
             StorageReference sr = FirebaseStorage.getInstance().getReference();
-            String path = sr.child("profile_images")
-                    .child(authController.getUid())
-                    .getDownloadUrl().getResult().getPath();
-            return path;
-//            sr.child("profile_images")
-//                    .child(authController.getUid())
-//                    .getDownloadUrl().addOnCompleteListener(result -> {
-//                        result.getResult().getPath();
-//                    });
+            sr.child("profile_images")
+                    .child(uid)
+                    .getBytes(Long.MAX_VALUE)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            consumer.accept(task.getResult());
+                        }
+                    });
+
+        } else {
+            log("is not authenticated");
         }
-        return "";
     }
 }

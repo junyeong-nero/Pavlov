@@ -1,6 +1,8 @@
 package ad.agio.test_firebase.fragments;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -14,6 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -115,7 +120,9 @@ public class ProfileFragment extends Fragment {
     private void setProfileImage(User user) {
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
-            binding.imageProfile.setImageURI(Uri.parse(profile));
+            userController.readProfileImage(bytes -> {
+                binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+            });
         }
     }
 

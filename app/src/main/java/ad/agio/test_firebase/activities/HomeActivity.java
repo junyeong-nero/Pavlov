@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
+import ad.agio.test_firebase.fragments.ChatFragment;
 import ad.agio.test_firebase.fragments.HomeFragment;
 import ad.agio.test_firebase.fragments.ProfileFragment;
 import ad.agio.test_firebase.fragments.SearchFragment;
@@ -69,22 +70,28 @@ public class HomeActivity extends AppCompatActivity {
                     .commit();
         });
 
+        icon.put("채팅", R.drawable.ic_chat);
+        map.put("채팅", t -> {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ChatFragment(), "ProfileFragment")
+                    .commit();
+        });
+
         GraphicComponents g = new GraphicComponents(this);
 
-        List<String> arr = Arrays.asList("홈", "탐색", "프로필");
+        List<String> arr = Arrays.asList("홈", "탐색", "채팅", "프로필");
         for (String key : arr) {
             View view = getLayoutInflater().inflate(R.layout.home_button_inflater, null);
             ImageButton button = view.findViewById(R.id.button);
             button.setImageResource(icon.get(key));
             button.setOnClickListener(v -> {
                 menuControl(key);
+                binding.toolbarTitle.setText(key);
                 map.get(key).accept(key);
             });
             TextView textView = view.findViewById(R.id.text);
             textView.setText(key);
-
-            binding.toolbarTitle.setText(key);
-            binding.layout.addView(view, g.getScreenWidth() / 3, g.dp(56));
+            binding.layout.addView(view, g.getScreenWidth() / arr.size(), g.dp(56));
         }
 
         binding.buttonMenu.setOnClickListener(v -> startActivity(new Intent(this, MenuActivity.class)));
