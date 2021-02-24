@@ -1,13 +1,21 @@
 package ad.agio.test_firebase.controller;
 
+import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import ad.agio.test_firebase.domain.User;
 
@@ -104,5 +112,41 @@ public class UserController {
         mFirestore.collection("users")
                 .document(user.getUid())
                 .set(user);
+    }
+
+    /**
+     * 프로필 이미지를 업로드 합니다.
+     * TODO 테스트 필요함.
+     * @param path
+     * @throws FileNotFoundException
+     */
+    public void writeProfileImage(String path) throws FileNotFoundException {
+        if(authController.isAuth()) {
+            StorageReference sr = FirebaseStorage.getInstance().getReference();
+            sr.child("profile_images")
+                    .child(authController.getUid())
+                    .putStream(new FileInputStream(new File(path)));
+        }
+    }
+
+    /**
+     * 프로필 이미지의 경로를 읽어옵니다.
+     * TODO 테스트 필요함.
+     * @return
+     */
+    public String readProfileImage() {
+        if (authController.isAuth()) {
+            StorageReference sr = FirebaseStorage.getInstance().getReference();
+            String path = sr.child("profile_images")
+                    .child(authController.getUid())
+                    .getDownloadUrl().getResult().getPath();
+            return path;
+//            sr.child("profile_images")
+//                    .child(authController.getUid())
+//                    .getDownloadUrl().addOnCompleteListener(result -> {
+//                        result.getResult().getPath();
+//                    });
+        }
+        return "";
     }
 }

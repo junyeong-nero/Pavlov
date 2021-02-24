@@ -36,10 +36,10 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        onViewCreated();
+        init();
     }
 
-    public void onViewCreated() {
+    public void init() {
 
         binding.buttonLogin.setOnClickListener(v ->
                 login(binding.etEmail.getText().toString(),
@@ -111,15 +111,15 @@ public class LoginActivity extends AppCompatActivity {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         ProgressBar p = new ProgressBar(this);
-        p.setPadding(g.dp(8), g.dp(8), g.dp(8), g.dp(8));
-        layout.addView(p, g.dp(72), g.dp(72));
+        p.setPadding(g.dp(20), g.dp(20), g.dp(20), g.dp(20));
+        layout.addView(p, g.dp(100), g.dp(100));
 
         TextView t = new TextView(this);
         t.setText("요청중에요");
         t.setTextColor(Color.BLACK);
         t.setGravity(Gravity.CENTER_VERTICAL);
         t.setPadding(g.dp(8), g.dp(8), g.dp(8), g.dp(8));
-        layout.addView(t, WRAP_CONTENT, g.dp(72));
+        layout.addView(t, WRAP_CONTENT, g.dp(100));
 
         dialog = new AlertDialog.Builder(this)
                 .setView(layout)

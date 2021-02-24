@@ -18,6 +18,9 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Iterator;
 
 import ad.agio.test_firebase.activities.NeighborActivity;
@@ -71,15 +74,20 @@ public class ProfileFragment extends Fragment {
                     RequestCodes.NEIGHBOR_ACTIVITY);
         });
 
-        binding.imageSelect.setOnClickListener(v -> {
-            TedBottomPicker.with(getActivity())
+        binding.imageSelect.setOnClickListener(v ->
+                TedBottomPicker.with(getActivity())
                     .show(uri -> {
                         binding.imageProfile.setImageURI(uri);
                         UserController userController = new UserController();
                         userController.updateUser("profile", uri.getPath());
+                        try {
+                            userController.writeProfileImage(uri.getPath());
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                         _log(uri.getPath());
-                    });
-        });
+                    })
+        );
     }
 
     private void drawProfile(User user) {
