@@ -18,11 +18,10 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
 
+import ad.agio.test_firebase.activities.LoginActivity;
 import ad.agio.test_firebase.activities.NeighborActivity;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
@@ -34,8 +33,8 @@ import gun0912.tedbottompicker.TedBottomPicker;
 
 public class ProfileFragment extends Fragment {
 
-    private void _log(String text) {
-        Log.d("ProfileFragment", text);
+    private void log(String text) {
+        Log.d(this.getClass().getSimpleName(), text);
     }
 
     private FragmentProfileBinding binding;
@@ -50,7 +49,7 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false);
@@ -66,7 +65,7 @@ public class ProfileFragment extends Fragment {
             currentUser = me;
             drawProfile(me);
             setProfileImage(me);
-            _log(me.toString());
+            log(me.toString());
         });
 
         binding.buttonNeighbor.setOnClickListener(v -> {
@@ -85,7 +84,7 @@ public class ProfileFragment extends Fragment {
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
-                        _log(uri.getPath());
+                        log(uri.getPath());
                     })
         );
     }
@@ -97,13 +96,15 @@ public class ProfileFragment extends Fragment {
             Iterator iterator = obj.keys();
             while (iterator.hasNext()) {
                 String next = iterator.next().toString();
-                TextView textView = new TextView(requireContext());
-                textView.setText(next);
-                binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                if(isAdded()) {
+                    TextView textView = new TextView(requireContext());
+                    textView.setText(next);
+                    binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-                EditText editText = new EditText(requireContext());
-                editText.setText(obj.getString(next));
-                binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    EditText editText = new EditText(requireContext());
+                    editText.setText(obj.getString(next));
+                    binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                }
             }
 
         } catch (JSONException e) {
@@ -121,14 +122,21 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RequestCodes.LOGOUT) {
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+            requireActivity().finish();
+        }
         switch (requestCode) {
             case RequestCodes.NEIGHBOR_ACTIVITY:
-                _log("NEIGHBOR_ACTIVITY");
+                log("NEIGHBOR_ACTIVITY");
                 userController = new UserController();
-                userController.updateUser("neighbor", data.getStringExtra("neighbor"));
+
+                if (data != null && data.hasExtra("neighbor"))
+                    userController.updateUser("neighbor", data.getStringExtra("neighbor"));
+
                 userController.readMe(me -> {
                     currentUser = me;
-                    _log(me.toString());
+                    log(me.toString());
                     drawProfile(me);
                     setProfileImage(me);
                 });
@@ -142,7 +150,7 @@ public class ProfileFragment extends Fragment {
                 break;
 
             default:
-                _log("default!");
+                log("default!");
         }
     }
 }

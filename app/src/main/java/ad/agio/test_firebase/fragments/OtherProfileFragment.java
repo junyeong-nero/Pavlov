@@ -102,7 +102,7 @@ public class OtherProfileFragment extends Fragment {
     private void buttonMatch() {
         binding.buttonMatch.setText("매칭");
         binding.buttonMatch.setBackgroundColor(
-                ContextCompat.getColor(requireContext(), R.color.primary));
+                ContextCompat.getColor(requireContext(), R.color.colorPrimary));
         binding.buttonMatch.setOnClickListener(v -> {
             if(isReceiving)
                 matchController.receiveResult(otherUser);
@@ -114,7 +114,7 @@ public class OtherProfileFragment extends Fragment {
     private void buttonAppointment() {
         binding.buttonAppointment.setText("약속");
         binding.buttonAppointment.setBackgroundColor(
-                ContextCompat.getColor(requireContext(), R.color.quantum_bluegrey700));
+                ContextCompat.getColor(requireContext(), R.color.colorPrimaryVariant));
         binding.buttonAppointment.setOnClickListener(v -> {
             if(isReceiving) {
                 appointController.appoint(chatId);

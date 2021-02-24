@@ -9,5 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="paper">#FFF8E4</color>
     <color name="trans">#00FFFFFF</color>
-    <color name="primary">#FF8130</color>
+
+    <color name="colorPrimary">@color/quantum_bluegrey700</color>
+    <color name="colorPrimaryVariant">@color/quantum_bluegrey500</color>
+    <color name="colorOnPrimary">@color/quantum_orange700</color>
 </resources>

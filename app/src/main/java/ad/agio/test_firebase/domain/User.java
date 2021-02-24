@@ -19,17 +19,17 @@ public class User {
     private String type = "public";
     private String chatId = "";
     private String arrayChatId = "";
-
-    private float age = -1F;
-
-    private float manner = -1F;
-
+    private float age = 0F;
+    private float manner = 0F;
     private boolean isMatching = false;
+
+
     // 강아지
 
     private String dog_name = "네로";
     private String dog_breed = "길고양이";
     private String dog_sex = "남자";
+    private String dog_serial = "";
     private float dog_age = 10F;
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)

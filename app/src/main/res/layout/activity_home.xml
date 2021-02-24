@@ -12,7 +12,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:background="@color/purple_500"
+        android:background="@color/colorPrimary"
         android:layout_height="56dp"/>
 
     <TextView
@@ -30,75 +30,120 @@
         android:text="@string/app_name"/>
 
     <ImageButton
-        android:id="@+id/button_profile"
+        android:id="@+id/button_menu"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@drawable/ripple_circle"
-        android:src="@drawable/ic_fire"
+        android:src="@drawable/ic_setting"
+        android:tint="@color/white"
         android:scaleType="fitXY"
-        android:padding="4dp"
+        android:padding="8dp"
+        android:visibility="gone"
         app:layout_constraintCircleRadius="1dp"
         android:cropToPadding="true"
         android:layout_margin="8dp"/>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:layout_marginBottom="56dp" />
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp" />
+
+    <TextView
+        android:elevation="4dp"
+        android:text="홈"
+        android:textSize="10sp"
+        android:clickable="false"
+        android:focusable="false"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/button_home"
+        app:layout_constraintEnd_toEndOf="@+id/button_home"
+        app:layout_constraintBottom_toBottomOf="@+id/button_home"
+        android:layout_marginBottom="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <ImageButton
-        android:id="@+id/button_main"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:src="@drawable/ic_home"
+        android:tint="@color/white"
+        android:elevation="4dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="64dp"
+        android:id="@+id/button_home"
+        android:paddingBottom="4dp"
         android:background="@drawable/ripple_circle"
-        android:src="@drawable/ic_fire"
-        android:scaleType="fitXY"
-        android:padding="4dp"
-        app:layout_constraintCircleRadius="1dp"
-        android:cropToPadding="true"
-        android:layout_margin="8dp"/>
-
-    <TextView
-        android:id="@+id/text_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/button_main"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="4dp"
-        android:textSize="16sp"
-        android:text="@string/app_explain"/>
-
-    <TextView
-        android:id="@+id/text_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/button_main"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="4dp"
-        android:textSize="16sp"
-        android:text="매칭을 위해서 아래 버튼을 눌러주세요"/>
-
-    <TextView
-        android:id="@+id/text_content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/text_title"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="4dp"
-        android:textSize="12sp"
-        android:text="@string/app_content"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_floating"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_search"
-        android:layout_margin="16dp"
+        app:layout_constraintEnd_toStartOf="@id/button_search"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_width="56dp"
+        android:layout_height="56dp" />
+
+    <TextView
+        android:elevation="4dp"
+        android:text="프로필"
+        android:clickable="false"
+        android:focusable="false"
+        android:textSize="10sp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/button_profile"
+        app:layout_constraintEnd_toEndOf="@+id/button_profile"
+        app:layout_constraintBottom_toBottomOf="@+id/button_profile"
+        android:layout_marginBottom="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:src="@drawable/ic_person"
+        android:tint="@color/white"
+        android:elevation="4dp"
+        android:id="@+id/button_profile"
+        android:background="@drawable/ripple_circle"
+        android:paddingBottom="4dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintStart_toEndOf="@id/button_search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="56dp"
+        android:layout_height="56dp" />
+
+    <TextView
+        android:elevation="4dp"
+        android:text="탐색"
+        android:textSize="10sp"
+        android:clickable="false"
+        android:focusable="false"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/button_search"
+        app:layout_constraintEnd_toEndOf="@+id/button_search"
+        app:layout_constraintBottom_toBottomOf="@+id/button_search"
+        android:layout_marginBottom="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:src="@drawable/ic_search"
+        android:tint="@color/white"
+        android:elevation="4dp"
+        android:id="@+id/button_search"
+        android:background="@drawable/ripple_circle"
+        android:paddingBottom="4dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="56dp"
+        android:layout_height="56dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

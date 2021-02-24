@@ -23,10 +23,9 @@ import ad.agio.test_firebase.databinding.FragmentLoginBinding;
 
 public class LoginFragment extends Fragment {
 
-    private void _log(String text) {
-        Log.d("LoginFragment", text);
+    private void log(String text) {
+        Log.d(this.getClass().getSimpleName(), text);
     }
-
     private FirebaseAuth mAuth;
     private FragmentLoginBinding binding;
 
@@ -73,11 +72,11 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
-                        _log("signInWithEmail:success");
+                        log("signInWithEmail:success");
                         loginSuccess(email, password);
                     } else {
                         // If sign in fails, display a message to the user.
-                        _log("signInWithEmail:failure");
+                        log("signInWithEmail:failure");
                         Toast.makeText(getContext(), "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                     }

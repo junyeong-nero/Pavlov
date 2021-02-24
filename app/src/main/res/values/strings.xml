@@ -14,4 +14,6 @@
     <string name="app_content">프론트엔드 및 CTO를 맡고 있는 Nero라고 합니다.</string>
 
     <string name="google_maps_key">AIzaSyAtMTt9b43tgE5LVyclC7OAci7ndmPdPqw</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

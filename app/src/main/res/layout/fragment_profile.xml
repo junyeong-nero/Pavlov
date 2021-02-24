@@ -7,6 +7,8 @@
     tools:context=".fragments.ProfileFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:tint="@color/white"
+        app:backgroundTint="@color/colorOnPrimary"
         android:id="@+id/button_neighbor"
         android:src="@drawable/ic_location"
         app:layout_constraintEnd_toEndOf="parent"

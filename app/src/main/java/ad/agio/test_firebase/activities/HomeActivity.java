@@ -2,21 +2,28 @@ package ad.agio.test_firebase.activities;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
+import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.fragments.HomeFragment;
+import ad.agio.test_firebase.fragments.ProfileFragment;
+import ad.agio.test_firebase.fragments.SearchFragment;
 import ad.agio.test_firebase.services.AppointService;
+import ad.agio.test_firebase.utils.RequestCodes;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -24,6 +31,7 @@ public class HomeActivity extends AppCompatActivity {
         Log.e(this.getClass().getSimpleName(), text);
     }
     private ActivityHomeBinding binding;
+    private AuthController authController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,23 +39,43 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.buttonProfile.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
-        binding.buttonFloating.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, SearchActivity.class)));
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new HomeFragment(), "HomeFragment")
+                .commit();
 
-        NotificationController controller = new NotificationController();
-        controller.readNotification(notification -> {
-            binding.textTitle.setText(notification.getTitle());
-            binding.textContent.setText(notification.getContent());
+        binding.buttonHome.setOnClickListener(v -> {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new HomeFragment(), "HomeFragment")
+                    .commit();
+            binding.toolbarTitle.setText("홈");
+            binding.buttonMenu.setVisibility(View.GONE);
         });
 
+        binding.buttonSearch.setOnClickListener(v -> {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new SearchFragment(), "SearchFragment")
+                    .commit();
+            binding.toolbarTitle.setText("검색");
+            binding.buttonMenu.setVisibility(View.GONE);
+        });
+
+        binding.buttonProfile.setOnClickListener(v -> {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment(), "ProfileFragment")
+                    .commit();
+            binding.toolbarTitle.setText("프로필");
+            binding.buttonMenu.setVisibility(View.VISIBLE);
+        });
+
+        binding.buttonMenu.setOnClickListener(v -> {
+            startActivity(new Intent(this, MenuActivity.class));
+        });
+
+//        binding.button1.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
+//        binding.button2.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, SearchActivity.class)));
+
         authController = new AuthController();
-        matchController = new MatchController();
-
-        if(authController.isAuth())
-            matchController.prepare();
-
         serviceStart();
-        setting();
     }
 
     private void serviceStart() {
@@ -59,115 +87,12 @@ public class HomeActivity extends AppCompatActivity {
         stopService(new Intent(this, AppointService.class));
     }
 
-    private AuthController authController;
-    private MatchController matchController;
-
-    public void setting() {
-
-        matchController.matchCompleteListener = chat -> { // match is finished!
-            matchFinish();
-            Intent intent = new Intent(HomeActivity.this, ChatActivity.class);
-            intent.putExtra("chatId", chat.chatId);
-            startActivity(intent);
-        };
-
-        binding.buttonMain.setOnClickListener(v -> {
-            if (authController.isAuth()) {
-
-                if(!matchController.isPreparing)
-                    matchController.prepare();
-
-                if(!matchController.isReceiving) {
-                    log("match: start");
-                    binding.textIndicator.setText("매칭중..");
-                    matchController.startMatching(
-                            user -> true, // condition
-                            list -> {
-                                Optional<User> user = list.stream().findAny();
-                                log(user.toString());
-
-                                user.ifPresent(value -> {
-                                    Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-                                    intent.putExtra("type", "match");
-                                    intent.putExtra("isReceiving", matchController.isReceiving);
-                                    // request => false, receive => true
-                                    intent.putExtra("user", value.toString());
-
-                                    if (matchController.getChat() != null)
-                                        intent.putExtra("chatId", matchController.getChat().chatId);
-                                        // receive 하는 경우 chatId가 존재함.
-                                    else
-                                        intent.putExtra("chatId", "fake");
-                                        // request 하는 경우 chatId가 없음.
-
-                                    startActivity(intent);
-                                });
-                            });
-                } else {
-                    matchFinish();
-                }
-            }
-        });
-    }
-
-    private void matchFinish() {
-        log("match: finish");
-        binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-        matchController.pauseReceive();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        authController = new AuthController();
-        if (!authController.isAuth()) {
-            log("is not auth");
-            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
-            finish();
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        authController = new AuthController();
-        if (!authController.isAuth()) {
-            log("is not auth");
-            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+        if (resultCode == RequestCodes.LOGOUT) {
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
         }
-    }
-
-    @Deprecated
-    private void showDialog(ArrayList<User> list) { // for select user to match
-        CharSequence[] items = new CharSequence[list.size()];
-        for (int i = 0; i < items.length; i++)
-            items[i] = list.get(i).getUserName();
-
-        new AlertDialog.Builder(HomeActivity.this)
-                .setTitle("매칭성공")
-                .setItems(items, (dialog, which) -> {
-                    Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-                    intent.putExtra("type", "home");
-                    intent.putExtra("isMatching", matchController.isReceiving);
-                    intent.putExtra("user", list.get(which).toString());
-
-                    if (matchController.getChat() != null)
-                        intent.putExtra("chatId", matchController.getChat().chatId);
-                    else
-                        intent.putExtra("chatId", "fake");
-
-                    log(list.get(which).toString());
-                    startActivity(intent);
-                })
-                .setNegativeButton("안할래용", (dialog, which) -> {
-                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.pauseReceive();
-                })
-                .setOnDismissListener(dialog -> {
-                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
-                    matchController.pauseReceive();
-                })
-                .show();
     }
 }
