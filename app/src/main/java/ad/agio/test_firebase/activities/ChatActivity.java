@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
-import com.google.firebase.database.DatabaseReference;
-
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.ChatController;
 import ad.agio.test_firebase.databinding.ActivityChatBinding;

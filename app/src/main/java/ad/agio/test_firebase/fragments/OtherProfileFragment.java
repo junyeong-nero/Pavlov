@@ -48,7 +48,7 @@ public class OtherProfileFragment extends Fragment {
 
         appointController = new AppointController();
         appointController.appointmentCompleteListener = chat -> {
-            Intent intent = new Intent(getContext(), ChatActivity.class);
+            Intent intent = new Intent(requireContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
             requireActivity().finish();
@@ -58,7 +58,7 @@ public class OtherProfileFragment extends Fragment {
         if(isReceiving)
             matchController.setChatController(chatId);
         matchController.matchCompleteListener = chat -> {
-            Intent intent = new Intent(getContext(), ChatActivity.class);
+            Intent intent = new Intent(requireContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
             requireActivity().finish();
@@ -66,7 +66,7 @@ public class OtherProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentOtherProfileBinding.inflate(inflater, container, false);
