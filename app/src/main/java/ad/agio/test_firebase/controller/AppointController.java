@@ -106,6 +106,7 @@ public class AppointController {
         chatController.readChat(chat -> {
             mChat = chat;
             if(successListener != null) {
+                addChat(mChat.chatId);
                 successListener.accept(mChat); // 채팅방과 연결
             }
         });
@@ -153,12 +154,22 @@ public class AppointController {
                 .child(authController.getUid())
                 .removeValue(); // 다른사람의 db에서 자신의 프로피을 지움.
         if (result.equals("success")) {
-            if(successListener != null)
+            if(successListener != null) {
+                addChat(mChat.getChatId());
                 successListener.accept(mChat);
+            }
         } else {
             chatController.removeChat();
             if(failureListener != null)
                 failureListener.accept(null);
+        }
+    }
+
+    private void addChat(String chatId) {
+        if(!currentUser.getArrayChatId().contains(chatId)) {
+            String temp = currentUser.getArrayChatId() + chatId + "|";
+            userController.updateUser("arrayChatId", temp);
+            currentUser.setArrayChatId(temp);
         }
     }
 }

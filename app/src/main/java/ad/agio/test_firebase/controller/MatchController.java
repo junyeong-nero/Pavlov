@@ -243,13 +243,17 @@ public class MatchController {
     public void callMatchListener() {
         chatController.readChat(chat -> {
             mChat = chat;
-            if(!currentUser.getArrayChatId().contains(mChat.chatId)) {
-                String temp = currentUser.getArrayChatId() + mChat.chatId + "|";
-                userController.updateUser("arrayChatId", temp);
-                currentUser.setArrayChatId(temp);
-            }
+            addChat(mChat.chatId);
             successListener.accept(mChat);
         });
+    }
+
+    private void addChat(String chatId) {
+        if(!currentUser.getArrayChatId().contains(chatId)) {
+            String temp = currentUser.getArrayChatId() + chatId + "|";
+            userController.updateUser("arrayChatId", temp);
+            currentUser.setArrayChatId(temp);
+        }
     }
 
     public void findUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
