@@ -26,6 +26,9 @@ import ad.agio.test_firebase.databinding.FragmentSearchBinding;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.RequestCodes;
 
+import static ad.agio.test_firebase.activities.HomeActivity.userController;
+
+
 public class SearchFragment extends Fragment {
 
     private FragmentSearchBinding binding;
@@ -34,7 +37,7 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -62,8 +65,7 @@ public class SearchFragment extends Fragment {
 
     public void search(Predicate<User> condition) {
         binding.textLog.removeAllViews();
-        UserController controller = new UserController();
-        controller.readAllUsers(user -> {
+        userController.readAllUsers(user -> {
             if (user != null && condition.test(user)) {
                 LayoutInflater layoutInflater = getLayoutInflater();
                 View view = layoutInflater.inflate(R.layout.inflate_profile, null);

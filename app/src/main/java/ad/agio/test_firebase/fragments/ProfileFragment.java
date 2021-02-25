@@ -1,8 +1,6 @@
 package ad.agio.test_firebase.fragments;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -19,12 +17,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Iterator;
 
 import ad.agio.test_firebase.activities.LoginActivity;
@@ -37,15 +37,17 @@ import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.RequestCodes;
 import gun0912.tedbottompicker.TedBottomPicker;
 
+import static ad.agio.test_firebase.activities.HomeActivity.authController;
+import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
+import static ad.agio.test_firebase.activities.HomeActivity.userController;
+
+
 public class ProfileFragment extends Fragment {
 
     private void log(String text) {
         Log.d(this.getClass().getSimpleName(), text);
     }
-
     private FragmentProfileBinding binding;
-    private UserController userController;
-    private User currentUser;
 
     // onCreate -> onCreateView -> onViewCreated -> onStart -> onResume
 
@@ -57,22 +59,20 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        userController = new UserController();
-        userController.readMe(me -> {
-            currentUser = me;
-            drawProfile(me);
-            setProfileImage(me);
-            log(me.toString());
-        });
+        if(currentUser != null) {
+            drawProfile(currentUser);
+            setProfileImage(currentUser);
+            log("none null");
+        } else {
+            userController.readMe(me -> {
+                currentUser = me;
+                drawProfile(currentUser);
+                setProfileImage(currentUser);
+                log(currentUser.toString());
+            });
+        }
 
         binding.buttonNeighbor.setOnClickListener(v -> {
             startActivityForResult(new Intent(requireContext(), NeighborActivity.class),
@@ -81,18 +81,25 @@ public class ProfileFragment extends Fragment {
 
         binding.imageSelect.setOnClickListener(v ->
                 TedBottomPicker.with(getActivity())
-                    .show(uri -> {
-                        binding.imageProfile.setImageURI(uri);
-                        UserController userController = new UserController();
-                        userController.updateUser("profile", uri.getPath());
-                        try {
-                            userController.writeProfileImage(uri.getPath());
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        log(uri.getPath());
-                    })
+                        .show(uri -> {
+                            binding.imageProfile.setImageURI(uri);
+                            UserController userController = new UserController();
+                            userController.updateUser("profile", uri.getPath());
+                            try {
+                                userController.writeProfileImage(uri.getPath());
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            log(uri.getPath());
+                        })
         );
+
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
     private void drawProfile(User user) {
@@ -127,22 +134,13 @@ public class ProfileFragment extends Fragment {
         if(!isAdded())
             return;
 
-        String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
-        if(!profile.equals("")) {
-            Uri parse = Uri.parse(profile);
-            if (new File(parse.getPath()).exists()) {
-                log("using file");
-                binding.imageProfile.setImageURI(Uri.parse(profile));
-            } else {
-                userController.readProfileImage(bytes -> {
-                    // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                    if(isAdded())
-                        Glide.with(this)
-                            .load(bytes)
-                            .into(binding.imageProfile);
-                });
-            }
-        }
+        userController.readProfileImage(bytes -> {
+            // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+            if(isAdded())
+                Glide.with(this)
+                        .load(bytes)
+                        .into(binding.imageProfile);
+        });
     }
 
     @Override
@@ -156,7 +154,6 @@ public class ProfileFragment extends Fragment {
         switch (requestCode) {
             case RequestCodes.NEIGHBOR_ACTIVITY:
                 log("NEIGHBOR_ACTIVITY");
-                userController = new UserController();
 
                 if (data != null && data.hasExtra("neighbor"))
                     userController.updateUser("neighbor", data.getStringExtra("neighbor"));

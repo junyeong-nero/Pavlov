@@ -19,7 +19,10 @@ import java.util.function.Consumer;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
+import ad.agio.test_firebase.controller.MatchController;
+import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
+import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.fragments.ChatFragment;
 import ad.agio.test_firebase.fragments.HomeFragment;
 import ad.agio.test_firebase.fragments.ProfileFragment;
@@ -34,13 +37,19 @@ public class HomeActivity extends AppCompatActivity {
         Log.e(this.getClass().getSimpleName(), text);
     }
     private ActivityHomeBinding binding;
-    private AuthController authController;
+    static public UserController userController = new UserController();
+    static public AuthController authController = new AuthController();
+    static public MatchController matchController = new MatchController();
+    static public User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        userController.readMe(me -> currentUser = me);
+        matchController.setContext(this);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new HomeFragment(), "HomeFragment")
@@ -95,8 +104,12 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         binding.buttonMenu.setOnClickListener(v -> startActivityForResult(new Intent(this, MenuActivity.class), RequestCodes.MENU_ACTIVITY));
-        authController = new AuthController();
+        settingMatchController();
         serviceStart();
+    }
+
+    private void settingMatchController() {
+
     }
 
     private void menuControl(String fragment) {

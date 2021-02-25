@@ -1,5 +1,6 @@
 package ad.agio.test_firebase.controller;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,16 @@ public class MatchController {
     private User currentUser, otherUser;
     private Consumer<ArrayList<User>> otherProfileConsumer = list -> _log(list.toString());
     public Consumer<Chat> matchCompleteListener;
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    private Context context;
 
     public boolean isReceiving;
     public boolean isPreparing = false;

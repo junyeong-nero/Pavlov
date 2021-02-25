@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.rpc.context.AttributeContext;
+
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -25,7 +27,9 @@ import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.NotificationController;
 import ad.agio.test_firebase.databinding.FragmentHomeBinding;
 import ad.agio.test_firebase.domain.User;
-import ad.agio.test_firebase.utils.RequestCodes;
+
+import static ad.agio.test_firebase.activities.HomeActivity.matchController;
+import static ad.agio.test_firebase.activities.HomeActivity.authController;
 
 public class HomeFragment extends Fragment {
 
@@ -49,8 +53,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        binding.buttonProfile.setOnClickListener(v -> startActivity(new Intent(requireContext(), ProfileActivity.class)));
-//        binding.buttonFloating.setOnClickListener(v -> startActivity(new Intent(requireContext(), SearchActivity.class)));
 
         NotificationController controller = new NotificationController();
         controller.readNotification(notification -> {
@@ -58,23 +60,17 @@ public class HomeFragment extends Fragment {
             binding.textContent.setText(notification.getContent());
         });
 
-        authController = new AuthController();
-        matchController = new MatchController();
-
         if(authController.isAuth())
             matchController.prepare();
 
         setting();
     }
 
-    private AuthController authController;
-    private MatchController matchController;
-
     public void setting() {
 
         matchController.matchCompleteListener = chat -> { // match is finished!
             matchFinish();
-            Intent intent = new Intent(requireContext(), ChatActivity.class);
+            Intent intent = new Intent(matchController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
         };
@@ -96,8 +92,8 @@ public class HomeFragment extends Fragment {
 
                                 user.ifPresent(value -> {
 
-                                    Intent intent = new Intent(requireActivity()
-                                            .getApplicationContext(), ProfileActivity.class);
+                                    Intent intent = new Intent(matchController.getContext(),
+                                            ProfileActivity.class);
                                     intent.putExtra("type", "match");
                                     intent.putExtra("isReceiving", matchController.isReceiving);
                                     // request => false, receive => true

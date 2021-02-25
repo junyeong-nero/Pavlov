@@ -19,11 +19,10 @@ import java.util.function.Consumer;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.controller.ChatController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentChatBinding;
 import ad.agio.test_firebase.utils.GraphicComponents;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
 public class ChatFragment extends Fragment {
 
@@ -37,8 +36,6 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentChatBinding.inflate(inflater, container, false);
-
-        UserController userController = new UserController();
         userController.readMe(me -> draw(me.getArrayChatId()));
 
         return binding.getRoot();

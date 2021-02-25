@@ -1,40 +1,31 @@
 package ad.agio.test_firebase.controller;
 
-import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import ad.agio.test_firebase.domain.User;
 
 public class UserController {
 
     private void log(String s) {
-        Log.d(this.getClass().getSimpleName(), s);
+        Log.e(this.getClass().getSimpleName(), s);
     }
 
-    private final FirebaseFirestore mFirestore;
+    private final FirebaseFirestore firestore;
     private AuthController authController;
 
     public UserController() { // TODO 사용자 사진 데이터베이스 업로드
-        this.mFirestore = FirebaseFirestore.getInstance();
+        this.firestore = FirebaseFirestore.getInstance();
         this.authController = new AuthController();
     }
 
@@ -44,7 +35,7 @@ public class UserController {
      */
     public void writeNewUser(User user) {
         log("writeNewUser : " + user.toString());
-        mFirestore.collection("users")
+        firestore.collection("users")
                 .document(user.getUid()).set(user);
     }
 
@@ -55,7 +46,7 @@ public class UserController {
      */
     public void readAllUsers(Consumer<User> consumer) {
         log("readAllUsers");
-        mFirestore
+        firestore
                 .collection("users")
                 .whereEqualTo("type", "public")
                 .get()
@@ -87,7 +78,7 @@ public class UserController {
      * @param consumer 사용자를 컨트롤할 consumer
      */
     public void readUser(String uid, Consumer<User> consumer) {
-        mFirestore
+        firestore
                 .collection("users")
                 .document(uid)
                 .get()
@@ -105,7 +96,7 @@ public class UserController {
      * @param value 업데이트할 값.
      */
     public void updateUser(String tag, Object value) {
-        mFirestore.collection("users")
+        firestore.collection("users")
                 .document(authController.getUid()).update(tag, value);
     }
 
@@ -114,7 +105,7 @@ public class UserController {
      * @param user 사용자 프로필
      */
     public void updateUser(User user) {
-        mFirestore.collection("users")
+        firestore.collection("users")
                 .document(user.getUid())
                 .set(user);
     }
@@ -146,7 +137,7 @@ public class UserController {
             StorageReference sr = FirebaseStorage.getInstance().getReference();
             sr.child("profile_images")
                     .child(uid)
-                    .getBytes(Long.MAX_VALUE)
+                    .getBytes(Long.MAX_VALUE / 256)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             consumer.accept(task.getResult());

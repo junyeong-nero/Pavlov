@@ -13,13 +13,14 @@ import ad.agio.test_firebase.databinding.ActivityChatBinding;
 import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.User;
 
+import static ad.agio.test_firebase.activities.HomeActivity.authController;
+import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
+
 public class ChatActivity extends AppCompatActivity {
 
     private ActivityChatBinding binding;
     private ChatController chatController;
-    private AuthController authController;
     private Chat mChat;
-    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +32,14 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String chatId = intent.getStringExtra("chatId");
 
-        authController = new AuthController();
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> {
             mChat = chat;
-            currentUser = mChat.users.get(authController.getUid());
+            binding.toolbarTitle.setText(mChat.chatName);
         });
-
         chatController.addTextListener(text -> binding.text.setText(text)); // text Listener
 
+        binding.buttonBack.setOnClickListener(v -> finish());
         binding.editText.setOnKeyListener((v, actionId, event) -> {
             if (actionId == KeyEvent.KEYCODE_ENTER) {
                 send();
