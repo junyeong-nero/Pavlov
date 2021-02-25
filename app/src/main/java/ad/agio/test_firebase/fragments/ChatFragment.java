@@ -45,6 +45,10 @@ public class ChatFragment extends Fragment {
     }
 
     private void draw(String rawData) {
+
+        if(!isAdded()) // check fragment is attaching
+            return;
+
         GraphicComponents g = new GraphicComponents(requireContext());
 
         cook(rawData, chatId -> {

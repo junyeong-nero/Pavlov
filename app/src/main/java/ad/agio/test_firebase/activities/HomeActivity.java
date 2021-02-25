@@ -94,7 +94,7 @@ public class HomeActivity extends AppCompatActivity {
             binding.layout.addView(view, g.getScreenWidth() / arr.size(), g.dp(56));
         }
 
-        binding.buttonMenu.setOnClickListener(v -> startActivity(new Intent(this, MenuActivity.class)));
+        binding.buttonMenu.setOnClickListener(v -> startActivityForResult(new Intent(this, MenuActivity.class), RequestCodes.MENU_ACTIVITY));
         authController = new AuthController();
         serviceStart();
     }
@@ -124,7 +124,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");
-        if (resultCode == RequestCodes.LOGOUT) {
+        if (resultCode == RequestCodes.LOGOUT && requestCode == RequestCodes.MENU_ACTIVITY) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }

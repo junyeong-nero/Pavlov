@@ -15,22 +15,26 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Iterator;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.MatchController;
+import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentOtherProfileBinding;
 import ad.agio.test_firebase.domain.User;
 
 public class OtherProfileFragment extends Fragment {
 
-    private void _log(String text) {
-        Log.d(this.getClass().getSimpleName(), text);
+    private void log(String text) {
+        Log.e(this.getClass().getSimpleName(), text);
     }
 
     private FragmentOtherProfileBinding binding;
@@ -85,21 +89,22 @@ public class OtherProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (type.equals("match")) {
-            _log("onViewCreated:match");
+            log("onViewCreated:match");
             buttonMatch();
             if(!isReceiving) // 매칭 요청을 하는 경우, 약속 요청도 할 수 있도록
                 buttonAppointment();
         } else if (type.equals("appoint")) {
-            _log("onViewCreated:appoint");
+            log("onViewCreated:appoint");
             buttonAppointment();
         }
-
-        binding.imageSelect.setOnClickListener(v -> {
-            // can't change profile image
-        });
+        binding.imageSelect.setVisibility(View.GONE);
     }
 
     private void buttonMatch() {
+
+        if(!isAdded())
+            return;
+
         binding.buttonMatch.setText("매칭");
         binding.buttonMatch.setBackgroundColor(
                 ContextCompat.getColor(requireContext(), R.color.colorPrimary));
@@ -112,6 +117,10 @@ public class OtherProfileFragment extends Fragment {
     }
 
     private void buttonAppointment() {
+
+        if(!isAdded())
+            return;
+
         binding.buttonAppointment.setText("약속");
         binding.buttonAppointment.setBackgroundColor(
                 ContextCompat.getColor(requireContext(), R.color.colorPrimaryVariant));
@@ -126,6 +135,10 @@ public class OtherProfileFragment extends Fragment {
     }
 
     private void drawProfile(User user) {
+
+        if(!isAdded())
+            return;
+
         binding.layoutUser.removeAllViews();
         try {
             JSONObject obj = new JSONObject(user.toString());
@@ -147,9 +160,25 @@ public class OtherProfileFragment extends Fragment {
     }
 
     private void setProfileImage(User user) {
+
+        if(!isAdded())
+            return;
+
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
-        if (!profile.equals("")) {
-            binding.imageProfile.setImageURI(Uri.parse(profile));
+        if(!profile.equals("")) {
+            Uri parse = Uri.parse(profile);
+            if (new File(parse.getPath()).exists()) {
+                log("using file");
+                binding.imageProfile.setImageURI(Uri.parse(profile));
+            } else {
+                new UserController().readProfileImage(user.getUid(), bytes -> {
+                    // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                    if(isAdded())
+                        Glide.with(this)
+                                .load(bytes)
+                                .into(binding.imageProfile);
+                });
+            }
         }
     }
 }

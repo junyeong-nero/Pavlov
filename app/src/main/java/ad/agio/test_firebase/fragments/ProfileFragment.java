@@ -23,6 +23,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
 
@@ -95,6 +96,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private void drawProfile(User user) {
+
+        if(!isAdded())
+            return;
+
         binding.layoutUser.removeAllViews();
         try {
             JSONObject obj = new JSONObject(user.toString());
@@ -118,20 +123,32 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setProfileImage(User user) {
+
+        if(!isAdded())
+            return;
+
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
-            userController.readProfileImage(bytes -> {
-                // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                Glide.with(this)
-                        .load(bytes)
-                        .into(binding.imageProfile);
-            });
+            Uri parse = Uri.parse(profile);
+            if (new File(parse.getPath()).exists()) {
+                log("using file");
+                binding.imageProfile.setImageURI(Uri.parse(profile));
+            } else {
+                userController.readProfileImage(bytes -> {
+                    // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                    if(isAdded())
+                        Glide.with(this)
+                            .load(bytes)
+                            .into(binding.imageProfile);
+                });
+            }
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        log("onActivityResult");
         if (resultCode == RequestCodes.LOGOUT) {
             startActivity(new Intent(requireContext(), LoginActivity.class));
             requireActivity().finish();

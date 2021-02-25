@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import ad.agio.test_firebase.activities.ChatActivity;
+import ad.agio.test_firebase.activities.HomeActivity;
 import ad.agio.test_firebase.activities.LoginActivity;
 import ad.agio.test_firebase.activities.ProfileActivity;
 import ad.agio.test_firebase.controller.AuthController;
@@ -94,7 +95,9 @@ public class HomeFragment extends Fragment {
                                 log(user.toString());
 
                                 user.ifPresent(value -> {
-                                    Intent intent = new Intent(requireContext(), ProfileActivity.class);
+
+                                    Intent intent = new Intent(requireActivity()
+                                            .getApplicationContext(), ProfileActivity.class);
                                     intent.putExtra("type", "match");
                                     intent.putExtra("isReceiving", matchController.isReceiving);
                                     // request => false, receive => true
