@@ -208,8 +208,22 @@ public class MatchController {
         chatController.writeUser(currentUser);
         chatController.sendMatchResult("success");
         callMatchListener();
-        // TODO chat에 MatchResult를 작성하는 기능 추가
     }
+
+    /**
+     * 상대방의 요청을 수락함.
+     * @param otherUser 상대방
+     */
+    public void rejectResult(User otherUser) {
+        _log("receiveResult\n" + otherUser.toString());
+        this.otherUser = otherUser;
+
+        pauseReceive();
+        chatController.sendMatchResult("success");
+        if(failureListener != null)
+            failureListener.accept(null);
+    }
+
 
     /**
      * 채팅 컨트롤러를 연결함.

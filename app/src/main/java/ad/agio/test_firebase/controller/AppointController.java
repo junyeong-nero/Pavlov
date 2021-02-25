@@ -102,7 +102,7 @@ public class AppointController {
     public void appoint(String chatId) {
         ChatController chatController = new ChatController(chatId);
         chatController.sendMatchResult("success"); // request 가 성공함을 알림.
-        userController.readMe(chatController::writeUser); // 내 프로필을 채팅방에 추가.
+        chatController.writeUser(currentUser); // 내 프로필을 채팅방에 추가.
         chatController.readChat(chat -> {
             mChat = chat;
             if(successListener != null) {
@@ -110,6 +110,16 @@ public class AppointController {
                 successListener.accept(mChat); // 채팅방과 연결
             }
         });
+    }
+
+    /**
+     * 다른 사람이 보낸 요청을 거절함.
+     * @param chatId chatId
+     */
+    public void reject(String chatId) {
+        ChatController chatController = new ChatController(chatId);
+        chatController.sendMatchResult("failure"); // request 가 실패함을 알림.
+        failureListener.accept(null);
     }
 
     private ChatController chatController;
@@ -134,7 +144,7 @@ public class AppointController {
                 chatController.removeConfirmListener();
             });
 
-            me.setChatId(mChat.chatId); // TODO 정말 희박한 가능성이지만 chatId가 중복될 가능성이 있다.
+            me.setChatId(mChat.chatId);
             FirebaseDatabase.getInstance().getReference()
                     .child("appoint")
                     .child(otherUser.getUid()) // 다른 사람의 db 에

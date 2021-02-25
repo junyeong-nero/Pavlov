@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
+import ad.agio.test_firebase.NoInternetFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
@@ -31,6 +32,7 @@ import ad.agio.test_firebase.fragments.SearchFragment;
 import ad.agio.test_firebase.services.AppointService;
 import ad.agio.test_firebase.utils.GraphicComponents;
 import ad.agio.test_firebase.utils.RequestCodes;
+import ad.agio.test_firebase.utils.Utils;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -96,9 +98,13 @@ public class HomeActivity extends AppCompatActivity {
             ImageButton button = view.findViewById(R.id.button);
             button.setImageResource(icon.get(key));
             button.setOnClickListener(v -> {
-                menuControl(key);
-                binding.toolbarTitle.setText(key);
-                map.get(key).accept(key);
+                if(Utils.checkInternet(this)) {
+                    menuControl(key);
+                    map.get(key).accept(key);
+                    binding.toolbarTitle.setText(key);
+                } else {
+                    noInternet();
+                }
             });
             TextView textView = view.findViewById(R.id.text);
             textView.setText(key);
@@ -106,12 +112,13 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         binding.buttonMenu.setOnClickListener(v -> startActivityForResult(new Intent(this, MenuActivity.class), RequestCodes.MENU_ACTIVITY));
-        settingMatchController();
         serviceStart();
     }
 
-    private void settingMatchController() {
-
+    private void noInternet() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new NoInternetFragment(), "NoInternetFragment")
+                .commit();
     }
 
     private void menuControl(String fragment) {
@@ -138,7 +145,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        log("start");
         appointController.setContext(this);
         matchController.setContext(this);
     }

@@ -50,6 +50,26 @@ public class OtherProfileActivity extends AppCompatActivity {
         this.type = intent.getStringExtra("type");
         this.otherUser = new Gson().fromJson(intent.getStringExtra("user"), User.class);
         this.chatId = intent.getStringExtra("chatId");
+        
+        binding.buttonBack.setOnClickListener(v -> {
+            if (type.equals("match")) {
+                // rejectResult 에서 failureListener 호출 -> finish
+                // request 하는 사람이면, 그냥 finish
+                if (isReceiving) {
+                    matchController.rejectResult(otherUser);
+                } else {
+                    finish();
+                }
+            } else if (type.equals("appoint")) {
+                // 거절 위와 마찬가지로 failureListener 호출 -> finish
+                // request 하는 사람이면, 그냥 finish
+                if (isReceiving) {
+                    appointController.reject(chatId);
+                } else {
+                    finish();
+                }
+            }
+        });
 
         init();
     }
@@ -58,9 +78,7 @@ public class OtherProfileActivity extends AppCompatActivity {
         appointController.setContext(this);
         matchController.setContext(this);
 
-        appointController.failureListener = none -> {
-            finish();
-        };
+        appointController.failureListener = none -> finish();
         appointController.successListener = chat -> {
             Intent intent = new Intent(appointController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
@@ -71,9 +89,7 @@ public class OtherProfileActivity extends AppCompatActivity {
         if(isReceiving)
             matchController.setChatController(chatId);
 
-        matchController.failureListener = none -> {
-            finish();
-        };
+        matchController.failureListener = none -> finish();
         matchController.successListener = chat -> {
             Intent intent = new Intent(matchController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);

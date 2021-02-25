@@ -31,9 +31,10 @@ public class PermissionActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         ArrayList<String> arr = new ArrayList<>();
+        arr.add(Manifest.permission.INTERNET);
         arr.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         arr.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        arr.add(Manifest.permission.INTERNET);
+        arr.add(Manifest.permission.ACCESS_NETWORK_STATE);
         arr.add(Manifest.permission.ACCESS_FINE_LOCATION);
         arr.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         requestPermissions(arr);
