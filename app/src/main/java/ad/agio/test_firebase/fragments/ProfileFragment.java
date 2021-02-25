@@ -121,7 +121,10 @@ public class ProfileFragment extends Fragment {
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
             userController.readProfileImage(bytes -> {
-                binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                Glide.with(this)
+                        .load(bytes)
+                        .into(binding.imageProfile);
             });
         }
     }
