@@ -1,5 +1,6 @@
 package ad.agio.test_firebase.controller;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,13 +28,23 @@ public class AppointController {
     private final AuthController authController;
     private final UserController userController;
 
-    private User currentUser;
-    private User otherUser;
+    private User currentUser, otherUser;
     private Chat mChat;
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    private Context context;
 
     private final ValueEventListener receiveListener;
     private Consumer<ArrayList<User>> receiveConsumer;
-    public Consumer<Chat> appointmentCompleteListener;
+    public Consumer<Chat> successListener;
+    public Consumer<Chat> failureListener;
 
     public AppointController() {
         this.authController = new AuthController();
@@ -94,11 +105,13 @@ public class AppointController {
         userController.readMe(chatController::writeUser); // 내 프로필을 채팅방에 추가.
         chatController.readChat(chat -> {
             mChat = chat;
-            if(appointmentCompleteListener != null) {
-                appointmentCompleteListener.accept(mChat); // 채팅방과 연결
+            if(successListener != null) {
+                successListener.accept(mChat); // 채팅방과 연결
             }
         });
     }
+
+    private ChatController chatController;
 
     /**
      * 다른 사람에게 요청을 보냄.
@@ -113,7 +126,7 @@ public class AppointController {
             mChat.chatName = currentUser.getUserName() + "와 " + otherUser.getUserName() + "의 채팅방";
             mChat.users.put(currentUser.getUid(), currentUser); // 자신의 데이터를 채팅방에 추가.
 
-            ChatController chatController = new ChatController(mChat.chatId);
+            chatController = new ChatController(mChat.chatId);
             chatController.writeChat(mChat);
             chatController.addConfirmListener(result -> {
                 requestResult(result); // 요청의 결과가 나오는 것을 확인하는 리스너
@@ -140,9 +153,12 @@ public class AppointController {
                 .child(authController.getUid())
                 .removeValue(); // 다른사람의 db에서 자신의 프로피을 지움.
         if (result.equals("success")) {
-            appointmentCompleteListener.accept(mChat);
+            if(successListener != null)
+                successListener.accept(mChat);
         } else {
-            // TODO 메인화면으로 돌아가기.
+            chatController.removeChat();
+            if(failureListener != null)
+                failureListener.accept(null);
         }
     }
 }

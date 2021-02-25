@@ -60,11 +60,13 @@
 
     <View
         android:background="@color/colorPrimary"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="56dp"/>
 
     <EditText
+        android:elevation="8dp"
         android:id="@+id/edit_text"
         android:padding="8dp"
         android:layout_marginEnd="56dp"
@@ -75,6 +77,7 @@
         android:layout_height="56dp"/>
 
     <ImageButton
+        android:elevation="8dp"
         android:id="@+id/button_send"
         android:background="@drawable/background_circle"
         android:backgroundTint="@color/colorOnPrimary"

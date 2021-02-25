@@ -77,8 +77,10 @@ public class ChatFragment extends Fragment {
     }
 
     private void cook(String rawData, Consumer<String> consumer) {
-        String[] split = rawData.split("\n");
+        log(rawData);
+        String[] split = rawData.split("\\|");
         for (String chatId : split) {
+            log(chatId);
             if (chatId != null && !chatId.equals("")) {
                 consumer.accept(chatId);
             }

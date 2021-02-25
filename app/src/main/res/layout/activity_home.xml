@@ -54,7 +54,7 @@
 
     <LinearLayout
         android:id="@+id/layout"
-        android:elevation="4dp"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@color/colorPrimary"
         android:orientation="horizontal"

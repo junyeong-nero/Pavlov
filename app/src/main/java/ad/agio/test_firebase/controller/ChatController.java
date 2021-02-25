@@ -26,14 +26,6 @@ public class ChatController {
         this.db = FirebaseDatabase.getInstance().getReference()
                 .child("chat")
                 .child(chatId);
-
-        UserController userController = new UserController();
-        userController.readMe(me -> {
-            // arrayChatId 추가
-            if(!me.getArrayChatId().contains(chatId)) {
-                userController.updateUser("arrayChatId", me.getArrayChatId() + chatId + "\n");
-            }
-        });
     }
 
     public void writeChat(Chat chat) {

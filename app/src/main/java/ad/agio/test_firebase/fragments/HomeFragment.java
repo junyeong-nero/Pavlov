@@ -13,17 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.rpc.context.AttributeContext;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
 import ad.agio.test_firebase.activities.ChatActivity;
-import ad.agio.test_firebase.activities.HomeActivity;
-import ad.agio.test_firebase.activities.LoginActivity;
-import ad.agio.test_firebase.activities.ProfileActivity;
-import ad.agio.test_firebase.controller.AuthController;
-import ad.agio.test_firebase.controller.MatchController;
+import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.controller.NotificationController;
 import ad.agio.test_firebase.databinding.FragmentHomeBinding;
 import ad.agio.test_firebase.domain.User;
@@ -68,7 +62,7 @@ public class HomeFragment extends Fragment {
 
     public void setting() {
 
-        matchController.matchCompleteListener = chat -> { // match is finished!
+        matchController.successListener = chat -> { // match is finished!
             matchFinish();
             Intent intent = new Intent(matchController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
@@ -93,7 +87,7 @@ public class HomeFragment extends Fragment {
                                 user.ifPresent(value -> {
 
                                     Intent intent = new Intent(matchController.getContext(),
-                                            ProfileActivity.class);
+                                            OtherProfileActivity.class);
                                     intent.putExtra("type", "match");
                                     intent.putExtra("isReceiving", matchController.isReceiving);
                                     // request => false, receive => true
@@ -131,9 +125,9 @@ public class HomeFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle("매칭성공")
                 .setItems(items, (dialog, which) -> {
-                    Intent intent = new Intent(requireContext(), ProfileActivity.class);
+                    Intent intent = new Intent(requireContext(), OtherProfileActivity.class);
                     intent.putExtra("type", "home");
-                    intent.putExtra("isMatching", matchController.isReceiving);
+                    intent.putExtra("isReceiving", matchController.isReceiving);
                     intent.putExtra("user", list.get(which).toString());
 
                     if (matchController.getChat() != null)

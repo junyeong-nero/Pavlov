@@ -34,7 +34,8 @@ public class MatchController {
     private Chat mChat;
     private User currentUser, otherUser;
     private Consumer<ArrayList<User>> otherProfileConsumer = list -> _log(list.toString());
-    public Consumer<Chat> matchCompleteListener;
+    public Consumer<Chat> successListener;
+    public Consumer<Chat> failureListener;
 
     public Context getContext() {
         return context;
@@ -174,12 +175,11 @@ public class MatchController {
         if (result.equals("success")) {
             _log("matchResult: success");
             callMatchListener();
-        } else if (result.equals("fail")) {
+        } else {
             // chatId 삭제 및 listener 삭제.
             _log("matchResult: fail");
             chatController.removeChat();
-        } else {
-            _log("matchResult : type error");
+            failureListener.accept(null);
         }
     }
 
@@ -208,7 +208,7 @@ public class MatchController {
         chatController.writeUser(currentUser);
         chatController.sendMatchResult("success");
         callMatchListener();
-        // TODO 약속장소, 시간을 db/chat/chatID에 저장하는 기능 추가.
+        // TODO chat에 MatchResult를 작성하는 기능 추가
     }
 
     /**
@@ -240,11 +240,15 @@ public class MatchController {
      * 매칭이 완료되었을때 실행해야함.
      * 채팅창 정보를 읽고 matchCompleteListener을 수행함.
      */
-    // TODO chatId를 자신 프로필에 저장.
     public void callMatchListener() {
         chatController.readChat(chat -> {
             mChat = chat;
-            matchCompleteListener.accept(mChat);
+            if(!currentUser.getArrayChatId().contains(mChat.chatId)) {
+                String temp = currentUser.getArrayChatId() + mChat.chatId + "|";
+                userController.updateUser("arrayChatId", temp);
+                currentUser.setArrayChatId(temp);
+            }
+            successListener.accept(mChat);
         });
     }
 

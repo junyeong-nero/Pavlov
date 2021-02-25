@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
@@ -40,6 +41,7 @@ public class HomeActivity extends AppCompatActivity {
     static public UserController userController = new UserController();
     static public AuthController authController = new AuthController();
     static public MatchController matchController = new MatchController();
+    static public AppointController appointController = new AppointController();
     static public User currentUser;
 
     @Override
@@ -131,6 +133,14 @@ public class HomeActivity extends AppCompatActivity {
     private void serviceStart() {
         if(authController.isAuth())
             startService(new Intent(this, AppointService.class));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        log("start");
+        appointController.setContext(this);
+        matchController.setContext(this);
     }
 
     @Override

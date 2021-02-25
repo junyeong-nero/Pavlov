@@ -64,13 +64,11 @@ public class ProfileFragment extends Fragment {
         if(currentUser != null) {
             drawProfile(currentUser);
             setProfileImage(currentUser);
-            log("none null");
         } else {
             userController.readMe(me -> {
                 currentUser = me;
                 drawProfile(currentUser);
                 setProfileImage(currentUser);
-                log(currentUser.toString());
             });
         }
 
@@ -83,8 +81,8 @@ public class ProfileFragment extends Fragment {
                 TedBottomPicker.with(getActivity())
                         .show(uri -> {
                             binding.imageProfile.setImageURI(uri);
-                            UserController userController = new UserController();
                             userController.updateUser("profile", uri.getPath());
+                            currentUser.setProfile(uri.getPath());
                             try {
                                 userController.writeProfileImage(uri.getPath());
                             } catch (FileNotFoundException e) {
@@ -116,11 +114,13 @@ public class ProfileFragment extends Fragment {
                 if(isAdded()) {
                     TextView textView = new TextView(requireContext());
                     textView.setText(next);
-                    binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
 
                     EditText editText = new EditText(requireContext());
                     editText.setText(obj.getString(next));
-                    binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
                 }
             }
 
@@ -134,7 +134,7 @@ public class ProfileFragment extends Fragment {
         if(!isAdded())
             return;
 
-        userController.readProfileImage(bytes -> {
+        userController.readProfileImage(user.getUid(), bytes -> {
             // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
             if(isAdded())
                 Glide.with(this)
@@ -155,19 +155,18 @@ public class ProfileFragment extends Fragment {
             case RequestCodes.NEIGHBOR_ACTIVITY:
                 log("NEIGHBOR_ACTIVITY");
 
-                if (data != null && data.hasExtra("neighbor"))
-                    userController.updateUser("neighbor", data.getStringExtra("neighbor"));
+                if (data != null && data.hasExtra("neighbor")) {
+                    String neighbor = data.getStringExtra("neighbor");
+                    userController.updateUser("neighbor", neighbor);
+                    currentUser.setNeighbor(neighbor);
+                }
 
-                userController.readMe(me -> {
-                    currentUser = me;
-                    log(me.toString());
-                    drawProfile(me);
-                    setProfileImage(me);
-                });
+                drawProfile(currentUser);
+                setProfileImage(currentUser);
                 break;
 
             case RequestCodes.MENU_ACTIVITY:
-                if(!new AuthController().isAuth()) {
+                if(authController.isAuth()) {
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, new LoginFragment()).commit();
                 }

@@ -20,6 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Test_Firebase">
+        <activity android:name=".activities.OtherProfileActivity"></activity>
         <activity android:name=".activities.LoginActivity" />
 
         <uses-library
@@ -41,7 +42,6 @@
         <activity android:name=".activities.MenuActivity" />
         <activity android:name=".activities.NeighborActivity" />
         <activity android:name=".activities.ChatActivity" />
-        <activity android:name=".activities.SearchActivity" />
         <activity android:name=".activities.PermissionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,7 +51,6 @@
         </activity>
         <activity android:name=".activities.HomeActivity" />
         <activity android:name=".activities.RegisterActivity" />
-        <activity android:name=".activities.ProfileActivity" />
     </application>
 
 </manifest>
