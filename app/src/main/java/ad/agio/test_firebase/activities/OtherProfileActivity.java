@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,6 +47,8 @@ public class OtherProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityOtherProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        cleanNotification();
 
         Intent intent = getIntent();
         this.isReceiving = intent.getBooleanExtra("isReceiving", false);
@@ -127,6 +130,11 @@ public class OtherProfileActivity extends AppCompatActivity {
                 binding.buttonMatch.setVisibility(View.GONE);
                 break;
         }
+    }
+
+    private void cleanNotification() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(1158);
     }
 
     private void buttonMatch() {

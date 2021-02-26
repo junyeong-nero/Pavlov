@@ -1,5 +1,6 @@
 package ad.agio.test_firebase.services;
 
+import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,28 +12,34 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.JobIntentService;
 import androidx.core.app.NotificationCompat;
 
 import java.util.Optional;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
+import ad.agio.test_firebase.activities.HomeActivity;
 import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.domain.User;
 
-public class AppointService extends Service {
-
-    private void log(String text) {
-        Log.e(this.getClass().getSimpleName(), text);
-    }
-    private AppointController appointController;
+public class AppointService extends JobIntentService {
 
     @Override
-    public int onStartCommand(Intent _intent, int flags, int startId) {
-        log("onStartCommand");
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
+
+    public void enqueueWork(Context context, Intent intent) {
+        enqueueWork(context, AppointService.class, 1158, intent);
+    }
+
+    @Override
+    protected void onHandleWork(@Nullable Intent _intent) {
         appointController = new AppointController();
         appointController.setContext(this);
         appointController.failureListener = none -> log("finish");
@@ -59,10 +66,24 @@ public class AppointService extends Service {
                 notification(intent);
             }
         });
-        return super.onStartCommand(_intent, flags, startId);
+
+        while (true) {
+            try {
+                Thread.sleep(1000 * 1000 * 1000);
+//                log("service is alive!");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
+    private void log(String text) {
+        Log.e(this.getClass().getSimpleName(), text);
+    }
+    private AppointController appointController;
+
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
+
 
     public void notification(Intent intent) {
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -81,8 +102,8 @@ public class AppointService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             builder.setSmallIcon(R.drawable.ic_launcher_foreground); //mipmap 사용시 Oreo 이상에서 시스템 UI 에러남
-            CharSequence channelName  = "노티페케이션 채널";
-            String description = "오레오 이상을 위한 것임";
+            CharSequence channelName  = "pavlov";
+            String description = "pavlov";
             int importance = NotificationManager.IMPORTANCE_HIGH;
 
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName , importance);
@@ -96,13 +117,7 @@ public class AppointService extends Service {
             builder.setSmallIcon(R.mipmap.ic_launcher); // Oreo 이하에서 mipmap 사용하지 않으면 Couldn't create icon: StatusBarIcon 에러남
 
         assert notificationManager != null;
-        notificationManager.notify(1234, builder.build()); // 고유숫자로 노티피케이션 동작시킴
+        notificationManager.notify(1158, builder.build()); // 고유숫자로 노티피케이션 동작시킴
 
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 }

@@ -97,7 +97,7 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         Button button = view.findViewById(R.id.button_name);
-        button.setText(map.get("name"));
+        button.setText(map.get("name").substring(0, 1));
         button.setOnClickListener(v -> {
 
             Intent intent = new Intent(this, OtherProfileActivity.class);

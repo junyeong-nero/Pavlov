@@ -133,8 +133,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void serviceStart() {
-        if(authController.isAuth())
-            startService(new Intent(this, AppointService.class));
+        if(authController.isAuth()) {
+            Intent intent = new Intent(this, AppointService.class);
+            startService(intent);
+            new AppointService().enqueueWork(this, intent);
+        }
     }
 
     @Override

@@ -142,7 +142,7 @@ public class UserController {
                     .child("profile_images")
                     .child(uid)
                     .child("profile")
-                    .getBytes(Long.MAX_VALUE / 256)
+                    .getBytes(Long.MAX_VALUE / (2048))
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             consumer.accept(task.getResult());
