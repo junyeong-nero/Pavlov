@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +28,10 @@ public class ChatActivity extends AppCompatActivity {
     private ActivityChatBinding binding;
     private ChatController chatController;
     private Chat mChat;
+    private void log(String t) {
+        Log.e(this.getClass().getSimpleName(), t);
+    }
+
     private boolean isFirst = true;
 
     @Override
@@ -40,24 +45,24 @@ public class ChatActivity extends AppCompatActivity {
         String chatId = intent.getStringExtra("chatId");
 
         chatController = new ChatController(chatId);
+        chatController.readText(text -> drawAll(text));
         chatController.readChat(chat -> {
             mChat = chat;
             binding.toolbarTitle.setText(mChat.chatName);
         });
-
-        chatController.addTextListener(text -> {
-            if(isFirst) {
-                drawAll(text); // 처음에는 기존에 있는 문자 기록들을 모두 그린다.
-                isFirst = false;
-            } else {
-                drawChange(text); // 나중에는 추가되는 텍스트만 그린다.
-            }
-        }); // text Listener, 문자열 변화를 감지한다.
+        chatController.addTextChangeListener(text -> {
+            log(text);
+            if(!isFirst)
+                drawChange(text);
+            isFirst = false;
+        });
 
         binding.buttonBack.setOnClickListener(v -> finish());
+        binding.editText.setSingleLine();
         binding.editText.setOnKeyListener((v, actionId, event) -> {
             if (actionId == KeyEvent.KEYCODE_ENTER) {
                 send();
+                return true;
             }
             return false;
         });
@@ -70,6 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         for (String line : split) {
             drawLine(line);
         }
+        binding.scroll.post(() -> binding.scroll.fullScroll(View.FOCUS_DOWN)); // 가장 아래로 스크롤 내리기
     }
 
     private void drawChange(String text) {
@@ -113,7 +119,8 @@ public class ChatActivity extends AppCompatActivity {
         TextView textView = view.findViewById(R.id.text_content);
         textView.setText(map.get("content"));
 
-        binding.chatLayout.addView(view);
+        if(!map.get("content").equals(""))
+            binding.chatLayout.addView(view);
     }
 
     private HashMap<String, String> cook(String temp) {
@@ -143,6 +150,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onDestroy();
         chatController.removeConfirmListener();
         chatController.removeTextListener();
+        chatController.removeTextChangeListener();
     }
 
     public void send() {

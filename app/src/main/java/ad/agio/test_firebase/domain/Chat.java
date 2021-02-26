@@ -7,6 +7,7 @@ public class Chat {
     public String text = "";
     public String chatId = "";
     public String chatName = "";
+    public String textChange = "";
     public String result = "";
     public String matchResult = null;
     public HashMap<String, User> users = new HashMap<>();

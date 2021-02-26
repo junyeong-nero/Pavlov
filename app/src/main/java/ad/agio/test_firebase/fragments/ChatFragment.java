@@ -56,10 +56,9 @@ public class ChatFragment extends Fragment {
 
             ChatController chatController = new ChatController(chatId);
             chatController.readChat(chat -> {
-                String[] split = chat.text.split("\n");
-                String[] split2 = split[split.length - 1].split("\\|");
+                String[] split = chat.textChange.split("\\|");
                 t1.setText(chat.chatName);
-                t2.setText(split2[split2.length - 1]);
+                t2.setText(split[split.length - 1]);
             });
 
             Button button = view.findViewById(R.id.button);

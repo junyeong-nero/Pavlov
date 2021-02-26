@@ -130,10 +130,12 @@ public class ChatController {
                 + cal.get(Calendar.SECOND) + "|"
                 + text + "\n";
 
-        if (textListener == null)
+        db.child("textChange").setValue(temp);
+        if (textListener == null) {
             readText(re -> db.child("text").setValue(re + temp));
-        else
+        } else {
             db.child("text").setValue(currentText + temp);
+        }
     }
 
     public void readText(Consumer<String> consumer) {
@@ -147,15 +149,18 @@ public class ChatController {
 
     // TODO textChangeListener 추가
 
-    private String currentText;
+    private String currentText = "";
     private ValueEventListener textListener;
     public void addTextListener(Consumer<String> consumer) {
         textListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    currentText = snapshot.getValue(String.class);
-                    consumer.accept(currentText);
+                    String temp = snapshot.getValue(String.class);
+                    if(!currentText.equals(temp)) {
+                        currentText = temp;
+                        consumer.accept(currentText);
+                    }
                 }
             }
 
@@ -169,9 +174,41 @@ public class ChatController {
     }
 
     public void removeTextListener() {
-        db.child("text")
+        if(textListener != null)
+            db.child("text")
                 .removeEventListener(textListener);
         textListener = null;
+    }
+
+    private String changeText = "";
+    private ValueEventListener textChangeListener;
+    public void addTextChangeListener(Consumer<String> consumer) {
+        textChangeListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String temp = snapshot.getValue(String.class);
+                    if(!changeText.equals(temp)) {
+                        changeText = temp;
+                        consumer.accept(changeText);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        db.child("textChange")
+                .addValueEventListener(textChangeListener);
+    }
+
+    public void removeTextChangeListener() {
+        if(textChangeListener != null)
+            db.child("text")
+                .removeEventListener(textChangeListener);
+        textChangeListener = null;
     }
 
 }
