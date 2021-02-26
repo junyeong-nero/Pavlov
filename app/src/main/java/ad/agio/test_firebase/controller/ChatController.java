@@ -120,8 +120,14 @@ public class ChatController {
 
     public void sendText(User user, String text) {
         Calendar cal = Calendar.getInstance();
-        String temp = "[" + user.getUserName() + "] "
-                + "[" + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + "]"
+        String temp = user.getUserName() + "|"
+                + user.getUid() + "|"
+                + cal.get(Calendar.YEAR) + ":"
+                + (cal.get(Calendar.MONTH) + 1) + ":"
+                + cal.get(Calendar.DAY_OF_MONTH) + ":"
+                + cal.get(Calendar.HOUR_OF_DAY) + ":"
+                + cal.get(Calendar.MINUTE) + ":"
+                + cal.get(Calendar.SECOND) + "|"
                 + text + "\n";
 
         if (textListener == null)
@@ -138,6 +144,8 @@ public class ChatController {
                         consumer.accept(dataSnapshot.getValue(String.class));
                 });
     }
+
+    // TODO textChangeListener 추가
 
     private String currentText;
     private ValueEventListener textListener;

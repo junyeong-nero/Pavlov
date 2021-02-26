@@ -29,7 +29,7 @@ import java.util.Locale;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityNeighborBinding;
-import ad.agio.test_firebase.utils.RequestCodes;
+import ad.agio.test_firebase.utils.Codes;
 
 public class NeighborActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -70,7 +70,7 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
             Intent intent = new Intent();
             intent.putExtra("neighbor",
                     getAddress(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-            setResult(RequestCodes.NEIGHBOR_ACTIVITY, intent);
+            setResult(Codes.NEIGHBOR_ACTIVITY, intent);
             finish();
         });
     }

@@ -1,7 +1,6 @@
 package ad.agio.test_firebase.fragments;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,25 +15,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Iterator;
 
 import ad.agio.test_firebase.activities.LoginActivity;
 import ad.agio.test_firebase.activities.NeighborActivity;
 import ad.agio.test_firebase.R;
-import ad.agio.test_firebase.controller.AuthController;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.FragmentProfileBinding;
 import ad.agio.test_firebase.domain.User;
-import ad.agio.test_firebase.utils.RequestCodes;
+import ad.agio.test_firebase.utils.Codes;
 import gun0912.tedbottompicker.TedBottomPicker;
 
 import static ad.agio.test_firebase.activities.HomeActivity.authController;
@@ -74,7 +67,7 @@ public class ProfileFragment extends Fragment {
 
         binding.buttonNeighbor.setOnClickListener(v -> {
             startActivityForResult(new Intent(requireContext(), NeighborActivity.class),
-                    RequestCodes.NEIGHBOR_ACTIVITY);
+                    Codes.NEIGHBOR_ACTIVITY);
         });
 
         binding.imageSelect.setOnClickListener(v ->
@@ -147,12 +140,12 @@ public class ProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");
-        if (resultCode == RequestCodes.LOGOUT) {
+        if (resultCode == Codes.LOGOUT) {
             startActivity(new Intent(requireContext(), LoginActivity.class));
             requireActivity().finish();
         }
         switch (requestCode) {
-            case RequestCodes.NEIGHBOR_ACTIVITY:
+            case Codes.NEIGHBOR_ACTIVITY:
                 log("NEIGHBOR_ACTIVITY");
 
                 if (data != null && data.hasExtra("neighbor")) {
@@ -165,7 +158,7 @@ public class ProfileFragment extends Fragment {
                 setProfileImage(currentUser);
                 break;
 
-            case RequestCodes.MENU_ACTIVITY:
+            case Codes.MENU_ACTIVITY:
                 if(authController.isAuth()) {
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, new LoginFragment()).commit();

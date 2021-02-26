@@ -214,8 +214,8 @@ public class MatchController {
      * 상대방의 요청을 수락함.
      * @param otherUser 상대방
      */
-    public void rejectResult(User otherUser) {
-        _log("receiveResult\n" + otherUser.toString());
+    public void reject(User otherUser) {
+        _log("reject\n" + otherUser.toString());
         this.otherUser = otherUser;
 
         pauseReceive();

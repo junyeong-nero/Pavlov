@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ProfileActivity">
+    tools:context=".activities.OtherProfileActivity">
 
     <View
         app:layout_constraintTop_toTopOf="parent"
@@ -42,21 +42,6 @@
         android:text="프로필"/>
 
     <ImageButton
-        android:id="@+id/button_menu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/ripple_circle"
-        android:src="@drawable/ic_setting"
-        android:tint="@color/white"
-        android:scaleType="fitXY"
-        android:padding="8dp"
-        app:layout_constraintCircleRadius="1dp"
-        android:cropToPadding="true"
-        android:layout_margin="8dp"/>
-
-    <ImageButton
         android:id="@+id/image_profile"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -71,15 +56,17 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="200dp"
-        android:layout_marginBottom="56dp">
+        android:layout_marginTop="200dp">
 
         <LinearLayout
             android:orientation="vertical"
             android:id="@+id/layout_user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:paddingTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="56dp"
             android:textSize="24sp"
             android:gravity="center_horizontal" />
 

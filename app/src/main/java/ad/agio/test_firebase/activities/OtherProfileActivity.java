@@ -1,12 +1,14 @@
 package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -50,13 +52,21 @@ public class OtherProfileActivity extends AppCompatActivity {
         this.type = intent.getStringExtra("type");
         this.otherUser = new Gson().fromJson(intent.getStringExtra("user"), User.class);
         this.chatId = intent.getStringExtra("chatId");
-        
+
+        if(intent.hasExtra("uid")) {
+            userController.readUser(intent.getStringExtra("uid"), user -> {
+                this.otherUser = user;
+                drawProfile(user);
+                setProfileImage(user);
+            });
+        }
+
         binding.buttonBack.setOnClickListener(v -> {
             if (type.equals("match")) {
                 // rejectResult 에서 failureListener 호출 -> finish
                 // request 하는 사람이면, 그냥 finish
                 if (isReceiving) {
-                    matchController.rejectResult(otherUser);
+                    matchController.reject(otherUser);
                 } else {
                     finish();
                 }
@@ -68,6 +78,8 @@ public class OtherProfileActivity extends AppCompatActivity {
                 } else {
                     finish();
                 }
+            } else if (type.equals("none")) {
+                finish();
             }
         });
 
@@ -98,15 +110,22 @@ public class OtherProfileActivity extends AppCompatActivity {
             finish();
         };
 
-        drawProfile(otherUser);
-        setProfileImage(otherUser);
+        switch (type) {
+            case "match":
+                buttonMatch();
+                if (!isReceiving) // 매칭 요청을 하는 경우, 약속 요청도 할 수 있도록
+                    buttonAppointment();
+                break;
 
-        if (type.equals("match")) {
-            buttonMatch();
-            if(!isReceiving) // 매칭 요청을 하는 경우, 약속 요청도 할 수 있도록
+            case "appoint":
                 buttonAppointment();
-        } else if (type.equals("appoint")) {
-            buttonAppointment();
+                break;
+
+            case "none":
+                // 매칭, 약속 불가능
+                binding.buttonAppointment.setVisibility(View.GONE);
+                binding.buttonMatch.setVisibility(View.GONE);
+                break;
         }
     }
 

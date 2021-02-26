@@ -23,7 +23,7 @@ import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityRegisterBinding;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.GraphicComponents;
-import ad.agio.test_firebase.utils.RequestCodes;
+import ad.agio.test_firebase.utils.Codes;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -173,14 +173,14 @@ public class RegisterActivity extends AppCompatActivity {
                     if (s.equals("")) {
                         neighbor.setText("인증하기");
                         startActivityForResult(new Intent(this, NeighborActivity.class),
-                                RequestCodes.NEIGHBOR_ACTIVITY);
+                                Codes.NEIGHBOR_ACTIVITY);
                     } else {
                         neighbor.setText(s);
                     }
                 }
                 neighbor.setOnClickListener(v -> {
                     startActivityForResult(new Intent(this, NeighborActivity.class),
-                            RequestCodes.NEIGHBOR_ACTIVITY);
+                            Codes.NEIGHBOR_ACTIVITY);
                 });
                 binding.layoutContent.addView(neighbor);
                 break;
@@ -250,7 +250,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RequestCodes.NEIGHBOR_ACTIVITY) {
+        if (resultCode == Codes.NEIGHBOR_ACTIVITY) {
             log("NEIGHBOR_ACTIVITY");
             result = data.getStringExtra("neighbor");
             surveyResult.set(Question.Type.neighbor_validation, result);

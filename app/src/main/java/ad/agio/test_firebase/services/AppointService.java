@@ -24,17 +24,18 @@ import ad.agio.test_firebase.domain.User;
 
 public class AppointService extends Service {
 
-    private void _log(String text) {
+    private void log(String text) {
         Log.e(this.getClass().getSimpleName(), text);
     }
     private AppointController appointController;
 
     @Override
     public int onStartCommand(Intent _intent, int flags, int startId) {
-        _log("onStartCommand");
+        log("onStartCommand");
 
         appointController = new AppointController();
         appointController.setContext(this);
+        appointController.failureListener = none -> log("finish");
         appointController.successListener = chat -> {
             Intent intent = new Intent(appointController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
@@ -44,7 +45,7 @@ public class AppointService extends Service {
         appointController.startReceive(list -> {
             if(!list.isEmpty()) {
                 Optional<User> user = list.stream().findAny();
-                _log(user.toString());
+                log(user.toString());
 
                 Intent intent = new Intent(appointController.getContext(), OtherProfileActivity.class);
                 user.ifPresent(value -> {

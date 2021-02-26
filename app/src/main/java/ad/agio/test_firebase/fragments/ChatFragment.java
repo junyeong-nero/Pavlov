@@ -50,15 +50,16 @@ public class ChatFragment extends Fragment {
 
         cook(rawData, chatId -> {
             log(chatId);
-            View view = getLayoutInflater().inflate(R.layout.chat_thumb_inflater, null);
+            View view = getLayoutInflater().inflate(R.layout.inflater_chat_thumb, null);
             TextView t1 = view.findViewById(R.id.title);
             TextView t2 = view.findViewById(R.id.subtitle);
 
             ChatController chatController = new ChatController(chatId);
             chatController.readChat(chat -> {
                 String[] split = chat.text.split("\n");
+                String[] split2 = split[split.length - 1].split("\\|");
                 t1.setText(chat.chatName);
-                t2.setText(split[split.length - 1]);
+                t2.setText(split2[split2.length - 1]);
             });
 
             Button button = view.findViewById(R.id.button);

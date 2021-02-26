@@ -5,15 +5,15 @@ import android.util.Log;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import ad.agio.test_firebase.domain.User;
+
+import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 
 public class UserController {
 
@@ -21,11 +21,11 @@ public class UserController {
         Log.e(this.getClass().getSimpleName(), s);
     }
 
-    private final FirebaseFirestore firestore;
+    private final FirebaseFirestore db;
     private AuthController authController;
 
     public UserController() {
-        this.firestore = FirebaseFirestore.getInstance();
+        this.db = FirebaseFirestore.getInstance();
         this.authController = new AuthController();
     }
 
@@ -35,7 +35,7 @@ public class UserController {
      */
     public void writeNewUser(User user) {
         log("writeNewUser : " + user.toString());
-        firestore.collection("users")
+        db.collection("users")
                 .document(user.getUid()).set(user);
     }
 
@@ -44,15 +44,16 @@ public class UserController {
      * Firestore rule 에 의해서 type 이 public 이거나 자신의 프로필만 읽을 수 있다.
      * @param consumer
      */
+
+    // TODO 모든 사람들이 두번씩 읽히는 버그.
     public void readAllUsers(Consumer<User> consumer) {
         log("readAllUsers");
-        firestore
-                .collection("users")
+        db.collection("users")
                 .whereEqualTo("type", "public")
                 .get()
                 .addOnCompleteListener(snapshot -> {
                     if (snapshot.isSuccessful()) {
-                        for (QueryDocumentSnapshot post : Objects.requireNonNull(snapshot.getResult())) {
+                        for (QueryDocumentSnapshot post : snapshot.getResult()) {
                             consumer.accept(post.toObject(User.class));
                         }
                     }
@@ -67,7 +68,10 @@ public class UserController {
      */
     public void readMe(Consumer<User> consumer) {
         if(authController.isAuth())
-            readUser(authController.getUid(), consumer);
+            readUser(authController.getUid(), me -> {
+                currentUser = me;
+                consumer.accept(me);
+            });
         else
             log("it is not authenticated");
     }
@@ -78,8 +82,7 @@ public class UserController {
      * @param consumer 사용자를 컨트롤할 consumer
      */
     public void readUser(String uid, Consumer<User> consumer) {
-        firestore
-                .collection("users")
+        db.collection("users")
                 .document(uid)
                 .get()
                 .addOnCompleteListener(snapshot -> {
@@ -96,7 +99,7 @@ public class UserController {
      * @param value 업데이트할 값.
      */
     public void updateUser(String tag, Object value) {
-        firestore.collection("users")
+        db.collection("users")
                 .document(authController.getUid()).update(tag, value);
     }
 
@@ -105,7 +108,7 @@ public class UserController {
      * @param user 사용자 프로필
      */
     public void updateUser(User user) {
-        firestore.collection("users")
+        db.collection("users")
                 .document(user.getUid())
                 .set(user);
     }
@@ -117,9 +120,10 @@ public class UserController {
      */
     public void writeProfileImage(String path) throws FileNotFoundException {
         if(authController.isAuth()) {
-            StorageReference sr = FirebaseStorage.getInstance().getReference();
-            sr.child("profile_images")
+            FirebaseStorage.getInstance().getReference()
+                    .child("profile_images")
                     .child(authController.getUid())
+                    .child("profile")
                     .putStream(new FileInputStream(new File(path)));
         }
     }
@@ -134,9 +138,10 @@ public class UserController {
      */
     public void readProfileImage(String uid, Consumer<byte[]> consumer) {
         if (authController.isAuth()) {
-            StorageReference sr = FirebaseStorage.getInstance().getReference();
-            sr.child("profile_images")
+            FirebaseStorage.getInstance().getReference()
+                    .child("profile_images")
                     .child(uid)
+                    .child("profile")
                     .getBytes(Long.MAX_VALUE / 256)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

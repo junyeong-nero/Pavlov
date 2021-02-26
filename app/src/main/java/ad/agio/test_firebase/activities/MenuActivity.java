@@ -4,11 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -19,7 +16,7 @@ import java.util.function.Consumer;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.databinding.ActivityMenuBinding;
-import ad.agio.test_firebase.utils.RequestCodes;
+import ad.agio.test_firebase.utils.Codes;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -40,12 +37,12 @@ public class MenuActivity extends AppCompatActivity {
         hashMap.put("로그아웃", (v) -> {
             AuthController authController = new AuthController();
             authController.signOut();
-            setResult(RequestCodes.LOGOUT);
+            setResult(Codes.LOGOUT);
             finish();
         });
 
         for (String key : hashMap.keySet()) {
-            View view = getLayoutInflater().inflate(R.layout.menu_inflater, null);
+            View view = getLayoutInflater().inflate(R.layout.inflater_menu, null);
             ImageView imageView = view.findViewById(R.id.icon);
             imageView.setImageResource(Objects.requireNonNull(iconMap.get(key)));
             imageView.setImageTintList(ColorStateList.valueOf(

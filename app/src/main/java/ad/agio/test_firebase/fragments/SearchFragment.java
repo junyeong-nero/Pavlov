@@ -22,7 +22,7 @@ import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.databinding.FragmentSearchBinding;
 import ad.agio.test_firebase.domain.User;
-import ad.agio.test_firebase.utils.RequestCodes;
+import ad.agio.test_firebase.utils.Codes;
 
 import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
@@ -47,9 +47,9 @@ public class SearchFragment extends Fragment {
 
         Predicate<User> condition = user -> user.getUserName()
                 .contains(binding.editQuery.getText().toString());
+        // 쿼리를 포함하고 있는 사람을 뽑는다.
 
         binding.button.setOnClickListener(v -> {
-            // 20 ~ 40대를 위한 lambda expression
             search(condition);
         });
 
@@ -65,7 +65,7 @@ public class SearchFragment extends Fragment {
         binding.textLog.removeAllViews();
         userController.readAllUsers(user -> {
             if (user != null && condition.test(user)) {
-                View view = getLayoutInflater().inflate(R.layout.inflate_profile, null);
+                View view = getLayoutInflater().inflate(R.layout.inflater_profile, null);
                 TextView nick = view.findViewById(R.id.text_nickname);
                 nick.setText(user.getUserName());
 
@@ -80,7 +80,7 @@ public class SearchFragment extends Fragment {
                         intent.putExtra("isReceiving", false); // is not receiving
                         intent.putExtra("user", value.toString());
                         intent.putExtra("chatId", "fake"); // actually it's empty
-                        startActivityForResult(intent, RequestCodes.SEARCH_ACTIVITY);
+                        startActivityForResult(intent, Codes.OTHER_PROFILE_ACTIVITY);
                     });
                 });
                 binding.textLog.addView(view);
