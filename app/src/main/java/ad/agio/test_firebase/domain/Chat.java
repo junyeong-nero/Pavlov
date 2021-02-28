@@ -13,7 +13,7 @@ public class Chat {
     public String chatName = "";
     public String textChange = "";
     public String result = "";
-    public Meeting meeting = null;
+    public Meeting meeting = new Meeting();
     public HashMap<String, User> users = new HashMap<>();
 
     public String getChatId() {
@@ -39,6 +39,10 @@ public class Chat {
                 list.add(user);
         });
         consumer.accept(list);
+    }
+
+    public void writeUser(User user) {
+        this.users.put(user.getUid(), user);
     }
 
     public void readAllUsers(Consumer<ArrayList<User>> consumer) {

@@ -10,6 +10,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -21,7 +23,7 @@ import ad.agio.test_firebase.utils.Utils;
 
 public class AppointController {
 
-    private void _log(String text) {
+    private void log(String text) {
         Log.e(this.getClass().getSimpleName(), text);
     }
 
@@ -35,7 +37,6 @@ public class AppointController {
     public Context getContext() {
         return context;
     }
-
     public void setContext(Context context) {
         this.context = context;
     }
@@ -81,7 +82,7 @@ public class AppointController {
     public void startReceive(Consumer<ArrayList<User>> consumer) {
         this.receiveConsumer = consumer;
         if (authController.isAuth()) {
-            _log("startReceive");
+            log("startReceive");
             db.setValue("empty")
                     .addOnSuccessListener(task -> db.addValueEventListener(receiveListener));
         }
@@ -102,11 +103,14 @@ public class AppointController {
      */
     public void appoint(String chatId) {
         chatController = new ChatController(chatId);
-        chatController.sendMatchResult("success"); // request 가 성공함을 알림.
-        chatController.writeUser(currentUser); // 내 프로필을 채팅방에 추가.
+        chatController.writeUserOnComplete(currentUser, task -> {
+            chatController.sendMatchResult("success"); // request 가 성공함을 알림.
+        }); // 프로필을 채팅창에 작성한 이후에 성공을 알린다.
         chatController.readChat(chat -> {
             mChat = chat;
-            addChat(mChat.chatId);
+            mChat.writeUser(currentUser);
+            addChat(mChat);
+            addMeeting(mChat);
             if(successListener != null) {
                 successListener.accept(mChat); // 채팅방과 연결
             }
@@ -114,7 +118,7 @@ public class AppointController {
     }
 
     /**
-     * 다른 사람이 보낸 요청을 거절함.hggfffgfgfhgfjhgfjhgfjhgf
+     * 다른 사람이 보낸 요청을 거절함.
      * @param chatId chatId
      */
     public void reject(String chatId) {
@@ -166,7 +170,7 @@ public class AppointController {
                 .removeValue(); // 다른사람의 db에서 자신의 프로피을 지움.
         if (result.equals("success")) {
             if(successListener != null) {
-                addChat(mChat.getChatId());
+                addChat(mChat);
                 successListener.accept(mChat);
             }
         } else {
@@ -176,17 +180,21 @@ public class AppointController {
         }
     }
 
-    private void addChat(String chatId) {
+    private void addChat(Chat chat) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        log(gson.toJson(mChat));
 
-        mChat.readOtherUsers(list -> {
-            Meeting r = userController.makeAppointMeeting(currentUser, list.get(0));
-            chatController.writeMeeting(r);
-        });
-
-        if(!currentUser.getArrayChatId().contains(chatId)) {
-            String temp = currentUser.getArrayChatId() + chatId + "|";
+        if(!currentUser.getArrayChatId().contains(chat.chatId)) {
+            String temp = currentUser.getArrayChatId() + chat.chatId + "|";
             userController.updateUser("arrayChatId", temp);
             currentUser.setArrayChatId(temp);
         }
+    }
+
+    private void addMeeting(Chat chat) {
+        chat.readOtherUsers(list -> {
+            Meeting r = userController.makeAppointMeeting(currentUser, list.get(0));
+            chatController.writeMeeting(r);
+        });
     }
 }

@@ -2,6 +2,7 @@ package ad.agio.test_firebase.controller;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,6 +55,13 @@ public class ChatController {
         db.child("users")
                 .child(user.getUid())
                 .setValue(user);
+    }
+
+    public void writeUserOnComplete(User user, Consumer<Task> consumer) {
+        db.child("users")
+                .child(user.getUid())
+                .setValue(user)
+                .addOnCompleteListener(consumer::accept);
     }
 
     public void writeMeeting(Meeting meeting) {

@@ -10,18 +10,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import ad.agio.test_firebase.domain.Chat;
+import ad.agio.test_firebase.domain.Meeting;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.Utils;
 
 public class MatchController {
 
-    public void _log(String text) {
+    public void log(String text) {
         Log.d(this.getClass().getSimpleName(), text);
     }
 
@@ -33,7 +36,7 @@ public class MatchController {
 
     private Chat mChat;
     private User currentUser, otherUser;
-    private Consumer<ArrayList<User>> otherProfileConsumer = list -> _log(list.toString());
+    private Consumer<ArrayList<User>> otherProfileConsumer = list -> log(list.toString());
     public Consumer<Chat> successListener;
     public Consumer<Chat> failureListener;
 
@@ -73,7 +76,7 @@ public class MatchController {
             userController.readMe(me -> currentUser = me);
             childDatabase = mDatabase.child(authController.getUid());
         } else {
-            _log("it is not authenticated");
+            log("it is not authenticated");
         }
     }
 
@@ -173,11 +176,17 @@ public class MatchController {
     public void requestResult(String result) {
         pauseReceive();
         if (result.equals("success")) {
-            _log("matchResult: success");
-            callMatchListener();
+            log("matchResult: success");
+            chatController.readChat(chat -> {
+                mChat = chat;
+                addChat(mChat);
+                if(successListener != null) {
+                    successListener.accept(mChat); // 채팅방과 연결
+                }
+            });
         } else {
             // chatId 삭제 및 listener 삭제.
-            _log("matchResult: fail");
+            log("matchResult: fail");
             chatController.removeChat();
             failureListener.accept(null);
         }
@@ -190,7 +199,7 @@ public class MatchController {
      */
     public void receive(String chatId) {
         if(!isReceiving)
-            _log("is not Receiving");
+            log("is not Receiving");
         chatController = new ChatController(chatId);
         chatController.readChat(chat -> mChat = chat);
         chatController.readOtherUsers(users -> otherProfileConsumer.accept(users));
@@ -201,13 +210,21 @@ public class MatchController {
      * @param otherUser 상대방
      */
     public void receiveResult(User otherUser) {
-        _log("receiveResult\n" + otherUser.toString());
+        log("receiveResult\n" + otherUser.toString());
         this.otherUser = otherUser;
-
         pauseReceive();
-        chatController.writeUser(currentUser);
-        chatController.sendMatchResult("success");
-        callMatchListener();
+        chatController.writeUserOnComplete(currentUser, task -> {
+            chatController.sendMatchResult("success"); // request 가 성공함을 알림.
+        }); // 프로필을 채팅창에 작성한 이후에 성공을 알린다.
+        chatController.readChat(chat -> {
+            mChat = chat;
+            mChat.writeUser(currentUser);
+            addChat(mChat);
+            addMeeting(mChat);
+            if(successListener != null) {
+                successListener.accept(mChat); // 채팅방과 연결
+            }
+        });
     }
 
     /**
@@ -215,7 +232,7 @@ public class MatchController {
      * @param otherUser 상대방
      */
     public void reject(User otherUser) {
-        _log("reject\n" + otherUser.toString());
+        log("reject\n" + otherUser.toString());
         this.otherUser = otherUser;
 
         pauseReceive();
@@ -250,24 +267,22 @@ public class MatchController {
         removeData();
     }
 
-    /**
-     * 매칭이 완료되었을때 실행해야함.
-     * 채팅창 정보를 읽고 matchCompleteListener을 수행함.
-     */
-    public void callMatchListener() {
-        chatController.readChat(chat -> {
-            mChat = chat;
-            addChat(mChat.chatId);
-            successListener.accept(mChat);
-        });
-    }
+    private void addChat(Chat chat) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        log(gson.toJson(mChat));
 
-    private void addChat(String chatId) {
-        if(!currentUser.getArrayChatId().contains(chatId)) {
-            String temp = currentUser.getArrayChatId() + chatId + "|";
+        if(!currentUser.getArrayChatId().contains(chat.chatId)) {
+            String temp = currentUser.getArrayChatId() + chat.chatId + "|";
             userController.updateUser("arrayChatId", temp);
             currentUser.setArrayChatId(temp);
         }
+    }
+
+    private void addMeeting(Chat chat) {
+        chat.readOtherUsers(list -> {
+            Meeting r = userController.makeAppointMeeting(currentUser, list.get(0));
+            chatController.writeMeeting(r);
+        });
     }
 
     public void findUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {

@@ -63,6 +63,21 @@
 
     </ScrollView>
 
+    <Button
+        android:id="@+id/button_meeting"
+        android:layout_marginTop="64dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="meeting"
+        android:background="@drawable/background_roundrect"
+        android:backgroundTint="@color/white"
+        android:elevation="4dp"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <View
         android:id="@+id/view_chat"
         android:elevation="4dp"

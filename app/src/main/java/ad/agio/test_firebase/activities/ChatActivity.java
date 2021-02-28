@@ -1,5 +1,6 @@
 package ad.agio.test_firebase.activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -51,13 +52,18 @@ public class ChatActivity extends AppCompatActivity {
         chatController.readText(this::drawAll);
         chatController.readChat(chat -> {
             mChat = chat;
+            binding.buttonMeeting.setText(mChat.meeting.toString());
+            binding.buttonMeeting.setOnClickListener(v ->
+                    new AlertDialog.Builder(this)
+                        .setTitle("약속정보")
+                        .setMessage(mChat.meeting.toString())
+                        .show()
+            );
             binding.toolbarTitle.setText(mChat.chatName);
         });
         chatController.addTextChangeListener(text -> {
             log(text);
-            if(!isFirst)
-                drawChange(text);
-            isFirst = false;
+            drawChange(text);
         });
 
         binding.buttonBack.setOnClickListener(v -> finish());
