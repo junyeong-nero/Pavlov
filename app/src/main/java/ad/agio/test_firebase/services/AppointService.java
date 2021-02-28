@@ -28,11 +28,20 @@ import ad.agio.test_firebase.domain.User;
 
 public class AppointService extends JobIntentService {
 
+    private void log(String text) {
+        Log.e(this.getClass().getSimpleName(), text);
+    }
+    private AppointController appointController;
+
+    public static final String NOTIFICATION_CHANNEL_ID = "10001";
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Intent intent = new Intent(this, AppointService.class);
+        startService(intent);
+        new AppointService().enqueueWork(this, intent);
     }
-
 
     public void enqueueWork(Context context, Intent intent) {
         enqueueWork(context, AppointService.class, 1158, intent);
@@ -69,21 +78,13 @@ public class AppointService extends JobIntentService {
 
         while (true) {
             try {
-                Thread.sleep(1000 * 1000 * 1000);
-//                log("service is alive!");
+                Thread.sleep(1000);
+                log("service is alive!");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-
-    private void log(String text) {
-        Log.e(this.getClass().getSimpleName(), text);
-    }
-    private AppointController appointController;
-
-    public static final String NOTIFICATION_CHANNEL_ID = "10001";
-
 
     public void notification(Intent intent) {
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);

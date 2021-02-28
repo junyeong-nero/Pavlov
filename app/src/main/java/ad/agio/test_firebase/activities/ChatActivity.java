@@ -12,7 +12,11 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.ChatController;
@@ -21,7 +25,6 @@ import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.utils.Codes;
 
 import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
-import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -45,7 +48,7 @@ public class ChatActivity extends AppCompatActivity {
         String chatId = intent.getStringExtra("chatId");
 
         chatController = new ChatController(chatId);
-        chatController.readText(text -> drawAll(text));
+        chatController.readText(this::drawAll);
         chatController.readChat(chat -> {
             mChat = chat;
             binding.toolbarTitle.setText(mChat.chatName);
@@ -88,39 +91,48 @@ public class ChatActivity extends AppCompatActivity {
         HashMap<String, String> map = cook(line);
         View view;
 
-        if (map.get("uid").equals(currentUser.getUid())) {
-            // 내가쓴 채팅
+        String uid = map.get("uid");
+        String name = map.get("name");
+        String date = map.get("date");
+        String content = map.get("content");
+
+        // null check
+        List<String> list = Arrays.asList(uid, name, date, content);
+        if(!list.stream().allMatch(text -> text != null && !text.equals("")))
+            return;
+
+        assert uid != null;
+        if (uid.equals(currentUser.getUid())) {
+            // 내가 쓴 채팅
             view = getLayoutInflater().inflate(R.layout.inflater_my_chat, null);
         } else {
             // 다른 사람이 쓴 채팅
             view = getLayoutInflater().inflate(R.layout.inflater_other_chat, null);
         }
 
+        assert name != null;
         Button button = view.findViewById(R.id.button_name);
-        button.setText(map.get("name").substring(0, 1));
+        button.setText(name.substring(0, 1));
         button.setOnClickListener(v -> {
-
             Intent intent = new Intent(this, OtherProfileActivity.class);
             intent.putExtra("type", "none");
             intent.putExtra("isReceiving", false); // is not receiving
             intent.putExtra("user", "");
-            intent.putExtra("uid", map.get("uid"));
+            intent.putExtra("uid", uid);
             intent.putExtra("chatId", "fake"); // actually it's empty
             startActivityForResult(intent, Codes.OTHER_PROFILE_ACTIVITY);
-
         });
 
-
+        assert date != null;
         button.setOnLongClickListener(v -> {
-            Snackbar.make(v, map.get("date"), 500).show();
+            Snackbar.make(v, date, 500).show();
             return true;
         });
 
         TextView textView = view.findViewById(R.id.text_content);
-        textView.setText(map.get("content"));
+        textView.setText(content);
 
-        if(!map.get("content").equals(""))
-            binding.chatLayout.addView(view);
+        binding.chatLayout.addView(view);
     }
 
     private HashMap<String, String> cook(String temp) {

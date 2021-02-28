@@ -1,7 +1,6 @@
 package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
 
 import android.app.NotificationManager;
@@ -59,30 +58,31 @@ public class OtherProfileActivity extends AppCompatActivity {
         if(intent.hasExtra("uid")) {
             userController.readUser(intent.getStringExtra("uid"), user -> {
                 this.otherUser = user;
-                drawProfile(user);
-                setProfileImage(user);
+                drawProfile(otherUser);
             });
+        } else {
+            drawProfile(otherUser);
         }
 
         binding.buttonBack.setOnClickListener(v -> {
-            if (type.equals("match")) {
-                // rejectResult 에서 failureListener 호출 -> finish
-                // request 하는 사람이면, 그냥 finish
-                if (isReceiving) {
-                    matchController.reject(otherUser);
-                } else {
+            switch (type) {
+                case "match":
+                    if (isReceiving)
+                        matchController.reject(otherUser);
+                    else
+                        finish();
+                    break;
+
+                case "appoint":
+                    if (isReceiving)
+                        appointController.reject(chatId);
+                    else
+                        finish();
+                    break;
+
+                case "none":
                     finish();
-                }
-            } else if (type.equals("appoint")) {
-                // 거절 위와 마찬가지로 failureListener 호출 -> finish
-                // request 하는 사람이면, 그냥 finish
-                if (isReceiving) {
-                    appointController.reject(chatId);
-                } else {
-                    finish();
-                }
-            } else if (type.equals("none")) {
-                finish();
+                    break;
             }
         });
 
@@ -163,6 +163,7 @@ public class OtherProfileActivity extends AppCompatActivity {
     }
 
     private void drawProfile(User user) {
+        drawProfileImage(user);
         binding.layoutUser.removeAllViews();
         try {
             JSONObject obj = new JSONObject(user.toString());
@@ -183,7 +184,7 @@ public class OtherProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void setProfileImage(User user) {
+    private void drawProfileImage(User user) {
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
             Uri parse = Uri.parse(profile);

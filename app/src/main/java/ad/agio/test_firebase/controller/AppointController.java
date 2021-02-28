@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import ad.agio.test_firebase.domain.Chat;
+import ad.agio.test_firebase.domain.Meeting;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.Utils;
 
@@ -100,20 +101,20 @@ public class AppointController {
      * @param chatId chatId
      */
     public void appoint(String chatId) {
-        ChatController chatController = new ChatController(chatId);
+        chatController = new ChatController(chatId);
         chatController.sendMatchResult("success"); // request 가 성공함을 알림.
         chatController.writeUser(currentUser); // 내 프로필을 채팅방에 추가.
         chatController.readChat(chat -> {
             mChat = chat;
+            addChat(mChat.chatId);
             if(successListener != null) {
-                addChat(mChat.chatId);
                 successListener.accept(mChat); // 채팅방과 연결
             }
         });
     }
 
     /**
-     * 다른 사람이 보낸 요청을 거절함.
+     * 다른 사람이 보낸 요청을 거절함.hggfffgfgfhgfjhgfjhgfjhgf
      * @param chatId chatId
      */
     public void reject(String chatId) {
@@ -176,6 +177,12 @@ public class AppointController {
     }
 
     private void addChat(String chatId) {
+
+        mChat.readOtherUsers(list -> {
+            Meeting r = userController.makeAppointMeeting(currentUser, list.get(0));
+            chatController.writeMeeting(r);
+        });
+
         if(!currentUser.getArrayChatId().contains(chatId)) {
             String temp = currentUser.getArrayChatId() + chatId + "|";
             userController.updateUser("arrayChatId", temp);

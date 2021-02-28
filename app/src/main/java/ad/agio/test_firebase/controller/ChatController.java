@@ -10,10 +10,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import ad.agio.test_firebase.domain.Chat;
+import ad.agio.test_firebase.domain.Meeting;
 import ad.agio.test_firebase.domain.User;
 
 public class ChatController {
@@ -53,6 +56,22 @@ public class ChatController {
                 .setValue(user);
     }
 
+    public void writeMeeting(Meeting meeting) {
+        db.child("meeting")
+                .setValue(meeting);
+    }
+
+    public void readMeeting(Consumer<Meeting> consumer) {
+        db.child("meeting")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        consumer.accept(task.getResult().getValue(Meeting.class));
+                    }
+                });
+
+    }
+
     public void sendMatchResult(String result) {
         db.child("result")
                 .setValue(result);
@@ -86,16 +105,16 @@ public class ChatController {
     }
 
     public void readUserBy(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
-        db.get()
+        db.child("users")
+                .get()
                 .addOnSuccessListener(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         ArrayList<User> list = new ArrayList<>();
-                        Chat chat = dataSnapshot.getValue(Chat.class);
-                        assert chat != null;
-                        chat.users.forEach((key, user) -> {
+                        for (DataSnapshot d : dataSnapshot.getChildren()) {
+                            User user = d.getValue(User.class);
                             if (condition.test(user))
                                 list.add(user);
-                        });
+                        }
                         consumer.accept(list);
                     } else {
                         consumer.accept(null);
