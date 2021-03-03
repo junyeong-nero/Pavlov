@@ -1,5 +1,6 @@
 package ad.agio.test_firebase.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -19,10 +20,19 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.PlaceLikelihood;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,6 +40,8 @@ import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityNeighborBinding;
 import ad.agio.test_firebase.utils.Codes;
+
+import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 
 public class NeighborActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -46,6 +58,14 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
     private static final int DEFAULT_ZOOM = 17;
     private boolean locationPermissionGranted;
     private Location lastKnownLocation;
+    private PlacesClient placesClient;
+
+    private static final int M_MAX_ENTRIES = 5;
+    private String[] likelyPlaceNames;
+    private String[] likelyPlaceAddresses;
+    private List[] likelyPlaceAttributions;
+    private LatLng[] likelyPlaceLatLngs;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,15 +74,14 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
         setContentView(binding.getRoot());
 
         binding.buttonBack.setOnClickListener(v -> finish());
-        userController = new UserController();
+        binding.textNeighbor.setText(String.format("현재 %s님의 위치는", currentUser.getUserName()));
+        binding.textNeighbor2.setText(String.format("'%s' 입니다", currentUser.getNeighbor()));
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        locationPermissionGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         binding.buttonCheck.setOnClickListener(v -> {
             Snackbar.make(binding.buttonCheck, "동네인증 완료!", 500).show();
@@ -73,6 +92,12 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
             setResult(Codes.NEIGHBOR_ACTIVITY, intent);
             finish();
         });
+
+        Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        placesClient = Places.createClient(this);
+
+        locationPermissionGranted = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -80,6 +105,7 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
         this.map = googleMap;
         updateLocationUI();
         getDeviceLocation();
+        showCurrentPlace();
     }
 
     private void updateLocationUI() {
@@ -106,8 +132,11 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(lastKnownLocation.getLatitude(),
                                             lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                            binding.textNeighbor.setText(
-                                    getAddress(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+                            binding.textNeighbor2.setText(
+                                    "'" +
+                                    getAddress(lastKnownLocation.getLatitude(),
+                                            lastKnownLocation.getLongitude())
+                                    + "' 입니다");
                         }
                     } else {
                         log("Current location is null. Using defaults.");
@@ -119,6 +148,85 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
             }
         } catch (SecurityException e) {
             log(e.getMessage());
+        }
+    }
+
+
+    // TODO Fix this
+    private void showCurrentPlace() {
+        if (map == null) {
+            return;
+        }
+
+        if (locationPermissionGranted) {
+            // Use fields to define the data types to return.
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.ADDRESS,
+                    Place.Field.LAT_LNG);
+
+            // Use the builder to create a FindCurrentPlaceRequest.
+            FindCurrentPlaceRequest request =
+                    FindCurrentPlaceRequest.newInstance(placeFields);
+
+            // Get the likely places - that is, the businesses and other points of interest that
+            // are the best match for the device's current location.
+            @SuppressWarnings("MissingPermission") final
+            Task<FindCurrentPlaceResponse> placeResult =
+                    placesClient.findCurrentPlace(request);
+            placeResult.addOnCompleteListener (new OnCompleteListener<FindCurrentPlaceResponse>() {
+                @Override
+                public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        FindCurrentPlaceResponse likelyPlaces = task.getResult();
+
+                        // Set the count, handling cases where less than 5 entries are returned.
+                        int count;
+                        if (likelyPlaces.getPlaceLikelihoods().size() < M_MAX_ENTRIES) {
+                            count = likelyPlaces.getPlaceLikelihoods().size();
+                        } else {
+                            count = M_MAX_ENTRIES;
+                        }
+
+                        int i = 0;
+                        likelyPlaceNames = new String[count];
+                        likelyPlaceAddresses = new String[count];
+                        likelyPlaceAttributions = new List[count];
+                        likelyPlaceLatLngs = new LatLng[count];
+
+                        for (PlaceLikelihood placeLikelihood : likelyPlaces.getPlaceLikelihoods()) {
+                            // Build a list of likely places to show the user.
+                            log(placeLikelihood.getPlace().getName());
+                            likelyPlaceNames[i] = placeLikelihood.getPlace().getName();
+                            likelyPlaceAddresses[i] = placeLikelihood.getPlace().getAddress();
+                            likelyPlaceAttributions[i] = placeLikelihood.getPlace()
+                                    .getAttributions();
+                            likelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
+
+                            i++;
+                            if (i > (count - 1)) {
+                                break;
+                            }
+                        }
+
+                        // Show a dialog offering the user the list of likely places, and add a
+                        // marker at the selected place.
+                        // openPlacesDialog();
+                    }
+                    else {
+                        log(task.getException().toString());
+                    }
+                }
+            });
+        } else {
+            // The user has not granted permission.
+            log("The user did not grant location permission.");
+
+            // Add a default marker, because the user hasn't selected a place.
+            map.addMarker(new MarkerOptions()
+                    .title("title")
+                    .position(defaultLocation)
+                    .snippet("snippet"));
+
+            // Prompt the user for permission.
         }
     }
 

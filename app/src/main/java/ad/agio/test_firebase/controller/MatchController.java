@@ -135,6 +135,7 @@ public class MatchController {
      */
     public void startMatching(Predicate<User> condition, Consumer<ArrayList<User>> consumer) {
         otherProfileConsumer = consumer;
+        isReceiving = true; // 일단 receiving 을 true 로 만들자.
         findUserBy(condition, list -> { // 일단 matchers 중에서 조건을 만족하는 사람을 찾아본다.
             if (list == null || list.isEmpty()) { // 만족하는 사람이 없으면
                 startReceive(); // receiver 작동

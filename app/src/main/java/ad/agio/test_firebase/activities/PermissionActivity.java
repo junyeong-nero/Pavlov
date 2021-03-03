@@ -40,8 +40,6 @@ public class PermissionActivity extends AppCompatActivity {
         requestPermissions(arr);
     }
 
-    // TODO 인터넷 연결여부 확인
-
     /**
      * Prompts the us
      */

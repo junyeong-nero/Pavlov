@@ -32,6 +32,7 @@ public class ChatActivity extends AppCompatActivity {
     private ActivityChatBinding binding;
     private ChatController chatController;
     private Chat mChat;
+    private String textChange = "";
     private void log(String t) {
         Log.e(this.getClass().getSimpleName(), t);
     }
@@ -52,6 +53,7 @@ public class ChatActivity extends AppCompatActivity {
         chatController.readText(this::drawAll);
         chatController.readChat(chat -> {
             mChat = chat;
+            textChange = chat.textChange;
             binding.buttonMeeting.setText(mChat.meeting.toString());
             binding.buttonMeeting.setOnClickListener(v ->
                     new AlertDialog.Builder(this)
@@ -60,10 +62,15 @@ public class ChatActivity extends AppCompatActivity {
                         .show()
             );
             binding.toolbarTitle.setText(mChat.chatName);
-        });
-        chatController.addTextChangeListener(text -> {
-            log(text);
-            drawChange(text);
+
+            // 채팅방 정보를 읽고 이후에 채팅과 연결.
+            chatController.addTextChangeListener(text -> {
+                log(text);
+                if (!text.equals(textChange)) {
+                    drawChange(text);
+                    textChange = text;
+                }
+            });
         });
 
         binding.buttonBack.setOnClickListener(v -> finish());

@@ -25,8 +25,10 @@ import java.util.Iterator;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.databinding.ActivityOtherProfileBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.services.AppointService;
 
 import static ad.agio.test_firebase.activities.HomeActivity.appointController;
+import static ad.agio.test_firebase.activities.HomeActivity.authController;
 import static ad.agio.test_firebase.activities.HomeActivity.matchController;
 import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
@@ -71,6 +73,7 @@ public class OtherProfileActivity extends AppCompatActivity {
                         matchController.reject(otherUser);
                     else
                         finish();
+                        serviceStart();
                     break;
 
                 case "appoint":
@@ -78,15 +81,25 @@ public class OtherProfileActivity extends AppCompatActivity {
                         appointController.reject(chatId);
                     else
                         finish();
+                        serviceStart();
                     break;
 
                 case "none":
                     finish();
+                    serviceStart();
                     break;
             }
         });
 
         init();
+    }
+
+    private void serviceStart() {
+        if(authController.isAuth()) {
+            Intent intent = new Intent(this, AppointService.class);
+            startService(intent);
+            new AppointService().enqueueWork(this, intent);
+        }
     }
 
     private void init() {
@@ -98,6 +111,7 @@ public class OtherProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(appointController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
+            serviceStart();
             finish();
         };
 
@@ -110,6 +124,7 @@ public class OtherProfileActivity extends AppCompatActivity {
             intent.putExtra("chatId", chat.chatId);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+            serviceStart();
             finish();
         };
 
@@ -194,7 +209,8 @@ public class OtherProfileActivity extends AppCompatActivity {
             } else {
                 userController.readProfileImage(user.getUid(), bytes -> {
                     // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                    Glide.with(this)
+                    if(!isDestroyed())
+                        Glide.with(this)
                             .load(bytes)
                             .into(binding.imageProfile);
                 });

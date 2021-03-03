@@ -166,8 +166,7 @@ public class AppointController {
         FirebaseDatabase.getInstance().getReference()
                 .child("appoint")
                 .child(otherUser.getUid())
-                .child(authController.getUid())
-                .removeValue(); // 다른사람의 db에서 자신의 프로피을 지움.
+                .setValue("empty"); // 다른사람의 db에서 자신의 프로피을 지움.
         if (result.equals("success")) {
             if(successListener != null) {
                 addChat(mChat);

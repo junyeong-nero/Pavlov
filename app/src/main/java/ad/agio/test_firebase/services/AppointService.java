@@ -38,6 +38,7 @@ public class AppointService extends JobIntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        log("onDestroy");
         Intent intent = new Intent(this, AppointService.class);
         startService(intent);
         new AppointService().enqueueWork(this, intent);
@@ -58,27 +59,26 @@ public class AppointService extends JobIntentService {
             startActivity(intent);
         };
 
-        appointController.startReceive(list -> {
-            if(!list.isEmpty()) {
-                Optional<User> user = list.stream().findAny();
-                log(user.toString());
-
-                Intent intent = new Intent(appointController.getContext(), OtherProfileActivity.class);
-                user.ifPresent(value -> {
-                    intent.putExtra("type", "appoint");
-                    intent.putExtra("isReceiving", true); // is receiving
-                    intent.putExtra("user", value.toString());
-                    intent.putExtra("userName", value.getUserName());
-                    intent.putExtra("chatId", value.getChatId());
-                });
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                notification(intent);
-            }
-        });
-
         while (true) {
             try {
-                Thread.sleep(1000);
+                appointController.startReceive(list -> {
+                    if(!list.isEmpty()) {
+                        Optional<User> user = list.stream().findAny();
+                        log(user.toString());
+
+                        Intent intent = new Intent(appointController.getContext(), OtherProfileActivity.class);
+                        user.ifPresent(value -> {
+                            intent.putExtra("type", "appoint");
+                            intent.putExtra("isReceiving", true); // is receiving
+                            intent.putExtra("user", value.toString());
+                            intent.putExtra("userName", value.getUserName());
+                            intent.putExtra("chatId", value.getChatId());
+                        });
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        notification(intent);
+                    }
+                });
+                Thread.sleep(1000 * 60);
                 log("service is alive!");
             } catch (InterruptedException e) {
                 e.printStackTrace();

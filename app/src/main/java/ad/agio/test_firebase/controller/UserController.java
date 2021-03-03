@@ -1,17 +1,23 @@
 package ad.agio.test_firebase.controller;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.function.Consumer;
 
+import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.Meeting;
 import ad.agio.test_firebase.domain.Time;
 import ad.agio.test_firebase.domain.User;
@@ -25,7 +31,7 @@ public class UserController {
     }
 
     private final FirebaseFirestore db;
-    private AuthController authController;
+    private final AuthController authController;
 
     public UserController() {
         this.db = FirebaseFirestore.getInstance();
@@ -157,11 +163,41 @@ public class UserController {
         }
     }
 
+    public void writeChat(Chat chat) {
+        if(!currentUser.getArrayChatId().contains(chat.chatId)) {
+            String temp = currentUser.getArrayChatId() + chat.chatId + "|";
+            updateUser("arrayChatId", temp);
+            currentUser.setArrayChatId(temp);
+        }
+    }
+
+    public void readChat(Consumer<String> consumer) {
+        String[] split = currentUser.getArrayChatId().split("\\|");
+        for (String chatId : split) {
+            if(!chatId.equals(""))
+                consumer.accept(chatId);
+        }
+    }
+
+    public ArrayList<String> readChat() {
+        String[] split = currentUser.getArrayChatId().split("\\|");
+        return new ArrayList<>(Arrays.asList(split));
+    }
+
+    public void removeChat(String chatId) {
+        if(currentUser.getArrayChatId().contains(chatId)) {
+            ArrayList<String> arr = readChat();
+            arr.remove(chatId);
+            updateUser("arrayChatId", TextUtils.join("|", arr));
+        }
+    }
+
     public Meeting makeMatchMeeting(User user1, User user2) {
         Meeting result = new Meeting();
 
         Time time = new Time(Calendar.getInstance());
         time.minute += 15; // 15분 뒤에 보자!
+        // TODO 이렇게 하면 61분 같은 대참사가 발생한다.
         result.time = time;
         result.place = user1.getNeighbor(); // 일단 동네로 설정
         result.address = user1.getNeighbor(); // user1 기준으로 되어잇는 것도 문제.

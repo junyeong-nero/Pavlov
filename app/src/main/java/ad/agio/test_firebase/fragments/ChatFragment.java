@@ -48,7 +48,7 @@ public class ChatFragment extends Fragment {
 
         GraphicComponents g = new GraphicComponents(requireContext());
 
-        cook(rawData, chatId -> {
+        userController.readChat(chatId -> {
             log(chatId);
             View view = getLayoutInflater().inflate(R.layout.inflater_chat_thumb, null);
             TextView t1 = view.findViewById(R.id.title);
@@ -74,16 +74,5 @@ public class ChatFragment extends Fragment {
 
             binding.layout.addView(view);
         });
-    }
-
-    private void cook(String rawData, Consumer<String> consumer) {
-        log(rawData);
-        String[] split = rawData.split("\\|");
-        for (String chatId : split) {
-            log(chatId);
-            if (chatId != null && !chatId.equals("")) {
-                consumer.accept(chatId);
-            }
-        }
     }
 }

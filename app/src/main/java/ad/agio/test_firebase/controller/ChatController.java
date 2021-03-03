@@ -174,8 +174,6 @@ public class ChatController {
                 });
     }
 
-    // TODO textChangeListener 추가
-
     private String currentText = "";
     private ValueEventListener textListener;
     public void addTextListener(Consumer<String> consumer) {

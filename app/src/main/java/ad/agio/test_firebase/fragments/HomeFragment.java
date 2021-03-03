@@ -93,14 +93,15 @@ public class HomeFragment extends Fragment {
                                     // request => false, receive => true
                                     intent.putExtra("user", value.toString());
 
-                                    if (matchController.getChat() != null)
+                                    if (matchController.getChat() != null) {
                                         intent.putExtra("chatId", matchController.getChat().chatId);
                                         // receive 하는 경우 chatId가 존재함.
-                                    else
+                                    } else {
                                         intent.putExtra("chatId", "fake");
-                                    // request 하는 경우 chatId가 없음.
-
+                                        // request 하는 경우 chatId가 없음.
+                                    }
                                     startActivity(intent);
+                                    matchFinish(); // 자동으로 매칭종료.
                                 });
                             });
                 } else {

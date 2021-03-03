@@ -52,24 +52,41 @@
 
     <TextView
         android:id="@+id/text_neighbor"
-        android:layout_marginTop="56dp"
-        android:textSize="16dp"
-        android:text="동네"
-        android:gravity="center"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:text="현재 네로에오님의 위치는"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="56dp" />
+
+    <TextView
+        android:id="@+id/text_neighbor2"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:text="'정평동' 입니다"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/text_neighbor" />
 
     <Button
         android:id="@+id/button_check"
         android:text="인증하기"
-        android:layout_marginTop="24dp"
-        android:layout_width="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/background_roundrect"
+        android:backgroundTint="@color/colorOnPrimary"
+        android:layout_margin="8dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_neighbor" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
