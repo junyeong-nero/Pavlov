@@ -3,13 +3,17 @@ package ad.agio.test_firebase.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -41,7 +45,13 @@ public class MenuActivity extends AppCompatActivity {
             finish();
         });
 
-        for (String key : hashMap.keySet()) {
+        iconMap.put("공지사항", R.drawable.ic_create);
+        hashMap.put("공지사항", (v) -> {
+            startActivity(new Intent(MenuActivity.this, NoticeActivity.class));
+        });
+
+        List<String> keys = Arrays.asList("로그아웃", "공지사항");
+        for (String key : keys) {
             View view = getLayoutInflater().inflate(R.layout.inflater_menu, null);
             ImageView imageView = view.findViewById(R.id.icon);
             imageView.setImageResource(Objects.requireNonNull(iconMap.get(key)));

@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.activities.OtherProfileActivity;
-import ad.agio.test_firebase.controller.NotificationController;
 import ad.agio.test_firebase.databinding.FragmentHomeBinding;
 import ad.agio.test_firebase.domain.User;
 
@@ -47,12 +46,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        NotificationController controller = new NotificationController();
-        controller.readNotification(notification -> {
-            binding.textTitle.setText(notification.getTitle());
-            binding.textContent.setText(notification.getContent());
-        });
 
         if(authController.isAuth())
             matchController.prepare();

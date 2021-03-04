@@ -2,6 +2,10 @@ package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Arrays;
@@ -48,6 +53,8 @@ public class ChatActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String chatId = intent.getStringExtra("chatId");
+
+        binding.drawerLayout.open();
 
         chatController = new ChatController(chatId);
         chatController.readText(this::drawAll);
