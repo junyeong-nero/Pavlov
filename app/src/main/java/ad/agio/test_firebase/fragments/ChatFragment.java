@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -20,6 +21,7 @@ import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.controller.ChatController;
 import ad.agio.test_firebase.databinding.FragmentChatBinding;
+import ad.agio.test_firebase.utils.Codes;
 import ad.agio.test_firebase.utils.GraphicComponents;
 
 import static ad.agio.test_firebase.activities.HomeActivity.userController;
@@ -47,6 +49,7 @@ public class ChatFragment extends Fragment {
             return;
 
         GraphicComponents g = new GraphicComponents(requireContext());
+        binding.layout.removeAllViews();
 
         userController.readChat(chatId -> {
             log(chatId);
@@ -65,7 +68,7 @@ public class ChatFragment extends Fragment {
             button.setOnClickListener(v -> {
                 Intent intent = new Intent(requireContext(), ChatActivity.class);
                 intent.putExtra("chatId", chatId);
-                startActivity(intent);
+                startActivityForResult(intent, Codes.CHAT_ACTIVITY);
             });
 
             View line = new View(requireContext());
@@ -74,5 +77,14 @@ public class ChatFragment extends Fragment {
 
             binding.layout.addView(view);
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        log("onActivityResult");
+        if (requestCode == Codes.CHAT_ACTIVITY) {
+            userController.readMe(me -> draw(me.getArrayChatId()));
+        }
     }
 }

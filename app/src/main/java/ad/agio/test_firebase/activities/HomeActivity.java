@@ -149,6 +149,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void finishAndRemoveTask() {
+        super.finishAndRemoveTask();
+        appointController.pauseReceive();
+        matchController.pauseReceive();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");

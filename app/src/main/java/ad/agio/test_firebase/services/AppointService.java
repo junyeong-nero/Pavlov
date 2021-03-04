@@ -35,11 +35,6 @@ import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 
 public class AppointService extends IntentService {
 
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
     public AppointService() {
         super("AppointService");
     }
@@ -63,18 +58,18 @@ public class AppointService extends IntentService {
             // Normally we would do some work here, like download a file.
             // For our sample, we just sleep for 5 seconds.
 
-            prepare();
-            startReceive();
-
-            try {
-                Thread.sleep(1000 * 1000 * 1000);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
+            while (true) {
+                prepare();
+                startReceive();
+                try {
+                    Thread.sleep(1000 * 60);
+                } catch (InterruptedException e) {
+                    // Restore interrupt status.
+                    Thread.currentThread().interrupt();
+                }
             }
             // Stop the service using the startId, so that we don't stop
             // the service in the middle of handling another job
-            stopSelf(msg.arg1);
         }
     }
 
@@ -120,7 +115,13 @@ public class AppointService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "service restart", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, AppointService.class);
+        startService(intent);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
         Intent intent = new Intent(this, AppointService.class);
         startService(intent);
     }
@@ -179,7 +180,7 @@ public class AppointService extends IntentService {
             String description = "pavlov";
             int importance = NotificationManager.IMPORTANCE_HIGH;
 
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName , importance);
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, importance);
             channel.setDescription(description);
 
             // 노티피케이션 채널을 시스템에 등록
@@ -191,5 +192,6 @@ public class AppointService extends IntentService {
 
         assert notificationManager != null;
         notificationManager.notify(1158, builder.build()); // 고유숫자로 노티피케이션 동작시킴
+//        startForeground(1158, builder.build());
     }
 }

@@ -22,6 +22,7 @@ import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.databinding.FragmentHomeBinding;
 import ad.agio.test_firebase.domain.User;
 
+import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 import static ad.agio.test_firebase.activities.HomeActivity.matchController;
 import static ad.agio.test_firebase.activities.HomeActivity.authController;
 
@@ -83,6 +84,9 @@ public class HomeFragment extends Fragment {
                                 log(user.toString());
 
                                 user.ifPresent(value -> {
+
+                                    if(value.getUid().equals(currentUser.getUid()))
+                                        return;
 
                                     Intent intent = new Intent(matchController.getContext(),
                                             OtherProfileActivity.class);
