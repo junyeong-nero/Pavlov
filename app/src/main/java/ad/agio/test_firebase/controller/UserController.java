@@ -188,7 +188,9 @@ public class UserController {
         if(currentUser.getArrayChatId().contains(chatId)) {
             ArrayList<String> arr = readChat();
             arr.remove(chatId);
-            updateUser("arrayChatId", TextUtils.join("|", arr));
+            String temp = TextUtils.join("|", arr);
+            currentUser.setArrayChatId(temp);
+            updateUser("arrayChatId", temp);
         }
     }
 

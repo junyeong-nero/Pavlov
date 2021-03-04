@@ -9,8 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,30 +31,101 @@ import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.domain.User;
 
-public class AppointService extends JobIntentService {
+import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
+
+public class AppointService extends IntentService {
+
+    /**
+     * Creates an IntentService.  Invoked by your subclass's constructor.
+     *
+     * @param name Used to name the worker thread, important only for debugging.
+     */
+    public AppointService() {
+        super("AppointService");
+    }
 
     private void log(String text) {
         Log.e(this.getClass().getSimpleName(), text);
     }
     private AppointController appointController;
-
+    private Looper serviceLooper;
+    private ServiceHandler serviceHandler;
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
+
+    private final class ServiceHandler extends Handler {
+
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            // Normally we would do some work here, like download a file.
+            // For our sample, we just sleep for 5 seconds.
+
+            prepare();
+            startReceive();
+
+            try {
+                Thread.sleep(1000 * 1000 * 1000);
+            } catch (InterruptedException e) {
+                // Restore interrupt status.
+                Thread.currentThread().interrupt();
+            }
+            // Stop the service using the startId, so that we don't stop
+            // the service in the middle of handling another job
+            stopSelf(msg.arg1);
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        // Start up the thread running the service. Note that we create a
+        // separate thread because the service normally runs in the process's
+        // main thread, which we don't want to block. We also make it
+        // background priority so CPU-intensive work doesn't disrupt our UI.
+        HandlerThread thread = new HandlerThread("ServiceStartArguments",
+                THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+
+        // Get the HandlerThread's Looper and use it for our Handler
+        serviceLooper = thread.getLooper();
+        serviceHandler = new ServiceHandler(serviceLooper);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+
+        // For each start request, send a message to start a job and deliver the
+        // start ID so we know which request we're stopping when we finish the job
+        Message msg = serviceHandler.obtainMessage();
+        msg.arg1 = startId;
+        serviceHandler.sendMessage(msg);
+
+        // If we get killed, after returning from here, restart
+        return START_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // We don't provide binding, so return null
+        return null;
+    }
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+
+    }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        log("onDestroy");
+        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, AppointService.class);
         startService(intent);
-        new AppointService().enqueueWork(this, intent);
     }
 
-    public void enqueueWork(Context context, Intent intent) {
-        enqueueWork(context, AppointService.class, 1158, intent);
-    }
-
-    @Override
-    protected void onHandleWork(@Nullable Intent _intent) {
+    public void prepare() {
         appointController = new AppointController();
         appointController.setContext(this);
         appointController.failureListener = none -> log("finish");
@@ -58,35 +134,31 @@ public class AppointService extends JobIntentService {
             intent.putExtra("chatId", chat.chatId);
             startActivity(intent);
         };
+    }
 
-        while (true) {
-            try {
-                appointController.startReceive(list -> {
-                    if(!list.isEmpty()) {
-                        Optional<User> user = list.stream().findAny();
-                        log(user.toString());
+    public void startReceive() {
+        log("service is alive!");
+        appointController.startReceive(list -> {
+            if(!list.isEmpty()) {
+                Optional<User> user = list.stream().findAny();
+                log(user.toString());
 
-                        Intent intent = new Intent(appointController.getContext(), OtherProfileActivity.class);
-                        user.ifPresent(value -> {
-                            intent.putExtra("type", "appoint");
-                            intent.putExtra("isReceiving", true); // is receiving
-                            intent.putExtra("user", value.toString());
-                            intent.putExtra("userName", value.getUserName());
-                            intent.putExtra("chatId", value.getChatId());
-                        });
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        notification(intent);
-                    }
+                Intent intent = new Intent(appointController.getContext(), OtherProfileActivity.class);
+                user.ifPresent(value -> {
+                    intent.putExtra("type", "appoint");
+                    intent.putExtra("isReceiving", true); // is receiving
+                    intent.putExtra("user", value.toString());
+                    intent.putExtra("userName", value.getUserName());
+                    intent.putExtra("chatId", value.getChatId());
                 });
-                Thread.sleep(1000 * 60);
-                log("service is alive!");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                notification(intent);
             }
-        }
+        });
     }
 
     public void notification(Intent intent) {
+        log("notification");
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
@@ -119,6 +191,5 @@ public class AppointService extends JobIntentService {
 
         assert notificationManager != null;
         notificationManager.notify(1158, builder.build()); // 고유숫자로 노티피케이션 동작시킴
-
     }
 }

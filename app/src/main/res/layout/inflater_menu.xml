@@ -8,6 +8,7 @@
         android:id="@+id/title"
         android:text="title"
         android:paddingStart="64dp"
+        android:fontFamily="@font/gmsans_medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/ripple_rect"

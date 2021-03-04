@@ -75,6 +75,10 @@ public class HomeFragment extends Fragment {
                     matchController.startMatching(
                             user -> true, // condition
                             list -> {
+
+                                if(list == null)
+                                    return;
+
                                 Optional<User> user = list.stream().findAny();
                                 log(user.toString());
 

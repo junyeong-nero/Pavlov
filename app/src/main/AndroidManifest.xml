@@ -39,10 +39,15 @@
 
         <service
             android:name=".services.AppointService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:stopWithTask="false" />
+            android:exported="false"/>
+
+<!--        <service-->
+<!--            android:name=".services.AppointService"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="false"-->
+<!--            android:stopWithTask="false" />-->
+
+<!--        android:permission="android.permission.SYSTEM_ALERT_WINDOW"-->
 
         <activity android:name=".activities.MenuActivity" />
         <activity android:name=".activities.NeighborActivity" />

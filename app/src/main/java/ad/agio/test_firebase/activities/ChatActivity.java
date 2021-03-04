@@ -2,36 +2,38 @@ package ad.agio.test_firebase.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.ChatController;
 import ad.agio.test_firebase.databinding.ActivityChatBinding;
 import ad.agio.test_firebase.domain.Chat;
+import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.Codes;
+import ad.agio.test_firebase.utils.GraphicComponents;
 
 import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
+import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -43,18 +45,55 @@ public class ChatActivity extends AppCompatActivity {
         Log.e(this.getClass().getSimpleName(), t);
     }
 
-    private boolean isFirst = true;
+    private LinearLayout userLayout = null;
+    private View headerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityChatBinding.inflate(getLayoutInflater());
+        GraphicComponents g = new GraphicComponents(this);
         setContentView(binding.getRoot());
+
+        userLayout = new LinearLayout(this);
+        userLayout.setOrientation(LinearLayout.VERTICAL);
+        userLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+        userLayout.setPadding(g.dp(4), g.dp(4), g.dp(4), g.dp(4));
+
+        TextView textView = new TextView(this);
+        textView.setTypeface(ResourcesCompat.getFont(this, R.font.medium));
+        textView.setText("사용자");
+        textView.setGravity(Gravity.CENTER_VERTICAL);
+        textView.setPadding(g.dp(4), 0, 0, 0);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        userLayout.addView(textView, LinearLayout.LayoutParams.MATCH_PARENT, g.dp(24));
+
+        View line = new View(this);
+        line.setBackgroundColor(ContextCompat.getColor(this, R.color.colorOnPrimary));
+        userLayout.addView(line, LinearLayout.LayoutParams.MATCH_PARENT, g.dp(1));
+
+        headerView = binding.navView.getHeaderView(0);
+        LinearLayout b = headerView.findViewById(R.id.layout);
+        b.addView(userLayout, LinearLayout.LayoutParams.MATCH_PARENT, g.getScreenHeight() - g.dp(38));
 
         Intent intent = getIntent();
         String chatId = intent.getStringExtra("chatId");
 
+        // 채팅방 나가기
+        headerView.findViewById(R.id.button_out).setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("정말 채팅방을 나가시겠습니까?")
+                    .setPositiveButton("예", (dialog, which) -> {
+                        chatController.removeUser(currentUser.getUid());
+                        userController.removeChat(chatId);
+                        finish();
+                    })
+                    .setNegativeButton("아니요", null)
+                    .show();
+        });
+
+        // menu
         binding.buttonMenu.setOnClickListener(v -> binding.drawerLayout.openDrawer(GravityCompat.END));
 
         chatController = new ChatController(chatId);
@@ -62,6 +101,18 @@ public class ChatActivity extends AppCompatActivity {
         chatController.readChat(chat -> {
             mChat = chat;
             textChange = chat.textChange;
+
+            mChat.readAllUsers(users -> {
+                for (User user : users) {
+                    View view = getLayoutInflater().inflate(R.layout.inflater_profile, null);
+                    Button nick = view.findViewById(R.id.text_nickname);
+                    nick.setText(user.getUserName());
+                    nick.setOnClickListener(v -> startOtherProfileActivity(user.getUid()));
+
+                    userLayout.addView(view);
+                }
+            });
+
             binding.buttonMeeting.setText(mChat.meeting.toString());
             binding.buttonMeeting.setOnClickListener(v ->
                     new AlertDialog.Builder(this)
@@ -102,6 +153,17 @@ public class ChatActivity extends AppCompatActivity {
         binding.scroll.post(() -> binding.scroll.fullScroll(View.FOCUS_DOWN)); // 가장 아래로 스크롤 내리기
     }
 
+    private void startOtherProfileActivity(String uid) {
+        Intent _intent = new Intent(ChatActivity.this,
+                OtherProfileActivity.class);
+        _intent.putExtra("type", "none");
+        _intent.putExtra("isReceiving", false); // is not receiving
+        _intent.putExtra("user", "");
+        _intent.putExtra("uid", uid);
+        _intent.putExtra("chatId", "fake"); // actually it's empty
+        startActivityForResult(_intent, Codes.OTHER_PROFILE_ACTIVITY);
+    }
+
     private void drawChange(String text) {
         // 변화된 마지막 줄 결과만 그린다.
         String[] split = text.split("\n");
@@ -134,15 +196,7 @@ public class ChatActivity extends AppCompatActivity {
         assert name != null;
         Button button = view.findViewById(R.id.button_name);
         button.setText(name.substring(0, 1));
-        button.setOnClickListener(v -> {
-            Intent intent = new Intent(this, OtherProfileActivity.class);
-            intent.putExtra("type", "none");
-            intent.putExtra("isReceiving", false); // is not receiving
-            intent.putExtra("user", "");
-            intent.putExtra("uid", uid);
-            intent.putExtra("chatId", "fake"); // actually it's empty
-            startActivityForResult(intent, Codes.OTHER_PROFILE_ACTIVITY);
-        });
+        button.setOnClickListener(v -> startOtherProfileActivity(uid));
 
         assert date != null;
         button.setOnLongClickListener(v -> {

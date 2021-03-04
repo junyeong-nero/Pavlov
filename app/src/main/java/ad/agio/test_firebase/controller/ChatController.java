@@ -57,6 +57,12 @@ public class ChatController {
                 .setValue(user);
     }
 
+    public void removeUser(String uid) {
+        db.child("users")
+                .child(uid)
+                .removeValue();
+    }
+
     public void writeUserOnComplete(User user, Consumer<Task> consumer) {
         db.child("users")
                 .child(user.getUid())

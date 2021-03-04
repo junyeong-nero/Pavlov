@@ -4,8 +4,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:gravity="bottom">
+    android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/layout"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginBottom="48dp"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
+        <ImageButton
+            android:id="@+id/button_out"
+            android:src="@drawable/ic_outgoing"
+            android:layout_height="match_parent"
+            android:layout_width="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/ripple_circle" />
+
+        <ImageButton
+            android:id="@+id/button_alarm"
+            android:src="@drawable/ic_notification"
+            android:layout_height="match_parent"
+            android:layout_width="48dp"
+            app:layout_constraintEnd_toStartOf="@id/button_out"
+            android:background="@drawable/ripple_circle" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -34,11 +34,11 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:gravity="center_vertical"
-        android:padding="16dp"
-        android:textSize="18sp"
+        android:paddingStart="16dp"
         android:layout_marginLeft="56dp"
+        android:fontFamily="@font/gmsans_bold"
+        android:textSize="22sp"
         android:textColor="@color/white"
-        android:textStyle="bold"
         android:text="더보기"/>
 
     <LinearLayout

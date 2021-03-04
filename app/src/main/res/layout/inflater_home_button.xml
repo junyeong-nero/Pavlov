@@ -9,6 +9,7 @@
         android:elevation="4dp"
         android:text="홈"
         android:textSize="10sp"
+        android:fontFamily="@font/gmsans_light"
         android:clickable="false"
         android:focusable="false"
         android:textColor="@color/white"

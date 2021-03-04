@@ -98,7 +98,6 @@ public class OtherProfileActivity extends AppCompatActivity {
         if(authController.isAuth()) {
             Intent intent = new Intent(this, AppointService.class);
             startService(intent);
-            new AppointService().enqueueWork(this, intent);
         }
     }
 

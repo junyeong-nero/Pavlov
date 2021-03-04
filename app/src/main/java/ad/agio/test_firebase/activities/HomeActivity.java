@@ -1,8 +1,10 @@
 package ad.agio.test_firebase.activities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +13,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -20,7 +21,6 @@ import ad.agio.test_firebase.NoInternetFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
-import ad.agio.test_firebase.controller.DataController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
@@ -51,6 +51,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        serviceStart();
 
         matchController.setContext(this);
         appointController.setContext(this);
@@ -87,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
 
         List<String> arr = Arrays.asList("홈", "탐색", "채팅", "프로필");
         for (String key : arr) {
-            View view = getLayoutInflater().inflate(R.layout.home_button_inflater, null);
+            View view = getLayoutInflater().inflate(R.layout.inflater_home_button, null);
             ImageButton button = view.findViewById(R.id.button);
             button.setImageResource(icon.get(key));
             button.setOnClickListener(v -> {
@@ -106,7 +108,7 @@ public class HomeActivity extends AppCompatActivity {
 
         binding.buttonMenu.setOnClickListener(v -> startActivityForResult(
                 new Intent(this, MenuActivity.class), Codes.MENU_ACTIVITY));
-        serviceStart();
+
     }
 
     private void noInternet() {
@@ -136,7 +138,6 @@ public class HomeActivity extends AppCompatActivity {
         if(authController.isAuth()) {
             Intent intent = new Intent(this, AppointService.class);
             startService(intent);
-            new AppointService().enqueueWork(this, intent);
         }
     }
 

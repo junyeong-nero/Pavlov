@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -66,12 +67,8 @@ public class SearchFragment extends Fragment {
         userController.readAllUsers(user -> {
             if (user != null && condition.test(user)) {
                 View view = getLayoutInflater().inflate(R.layout.inflater_profile, null);
-                TextView nick = view.findViewById(R.id.text_nickname);
-                nick.setText(user.getUserName());
-
-                log(user.toString());
-
-                ImageButton button = view.findViewById(R.id.button_chat);
+                Button button = view.findViewById(R.id.text_nickname);
+                button.setText(user.getUserName());
                 button.setOnClickListener(v -> {
                     Optional<User> opt = Optional.of(user);
                     opt.ifPresent(value -> {

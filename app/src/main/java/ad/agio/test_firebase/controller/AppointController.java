@@ -91,7 +91,7 @@ public class AppointController {
     /**
      * 다른사람이 나에게 요청하는 것을 확인하는 리스너를 삭제함.
      */
-    public void removeReceive() {
+    public void pauseReceive() {
         if (receiveListener != null) {
             db.removeEventListener(receiveListener);
         }
