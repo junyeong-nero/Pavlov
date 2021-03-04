@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity=""
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -35,6 +36,19 @@
             android:layout_width="40dp"
             android:layout_height="40dp"/>
 
+        <ImageButton
+            android:id="@+id/button_menu"
+            android:elevation="4dp"
+            app:layout_constraintLeft_toRightOf="@id/toolbar_title"
+            app:layout_constraintTop_toTopOf="@id/toolbar_title"
+            app:layout_constraintBottom_toBottomOf="@id/toolbar_title"
+            android:background="@drawable/ripple_circle"
+            android:src="@drawable/ic_menu"
+            android:tint="@color/colorOnPrimary"
+            android:layout_margin="8dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+
         <TextView
             android:id="@+id/toolbar_title"
             android:elevation="4dp"
@@ -46,7 +60,8 @@
             android:gravity="center_vertical"
             android:padding="16dp"
             android:textSize="18sp"
-            android:layout_marginLeft="56dp"
+            android:layout_marginStart="56dp"
+            android:layout_marginEnd="56dp"
             android:textColor="@color/white"
             android:textStyle="bold"
             android:text="채팅방 이름"/>
@@ -121,5 +136,14 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/nav_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

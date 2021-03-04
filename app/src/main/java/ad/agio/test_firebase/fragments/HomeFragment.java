@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.databinding.FragmentHomeBinding;
@@ -70,7 +71,7 @@ public class HomeFragment extends Fragment {
 
                 if(!matchController.isReceiving) {
                     log("match: start");
-                    binding.textIndicator.setText("매칭중..");
+                    binding.textTitle.setText("매칭중..");
                     matchController.startMatching(
                             user -> true, // condition
                             list -> {
@@ -106,7 +107,7 @@ public class HomeFragment extends Fragment {
 
     private void matchFinish() {
         log("match: finish");
-        binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+        binding.textTitle.setText(getString(R.string.app_name));
         matchController.pauseReceive();
     }
 
@@ -133,11 +134,11 @@ public class HomeFragment extends Fragment {
                     startActivity(intent);
                 })
                 .setNegativeButton("안할래용", (dialog, which) -> {
-                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                    binding.textTitle.setText("매칭하려면 밑의 버튼을 눌러주세요");
                     matchController.pauseReceive();
                 })
                 .setOnDismissListener(dialog -> {
-                    binding.textIndicator.setText("매칭하려면 밑의 버튼을 눌러주세요");
+                    binding.textTitle.setText("매칭하려면 밑의 버튼을 눌러주세요");
                     matchController.pauseReceive();
                 })
                 .show();
