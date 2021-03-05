@@ -39,14 +39,5 @@ public class NoticeActivity extends AppCompatActivity {
             }
             binding.recyclerview.setAdapter(new ExpandableListAdapter(data));
         });
-
-//        ExpandableListAdapter.Item places = new ExpandableListAdapter.Item(ExpandableListAdapter.HEADER, "Places");
-//        places.invisibleChildren = new ArrayList<>();
-//        places.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, "Kerala"));
-//        places.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, "Tamil Nadu"));
-//        places.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, "Karnataka"));
-//        places.invisibleChildren.add(new ExpandableListAdapter.Item(ExpandableListAdapter.CHILD, "Maharashtra"));
-
-//        data.add(places);
     }
 }

@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -181,13 +180,14 @@ public class OtherProfileActivity extends AppCompatActivity {
     }
 
     private void drawProfile(User user) {
+        log("drawProfile");
         drawProfileImage(user);
         binding.layoutUser.removeAllViews();
         try {
             JSONObject obj = new JSONObject(user.toString());
-            Iterator iterator = obj.keys();
+            Iterator<String> iterator = obj.keys();
             while (iterator.hasNext()) {
-                String next = iterator.next().toString();
+                String next = iterator.next();
                 TextView textView = new TextView(this);
                 textView.setText(next);
                 binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -203,6 +203,7 @@ public class OtherProfileActivity extends AppCompatActivity {
     }
 
     private void drawProfileImage(User user) {
+        log("drawProfileImage");
         String profile = user.getProfile(); // 프로필이 있으면 사진 설정.
         if(!profile.equals("")) {
             Uri parse = Uri.parse(profile);
@@ -211,7 +212,6 @@ public class OtherProfileActivity extends AppCompatActivity {
                 binding.imageProfile.setImageURI(Uri.parse(profile));
             } else {
                 userController.readProfileImage(user.getUid(), bytes -> {
-                    // binding.imageProfile.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                     if(!isDestroyed())
                         Glide.with(this)
                             .load(bytes)
