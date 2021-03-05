@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,7 +32,10 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         binding.buttonBack.setOnClickListener(v -> finish());
+        drawItems();
+    }
 
+    private void drawItems() {
         HashMap<String, Consumer<Void>> hashMap = new HashMap<>();
         HashMap<String, Integer> iconMap = new HashMap<>();
 
@@ -46,13 +48,13 @@ public class MenuActivity extends AppCompatActivity {
         });
 
         iconMap.put("공지사항", R.drawable.ic_create);
-        hashMap.put("공지사항", (v) -> {
-            startActivity(new Intent(MenuActivity.this, NoticeActivity.class));
-        });
+        hashMap.put("공지사항", (v) -> startActivity(
+                new Intent(MenuActivity.this, NoticeActivity.class)));
 
         List<String> keys = Arrays.asList("로그아웃", "공지사항");
         for (String key : keys) {
-            View view = getLayoutInflater().inflate(R.layout.inflater_menu, null);
+            View view = getLayoutInflater().inflate(R.layout.inflater_menu,
+                    binding.layoutMenu, false);
             ImageView imageView = view.findViewById(R.id.icon);
             imageView.setImageResource(Objects.requireNonNull(iconMap.get(key)));
             imageView.setImageTintList(ColorStateList.valueOf(
