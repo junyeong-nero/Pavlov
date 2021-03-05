@@ -29,7 +29,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.e(this.getClass().getSimpleName(), text);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

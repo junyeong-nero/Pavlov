@@ -3,6 +3,7 @@ package ad.agio.test_firebase.activities;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,7 +41,11 @@ public class HomeActivity extends AppCompatActivity {
     private ActivityHomeBinding binding;
     static public UserController userController = new UserController();
     static public AuthController authController = new AuthController();
+
+    @SuppressLint("StaticFieldLeak")
     static public MatchController matchController = new MatchController();
+
+    @SuppressLint("StaticFieldLeak")
     static public AppointController appointController = new AppointController();
     static public User currentUser;
 
@@ -116,6 +121,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void menuControl(String fragment) {
+        log("menuControl");
         HashMap<String, List<ImageButton>> map = new HashMap<>();
         map.put("프로필", Arrays.asList(binding.buttonMenu));
 
@@ -133,6 +139,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void serviceStart() {
+        log("serviceStart");
         if(authController.isAuth()) {
             Intent intent = new Intent(this, AppointService.class);
             startService(intent);
@@ -142,6 +149,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        log("onStart");
         appointController.setContext(this);
         matchController.setContext(this);
     }
@@ -149,6 +157,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void finishAndRemoveTask() {
         super.finishAndRemoveTask();
+        log("finishAndRemoveTask");
         appointController.pauseReceive();
         matchController.pauseReceive();
     }
