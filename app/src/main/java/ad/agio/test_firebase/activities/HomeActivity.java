@@ -1,10 +1,8 @@
 package ad.agio.test_firebase.activities;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import ad.agio.test_firebase.NoInternetFragment;
+import ad.agio.test_firebase.fragments.NoInternetFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;

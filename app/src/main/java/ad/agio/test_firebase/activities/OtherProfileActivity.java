@@ -5,6 +5,8 @@ import androidx.core.content.ContextCompat;
 
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -153,8 +155,8 @@ public class OtherProfileActivity extends AppCompatActivity {
 
     private void buttonMatch() {
         binding.buttonMatch.setText("매칭");
-        binding.buttonMatch.setBackgroundColor(
-                ContextCompat.getColor(this, R.color.colorPrimary));
+        binding.buttonMatch.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.colorPrimary)));
         binding.buttonMatch.setOnClickListener(v -> {
             if(isReceiving)
                 matchController.receiveResult(otherUser);
@@ -165,8 +167,10 @@ public class OtherProfileActivity extends AppCompatActivity {
 
     private void buttonAppointment() {
         binding.buttonAppointment.setText("약속");
-        binding.buttonAppointment.setBackgroundColor(
-                ContextCompat.getColor(this, R.color.colorPrimaryVariant));
+        binding.buttonAppointment.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.colorPrimary)));
+//        binding.buttonAppointment.setBackgroundColor(
+//                ContextCompat.getColor(this, R.color.colorPrimaryVariant));
         binding.buttonAppointment.setOnClickListener(v -> {
             if(isReceiving) {
                 appointController.appoint(chatId);

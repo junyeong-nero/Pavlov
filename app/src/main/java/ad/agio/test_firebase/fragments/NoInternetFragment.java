@@ -1,4 +1,4 @@
-package ad.agio.test_firebase;
+package ad.agio.test_firebase.fragments;
 
 import android.os.Bundle;
 

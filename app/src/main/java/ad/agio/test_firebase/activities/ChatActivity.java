@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
 
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,7 +46,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private LinearLayout userLayout = null;
-    private View headerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,16 +72,17 @@ public class ChatActivity extends AppCompatActivity {
         line.setBackgroundColor(ContextCompat.getColor(this, R.color.colorOnPrimary));
         userLayout.addView(line, LinearLayout.LayoutParams.MATCH_PARENT, g.dp(1));
 
-        headerView = binding.navView.getHeaderView(0);
+        View headerView = binding.navView.getHeaderView(0);
         LinearLayout b = headerView.findViewById(R.id.layout);
-        b.addView(userLayout, LinearLayout.LayoutParams.MATCH_PARENT, g.getScreenHeight() - g.dp(38));
+        b.addView(userLayout, LinearLayout.LayoutParams.MATCH_PARENT,
+                g.getScreenHeight() - g.dp(38));
 
         Intent intent = getIntent();
         String chatId = intent.getStringExtra("chatId");
 
         // 채팅방 나가기
-        headerView.findViewById(R.id.button_out).setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
+        headerView.findViewById(R.id.button_out).setOnClickListener(v ->
+                new AlertDialog.Builder(this)
                     .setTitle("정말 채팅방을 나가시겠습니까?")
                     .setPositiveButton("예", (dialog, which) -> {
                         chatController.removeUser(currentUser.getUid());
@@ -90,11 +90,11 @@ public class ChatActivity extends AppCompatActivity {
                         finish();
                     })
                     .setNegativeButton("아니요", null)
-                    .show();
-        });
+                    .show());
 
         // menu
-        binding.buttonMenu.setOnClickListener(v -> binding.drawerLayout.openDrawer(GravityCompat.END));
+        binding.buttonMenu.setOnClickListener(v ->
+                binding.drawerLayout.openDrawer(GravityCompat.END));
 
         chatController = new ChatController(chatId);
         chatController.readText(this::drawAll);
@@ -104,7 +104,8 @@ public class ChatActivity extends AppCompatActivity {
 
             mChat.readAllUsers(users -> {
                 for (User user : users) {
-                    View view = getLayoutInflater().inflate(R.layout.inflater_profile, null);
+                    @SuppressLint("InflateParams") View view =
+                            getLayoutInflater().inflate(R.layout.inflater_profile, null);
                     Button nick = view.findViewById(R.id.text_nickname);
                     nick.setText(user.getUserName());
                     nick.setOnClickListener(v -> startOtherProfileActivity(user.getUid()));
@@ -187,10 +188,12 @@ public class ChatActivity extends AppCompatActivity {
         assert uid != null;
         if (uid.equals(currentUser.getUid())) {
             // 내가 쓴 채팅
-            view = getLayoutInflater().inflate(R.layout.inflater_my_chat, null);
+            view = getLayoutInflater().inflate(R.layout.inflater_my_chat,
+                    binding.chatLayout, false);
         } else {
             // 다른 사람이 쓴 채팅
-            view = getLayoutInflater().inflate(R.layout.inflater_other_chat, null);
+            view = getLayoutInflater().inflate(R.layout.inflater_other_chat,
+                    binding.chatLayout, false);
         }
 
         assert name != null;
@@ -217,7 +220,7 @@ public class ChatActivity extends AppCompatActivity {
         map.put("name", "");
         map.put("uid", "");
         map.put("date", "");
-        map.put("content", "");
+        map.put("content", "제목없음");
 
         if(data.length >= 1)
             map.put("name", data[0]);

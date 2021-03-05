@@ -35,10 +35,10 @@
         app:layout_constraintLeft_toLeftOf="parent"
         android:gravity="center_vertical"
         android:padding="16dp"
-        android:textSize="18sp"
         android:layout_marginLeft="56dp"
+        android:fontFamily="@font/gmsans_bold"
+        android:textSize="22sp"
         android:textColor="@color/white"
-        android:textStyle="bold"
         android:text="공지사항"/>
 
     <androidx.recyclerview.widget.RecyclerView
