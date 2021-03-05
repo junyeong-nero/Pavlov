@@ -4,8 +4,10 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
-    <string name="app_explain">안녕하세요, 팀 루비스코의 어플리케이션 입니다.</string>
-    <string name="app_content">프론트엔드 및 CTO를 맡고 있는 Nero라고 합니다.</string>
+    <string name="neighbor_activity_address_explain">\'%1$s\' 입니다.</string>
+
+    <string name="app_explain">안녕하세요, 팀 루비스코의 산책메이트 어플리케이션,\n Pavlov 입니다.</string>
+    <string name="developer_explain">프론트엔드 및 CTO를 맡고 있는 Nero라고 합니다.</string>
 
     <string name="google_maps_key">AIzaSyAtMTt9b43tgE5LVyclC7OAci7ndmPdPqw</string>
 </resources>

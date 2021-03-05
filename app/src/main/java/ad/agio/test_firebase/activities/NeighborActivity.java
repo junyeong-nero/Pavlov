@@ -1,6 +1,5 @@
 package ad.agio.test_firebase.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -21,7 +20,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -37,7 +35,6 @@ import java.util.List;
 import java.util.Locale;
 
 import ad.agio.test_firebase.R;
-import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityNeighborBinding;
 import ad.agio.test_firebase.utils.Codes;
 
@@ -46,7 +43,6 @@ import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 public class NeighborActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ActivityNeighborBinding binding;
-    private UserController userController;
     private void log(String s) {
         Log.e(this.getClass().getSimpleName(), s);
     }
@@ -65,7 +61,6 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
     private String[] likelyPlaceAddresses;
     private List[] likelyPlaceAttributions;
     private LatLng[] likelyPlaceLatLngs;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,11 +127,15 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(lastKnownLocation.getLatitude(),
                                             lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                            binding.textNeighbor2.setText(
-                                    "'" +
+                            binding.textNeighbor2.setText(getString(
+                                    R.string.neighbor_activity_address_explain,
                                     getAddress(lastKnownLocation.getLatitude(),
-                                            lastKnownLocation.getLongitude())
-                                    + "' 입니다");
+                                            lastKnownLocation.getLongitude())));
+//                            binding.textNeighbor2.setText(
+//                                    "'" +
+//                                    getAddress(lastKnownLocation.getLatitude(),
+//                                            lastKnownLocation.getLongitude())
+//                                    + "' 입니다");
                         }
                     } else {
                         log("Current location is null. Using defaults.");
@@ -177,12 +176,7 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
                     FindCurrentPlaceResponse likelyPlaces = task.getResult();
 
                     // Set the count, handling cases where less than 5 entries are returned.
-                    int count;
-                    if (likelyPlaces.getPlaceLikelihoods().size() < M_MAX_ENTRIES) {
-                        count = likelyPlaces.getPlaceLikelihoods().size();
-                    } else {
-                        count = M_MAX_ENTRIES;
-                    }
+                    int count = Math.min(likelyPlaces.getPlaceLikelihoods().size(), M_MAX_ENTRIES);
 
                     int i = 0;
                     likelyPlaceNames = new String[count];
@@ -229,10 +223,9 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
 
     /**
      * getAdress from latitude and longitude
-     * @param latitude
-     * @param longitude
-     * @return
-     * @throws IOException
+     * @param latitude 위도
+     * @param longitude 경도
+     * @return 지역의 '동' 주소
      */
     private String getAddress(double latitude, double longitude) {
         try {

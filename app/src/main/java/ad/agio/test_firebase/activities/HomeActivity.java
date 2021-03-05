@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -92,7 +93,8 @@ public class HomeActivity extends AppCompatActivity {
 
         List<String> arr = Arrays.asList("홈", "탐색", "채팅", "프로필");
         for (String key : arr) {
-            View view = getLayoutInflater().inflate(R.layout.inflater_home_button, null);
+            View view = getLayoutInflater().inflate(R.layout.inflater_home_button,
+                    binding.layout, false);
             ImageButton button = view.findViewById(R.id.button);
             button.setImageResource(icon.get(key));
             button.setOnClickListener(v -> {
@@ -123,7 +125,8 @@ public class HomeActivity extends AppCompatActivity {
     private void menuControl(String fragment) {
         log("menuControl");
         HashMap<String, List<ImageButton>> map = new HashMap<>();
-        map.put("프로필", Arrays.asList(binding.buttonMenu));
+        map.put("프로필", Collections.singletonList(binding.buttonMenu));
+        // Arrays.asList
 
         for (String key : map.keySet()) {
             if(key.equals(fragment)) {
