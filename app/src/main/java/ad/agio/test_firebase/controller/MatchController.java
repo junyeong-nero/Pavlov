@@ -281,7 +281,7 @@ public class MatchController {
 
     private void addMeeting(Chat chat) {
         chat.readOtherUsers(list -> {
-            Meeting r = userController.makeAppointMeeting(currentUser, list.get(0));
+            Meeting r = userController.makeMatchMeeting(currentUser, list.get(0));
             chatController.writeMeeting(r);
         });
     }

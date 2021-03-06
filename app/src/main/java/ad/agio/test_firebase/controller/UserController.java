@@ -140,6 +140,10 @@ public class UserController {
         updateUser("walkPoints", walkPoints);
     }
 
+    public void addStatus() {
+
+    }
+
     /**
      * 프로필 이미지를 업로드 합니다.
      * @param path
@@ -216,10 +220,16 @@ public class UserController {
         Meeting meeting = new Meeting();
 
         Time time = new Time(Calendar.getInstance());
-        time.minute += 15; // 15분 뒤에 보자!
-        // TODO 이렇게 하면 61분 같은 대참사가 발생한다.
+        time.add(Calendar.MINUTE, 15); // 15분 뒤에 보자.
         meeting.time = time;
-        meeting.place = user1.getWalkPoints().get(0); // 일단 동네로 설정
+
+        ArrayList<WalkPoint> walkPoints1 = user1.getWalkPoints();
+        ArrayList<WalkPoint> walkPoints2 = user2.getWalkPoints();
+        if(walkPoints1.size() != 0)
+            meeting.place = user1.getWalkPoints().get(0); // user1의 산책장소로 설정
+        else if(walkPoints2.size() != 0)
+            meeting.place = user1.getWalkPoints().get(0); // user1의 산책장소가 없다면, user2 사용
+
         return meeting;
     }
 
@@ -227,10 +237,16 @@ public class UserController {
         Meeting meeting = new Meeting();
 
         Time time = new Time(Calendar.getInstance());
-        time.minute += 15; // 15분 뒤에 보자!
-
+        time.add(Calendar.MINUTE, 15); // 15분 뒤에 보자.
         meeting.time = time;
-        meeting.place = user1.getWalkPoints().get(0); // 일단 user1이 설정한 walkPoint 로 설정.
+
+        ArrayList<WalkPoint> walkPoints1 = user1.getWalkPoints();
+        ArrayList<WalkPoint> walkPoints2 = user2.getWalkPoints();
+        if(walkPoints1.size() != 0)
+            meeting.place = user1.getWalkPoints().get(0); // user1의 산책장소로 설정
+        else if(walkPoints2.size() != 0)
+            meeting.place = user1.getWalkPoints().get(0); // user1의 산책장소가 없다면, user2 사용
+
         return meeting;
     }
 }
