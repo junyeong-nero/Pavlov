@@ -73,6 +73,7 @@
             <LinearLayout
                 android:id="@+id/chat_layout"
                 android:orientation="vertical"
+                android:animateLayoutChanges="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </ScrollView>

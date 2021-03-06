@@ -3,5 +3,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:color="#CC2E2E2E"
     tools:targetApi="lollipop">
-    <item android:drawable="@drawable/background_matching_button" />
+    <item android:drawable="@drawable/background_circle_colorful" />
 </ripple>

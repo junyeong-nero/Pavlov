@@ -15,8 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.function.Consumer;
-
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
 import ad.agio.test_firebase.controller.ChatController;
@@ -68,7 +66,7 @@ public class ChatFragment extends Fragment {
             button.setOnClickListener(v -> {
                 Intent intent = new Intent(requireContext(), ChatActivity.class);
                 intent.putExtra("chatId", chatId);
-                startActivityForResult(intent, Codes.CHAT_ACTIVITY);
+                startActivityForResult(intent, Codes.CHAT);
             });
 
             View line = new View(requireContext());
@@ -83,7 +81,7 @@ public class ChatFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");
-        if (requestCode == Codes.CHAT_ACTIVITY) {
+        if (requestCode == Codes.CHAT) {
             userController.readMe(me -> draw(me.getArrayChatId()));
         }
     }

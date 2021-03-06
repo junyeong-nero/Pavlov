@@ -173,14 +173,14 @@ public class RegisterActivity extends AppCompatActivity {
                     if (s.equals("")) {
                         neighbor.setText("인증하기");
                         startActivityForResult(new Intent(this, NeighborActivity.class),
-                                Codes.NEIGHBOR_ACTIVITY);
+                                Codes.NEIGHBOR);
                     } else {
                         neighbor.setText(s);
                     }
                 }
                 neighbor.setOnClickListener(v -> {
                     startActivityForResult(new Intent(this, NeighborActivity.class),
-                            Codes.NEIGHBOR_ACTIVITY);
+                            Codes.NEIGHBOR);
                 });
                 binding.layoutContent.addView(neighbor);
                 break;
@@ -250,7 +250,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Codes.NEIGHBOR_ACTIVITY) {
+        if (resultCode == Codes.NEIGHBOR) {
             log("NEIGHBOR_ACTIVITY");
             result = data.getStringExtra("neighbor");
             surveyResult.set(Question.Type.neighbor_validation, result);

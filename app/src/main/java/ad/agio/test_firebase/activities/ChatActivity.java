@@ -162,7 +162,7 @@ public class ChatActivity extends AppCompatActivity {
         _intent.putExtra("user", "");
         _intent.putExtra("uid", uid);
         _intent.putExtra("chatId", "fake"); // actually it's empty
-        startActivityForResult(_intent, Codes.OTHER_PROFILE_ACTIVITY);
+        startActivityForResult(_intent, Codes.OTHER_PROFILE);
     }
 
     private void drawChange(String text) {

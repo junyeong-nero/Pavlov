@@ -22,9 +22,9 @@ import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.databinding.FragmentHomeBinding;
 import ad.agio.test_firebase.domain.User;
 
+import static ad.agio.test_firebase.activities.HomeActivity.authController;
 import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 import static ad.agio.test_firebase.activities.HomeActivity.matchController;
-import static ad.agio.test_firebase.activities.HomeActivity.authController;
 
 public class HomeFragment extends Fragment {
 

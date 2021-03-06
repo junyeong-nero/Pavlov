@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -17,16 +16,13 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.JobIntentService;
 import androidx.core.app.NotificationCompat;
 
 import java.util.Optional;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.activities.ChatActivity;
-import ad.agio.test_firebase.activities.HomeActivity;
 import ad.agio.test_firebase.activities.OtherProfileActivity;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.domain.User;

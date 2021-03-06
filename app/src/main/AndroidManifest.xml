@@ -22,7 +22,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Test_Firebase">
-        <activity android:name=".activities.NoticeActivity"></activity>
+        <activity android:name=".activities.SearchPlaceActivity"></activity>
+        <activity android:name=".activities.NoticeActivity" />
         <activity android:name=".activities.OtherProfileActivity" />
         <activity android:name=".activities.LoginActivity" />
 
@@ -40,18 +41,15 @@
         <service
             android:name=".services.AppointService"
             android:exported="false"
-            android:stopWithTask="false"/>
-
-<!--        <service-->
-<!--            android:name=".services.AppointService"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="false"-->
-<!--            android:stopWithTask="false" />-->
-
-<!--        android:permission="android.permission.SYSTEM_ALERT_WINDOW"-->
-
+            android:stopWithTask="false" /> <!-- <service -->
+        <!-- android:name=".services.AppointService" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="false" -->
+        <!-- android:stopWithTask="false" /> -->
+        <!-- android:permission="android.permission.SYSTEM_ALERT_WINDOW" -->
         <activity android:name=".activities.MenuActivity" />
         <activity android:name=".activities.NeighborActivity" />
+        <activity android:name=".activities.HomeActivity" />
         <activity
             android:name=".activities.ChatActivity"
             android:windowSoftInputMode="adjustResize" />
@@ -62,7 +60,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.OldHomeActivity" />
         <activity android:name=".activities.RegisterActivity" />
     </application>
 

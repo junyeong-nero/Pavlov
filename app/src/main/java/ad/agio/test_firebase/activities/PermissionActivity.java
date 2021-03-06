@@ -10,14 +10,21 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityPermissionBinding;
+
+import static ad.agio.test_firebase.activities.HomeActivity.appointController;
+import static ad.agio.test_firebase.activities.HomeActivity.authController;
+import static ad.agio.test_firebase.activities.HomeActivity.matchController;
+import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
 public class PermissionActivity extends AppCompatActivity {
 
@@ -27,6 +34,8 @@ public class PermissionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); // NO Status bar
         binding = ActivityPermissionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -72,25 +81,24 @@ public class PermissionActivity extends AppCompatActivity {
     }
 
     public void init() {
-        // Data cache prepare
-
-        UserController userController = new UserController();
-        MatchController matchController = new MatchController();
-        AuthController authController = new AuthController();
-
-        if(authController.isAuth())
-            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-        else
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
-        finish();
-
-//        if(authController.isAuth()) {
-//            matchController.prepare();
-//            userController.readMe(me -> {
-//                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-//                finish();
-//            });
-//        }
+        userController = new UserController();
+        authController = new AuthController();
+        matchController = new MatchController();
+        appointController = new AppointController();
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (authController.isAuth()) {
+                startActivity(
+                        new Intent(PermissionActivity.this, HomeActivity.class));
+            } else {
+                startActivity(
+                        new Intent(PermissionActivity.this, LoginActivity.class));
+            }
+            finish();
+        }).start();
     }
 }

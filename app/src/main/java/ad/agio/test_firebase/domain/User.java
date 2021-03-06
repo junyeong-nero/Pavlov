@@ -23,6 +23,16 @@ public class User {
     private float manner = 0F;
     private boolean isMatching = false;
 
+    // 산책장소를 저장
+    private ArrayList<WalkPoint> walkPoints = new ArrayList<>();
+
+    public void addWalkPoint(WalkPoint walkPoint) {
+        walkPoints.add(walkPoint);
+    }
+
+    public void removeWalkPoint(WalkPoint walkPoint) {
+        walkPoints.remove(walkPoint);
+    }
 
     // 강아지
 
@@ -31,8 +41,25 @@ public class User {
     private String dog_sex = "남자";
     private String dog_serial = "";
     private float dog_age = 10F;
+
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
+
+    public ArrayList<WalkPoint> getWalkPoints() {
+        return walkPoints;
+    }
+
+    public void setWalkPoints(ArrayList<WalkPoint> walkPoints) {
+        this.walkPoints = walkPoints;
+    }
+
+    public String getDog_serial() {
+        return dog_serial;
+    }
+
+    public void setDog_serial(String dog_serial) {
+        this.dog_serial = dog_serial;
     }
 
     public String getArrayChatId() {

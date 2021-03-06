@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,8 +26,10 @@ import java.util.Iterator;
 import ad.agio.test_firebase.activities.LoginActivity;
 import ad.agio.test_firebase.activities.NeighborActivity;
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.activities.SearchPlaceActivity;
 import ad.agio.test_firebase.databinding.FragmentProfileBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.domain.WalkPoint;
 import ad.agio.test_firebase.utils.Codes;
 import gun0912.tedbottompicker.TedBottomPicker;
 
@@ -38,7 +41,7 @@ import static ad.agio.test_firebase.activities.HomeActivity.userController;
 public class ProfileFragment extends Fragment {
 
     private void log(String text) {
-        Log.d(this.getClass().getSimpleName(), text);
+        Log.e(this.getClass().getSimpleName(), text);
     }
     private FragmentProfileBinding binding;
 
@@ -65,10 +68,13 @@ public class ProfileFragment extends Fragment {
             });
         }
 
-        binding.buttonNeighbor.setOnClickListener(v -> {
-            startActivityForResult(new Intent(requireContext(), NeighborActivity.class),
-                    Codes.NEIGHBOR_ACTIVITY);
-        });
+        binding.buttonNeighbor.setOnClickListener(v -> startActivityForResult(
+                new Intent(requireContext(), NeighborActivity.class),
+                Codes.NEIGHBOR));
+
+        binding.buttonPlace.setOnClickListener(v -> startActivityForResult(
+                new Intent(requireContext(), SearchPlaceActivity.class),
+                Codes.SEARCH));
 
         binding.imageSelect.setOnClickListener(v ->
                 TedBottomPicker.with(getActivity())
@@ -101,9 +107,9 @@ public class ProfileFragment extends Fragment {
         binding.layoutUser.removeAllViews();
         try {
             JSONObject obj = new JSONObject(user.toString());
-            Iterator iterator = obj.keys();
+            Iterator<String> iterator = obj.keys();
             while (iterator.hasNext()) {
-                String next = iterator.next().toString();
+                String next = iterator.next();
                 if(isAdded()) {
                     TextView textView = new TextView(requireContext());
                     textView.setText(next);
@@ -140,12 +146,15 @@ public class ProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");
-        if (resultCode == Codes.LOGOUT) {
-            startActivity(new Intent(requireContext(), LoginActivity.class));
-            requireActivity().finish();
-        }
-        switch (requestCode) {
-            case Codes.NEIGHBOR_ACTIVITY:
+
+        switch (resultCode) {
+
+            case Codes.LOGOUT:
+                startActivity(new Intent(requireContext(), LoginActivity.class));
+                requireActivity().finish();
+                break;
+
+            case Codes.NEIGHBOR:
                 log("NEIGHBOR_ACTIVITY");
 
                 if (data != null && data.hasExtra("neighbor")) {
@@ -158,12 +167,27 @@ public class ProfileFragment extends Fragment {
                 setProfileImage(currentUser);
                 break;
 
-            case Codes.MENU_ACTIVITY:
-                if(authController.isAuth()) {
-                    requireActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, new LoginFragment()).commit();
+//            case Codes.MENU:
+//                if(authController.isAuth()) {
+//                    requireActivity().getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.fragment_container, new LoginFragment()).commit();
+//                }
+//                break;
+
+            case Codes.SEARCH_PLACE:
+                log("SEARCH_PLACE");
+                if (data != null && data.hasExtra("walk_point")) {
+                    WalkPoint wp = new Gson().fromJson(data.getStringExtra("walk_point"),
+                            WalkPoint.class);
+
+                    userController.addWalkPoint(wp);
+                    log(currentUser.toString());
                 }
+
+                drawProfile(currentUser);
+                setProfileImage(currentUser);
                 break;
+
 
             default:
                 log("default!");

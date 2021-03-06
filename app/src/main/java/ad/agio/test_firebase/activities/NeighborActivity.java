@@ -84,7 +84,7 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
             Intent intent = new Intent();
             intent.putExtra("neighbor",
                     getAddress(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-            setResult(Codes.NEIGHBOR_ACTIVITY, intent);
+            setResult(Codes.NEIGHBOR, intent);
             finish();
         });
 
@@ -202,9 +202,6 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
                     // Show a dialog offering the user the list of likely places, and add a
                     // marker at the selected place.
                     // openPlacesDialog();
-                }
-                else {
-                    log(task.getException().toString());
                 }
             });
         } else {

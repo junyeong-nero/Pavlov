@@ -3,8 +3,7 @@ package ad.agio.test_firebase.domain;
 import androidx.annotation.NonNull;
 
 public class Meeting {
-    public String place = "";
-    public String address = "";
+    public WalkPoint place = new WalkPoint();
     public Time time = new Time();
 
     public Meeting() {

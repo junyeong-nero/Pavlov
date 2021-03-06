@@ -19,7 +19,7 @@
         android:src="@drawable/ic_fire"
         android:scaleType="fitCenter"
         android:tint="@color/black"
-        android:padding="16dp"
+        android:padding="24dp"
         android:cropToPadding="true"
         android:layout_margin="8dp"/>
 

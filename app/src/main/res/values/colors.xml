@@ -13,4 +13,7 @@
     <color name="colorPrimary">@color/quantum_bluegrey700</color>
     <color name="colorPrimaryVariant">@color/quantum_bluegrey500</color>
     <color name="colorOnPrimary">@color/quantum_orange700</color>
+
+    <color name="gradient_start">#FFDF7877</color>
+    <color name="gradient_end">#FFE99C78</color>
 </resources>

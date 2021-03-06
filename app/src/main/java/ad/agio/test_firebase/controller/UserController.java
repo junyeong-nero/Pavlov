@@ -6,8 +6,6 @@ import android.util.Log;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +19,7 @@ import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.Meeting;
 import ad.agio.test_firebase.domain.Time;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.domain.WalkPoint;
 
 import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 
@@ -120,6 +119,25 @@ public class UserController {
         db.collection("users")
                 .document(user.getUid())
                 .set(user);
+        currentUser = user;
+    }
+
+    public void addWalkPoint(WalkPoint walkPoint) {
+        ArrayList<WalkPoint> walkPoints = currentUser.getWalkPoints();
+        walkPoints.add(walkPoint);
+        updateUser("walkPoints", walkPoints);
+    }
+
+    public void removeWalkPoint(WalkPoint walkPoint) {
+        ArrayList<WalkPoint> walkPoints = currentUser.getWalkPoints();
+        walkPoints.remove(walkPoint);
+        updateUser("walkPoints", walkPoints);
+    }
+
+    public void removeWalkPoint(int index) {
+        ArrayList<WalkPoint> walkPoints = currentUser.getWalkPoints();
+        walkPoints.remove(index);
+        updateUser("walkPoints", walkPoints);
     }
 
     /**
@@ -172,7 +190,7 @@ public class UserController {
     }
 
     public void readChat(Consumer<String> consumer) {
-        String[] split = currentUser.getArrayChatId().split("\\|");
+        ArrayList<String> split = readChat();
         for (String chatId : split) {
             if(!chatId.equals(""))
                 consumer.accept(chatId);
@@ -195,16 +213,14 @@ public class UserController {
     }
 
     public Meeting makeMatchMeeting(User user1, User user2) {
-        Meeting result = new Meeting();
+        Meeting meeting = new Meeting();
 
         Time time = new Time(Calendar.getInstance());
         time.minute += 15; // 15분 뒤에 보자!
         // TODO 이렇게 하면 61분 같은 대참사가 발생한다.
-        result.time = time;
-        result.place = user1.getNeighbor(); // 일단 동네로 설정
-        result.address = user1.getNeighbor(); // user1 기준으로 되어잇는 것도 문제.
-        // TODO google place 사용해서 장소선정 해야함.
-        return result;
+        meeting.time = time;
+        meeting.place = user1.getWalkPoints().get(0); // 일단 동네로 설정
+        return meeting;
     }
 
     public Meeting makeAppointMeeting(User user1, User user2) {
@@ -214,8 +230,7 @@ public class UserController {
         time.minute += 15; // 15분 뒤에 보자!
 
         meeting.time = time;
-        meeting.place = user1.getNeighbor(); // 일단 동네로 설정
-        meeting.address = user1.getNeighbor(); // user1 기준으로 되어잇는 것도 문제.
+        meeting.place = user1.getWalkPoints().get(0); // 일단 user1이 설정한 walkPoint 로 설정.
         return meeting;
     }
 }

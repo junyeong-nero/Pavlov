@@ -13,8 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -50,9 +48,7 @@ public class SearchFragment extends Fragment {
                 .contains(binding.editQuery.getText().toString());
         // 쿼리를 포함하고 있는 사람을 뽑는다.
 
-        binding.button.setOnClickListener(v -> {
-            search(condition);
-        });
+        binding.button.setOnClickListener(v -> search(condition));
 
         binding.editQuery.setOnKeyListener((v, actionId, event) -> {
             if (actionId == KeyEvent.KEYCODE_ENTER) {
@@ -66,7 +62,8 @@ public class SearchFragment extends Fragment {
         binding.textLog.removeAllViews();
         userController.readAllUsers(user -> {
             if (user != null && condition.test(user)) {
-                View view = getLayoutInflater().inflate(R.layout.inflater_profile, null);
+                View view = getLayoutInflater().inflate(R.layout.inflater_profile,
+                        binding.textLog, false);
                 Button button = view.findViewById(R.id.text_nickname);
                 button.setText(user.getUserName());
                 button.setOnClickListener(v -> {
@@ -77,7 +74,7 @@ public class SearchFragment extends Fragment {
                         intent.putExtra("isReceiving", false); // is not receiving
                         intent.putExtra("user", value.toString());
                         intent.putExtra("chatId", "fake"); // actually it's empty
-                        startActivityForResult(intent, Codes.OTHER_PROFILE_ACTIVITY);
+                        startActivityForResult(intent, Codes.OTHER_PROFILE);
                     });
                 });
                 binding.textLog.addView(view);

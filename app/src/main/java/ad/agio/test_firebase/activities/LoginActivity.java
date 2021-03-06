@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
             dataController.saveData("auto_save", "false");
         }
 
-        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+        startActivity(new Intent(LoginActivity.this, OldHomeActivity.class));
         finish();
     }
 

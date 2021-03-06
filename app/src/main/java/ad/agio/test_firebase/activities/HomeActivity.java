@@ -1,23 +1,22 @@
 package ad.agio.test_firebase.activities;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
-import java.util.Arrays;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import ad.agio.test_firebase.fragments.NoInternetFragment;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
@@ -27,93 +26,90 @@ import ad.agio.test_firebase.databinding.ActivityHomeBinding;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.fragments.ChatFragment;
 import ad.agio.test_firebase.fragments.HomeFragment;
+import ad.agio.test_firebase.fragments.NoInternetFragment;
 import ad.agio.test_firebase.fragments.ProfileFragment;
 import ad.agio.test_firebase.fragments.SearchFragment;
 import ad.agio.test_firebase.services.AppointService;
-import ad.agio.test_firebase.utils.GraphicComponents;
 import ad.agio.test_firebase.utils.Codes;
 import ad.agio.test_firebase.utils.Utils;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private void log(String text) {
-        Log.e(this.getClass().getSimpleName(), text);
-    }
     private ActivityHomeBinding binding;
-    static public UserController userController = new UserController();
-    static public AuthController authController = new AuthController();
+    private void log(String string) {
+        Log.e(this.getClass().getSimpleName(), string);
+    }
+    private HashMap<Integer, Consumer<String>> consumers;
+
+    static public UserController userController = null;
+    static public AuthController authController = null;
 
     @SuppressLint("StaticFieldLeak")
-    static public MatchController matchController = new MatchController();
+    static public MatchController matchController = null;
 
     @SuppressLint("StaticFieldLeak")
-    static public AppointController appointController = new AppointController();
+    static public AppointController appointController = null;
     static public User currentUser;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        consumers = new HashMap<>();
+        consumers.put(R.id.navigation_home, t -> getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment, new HomeFragment(), "HomeFragment")
+                .commit());
+
+        consumers.put(R.id.navigation_search, t -> getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment, new SearchFragment(), "SearchFragment")
+                .commit());
+
+        consumers.put(R.id.navigation_profile, t -> getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment, new ProfileFragment(), "ProfileFragment")
+                .commit());
+
+        consumers.put(R.id.navigation_chat, t -> getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment, new ChatFragment(), "ChatFragment")
+                .commit());
 
         serviceStart();
 
         matchController.setContext(this);
         appointController.setContext(this);
         userController.readMe(me -> currentUser = me);
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment(), "HomeFragment")
-                .commit();
-
-        HashMap<String, Consumer<String>> map = new HashMap<>();
-        HashMap<String, Integer> icon = new HashMap<>();
-
-        icon.put("홈", R.drawable.ic_home);
-        map.put("홈", t -> getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment(), "HomeFragment")
-                .commit());
-
-        icon.put("탐색", R.drawable.ic_search);
-        map.put("탐색", t -> getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new SearchFragment(), "SearchFragment")
-                .commit());
-
-        icon.put("프로필", R.drawable.ic_person);
-        map.put("프로필", t -> getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new ProfileFragment(), "ProfileFragment")
-                .commit());
-
-        icon.put("채팅", R.drawable.ic_chat);
-        map.put("채팅", t -> getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new ChatFragment(), "ChatFragment")
-                .commit());
-
-        GraphicComponents g = new GraphicComponents(this);
-
-        List<String> arr = Arrays.asList("홈", "탐색", "채팅", "프로필");
-        for (String key : arr) {
-            View view = getLayoutInflater().inflate(R.layout.inflater_home_button,
-                    binding.layout, false);
-            ImageButton button = view.findViewById(R.id.button);
-            button.setImageResource(icon.get(key));
-            button.setOnClickListener(v -> {
-
-                menuControl(key);
-                binding.toolbarTitle.setText(key);
-                if(Utils.checkInternet(this))
-                    map.get(key).accept(key);
-                else
-                    noInternet();
-            });
-            TextView textView = view.findViewById(R.id.text);
-            textView.setText(key);
-            binding.layout.addView(view, g.getScreenWidth() / arr.size(), g.dp(56));
-        }
-
         binding.buttonMenu.setOnClickListener(v -> startActivityForResult(
-                new Intent(this, MenuActivity.class), Codes.MENU_ACTIVITY));
+                new Intent(this, MenuActivity.class), Codes.MENU));
 
+        // Goto Home
+        menuControl(R.id.navigation_home);
+        binding.toolbarTitle.setText(getString(R.string.title_home));
+        if(Utils.checkInternet(this))
+            consumers.get(R.id.navigation_home).accept(getString(R.string.title_home));
+        else
+            noInternet();
+
+        setUpNavigation();
+    }
+
+    public void selectItem(@NonNull MenuItem item) {
+        log("onNavigationItemSelected");
+
+        menuControl(item.getItemId());
+        binding.toolbarTitle.setText(item.getTitle().toString());
+
+        if(Utils.checkInternet(this))
+            consumers.get(item.getItemId()).accept(item.getTitle().toString());
+        else
+            noInternet();
+    }
+
+    public void setUpNavigation() {
+        binding.navView.setOnNavigationItemSelectedListener(item -> {
+            selectItem(item);
+            return true;
+        });
     }
 
     private void noInternet() {
@@ -122,14 +118,14 @@ public class HomeActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void menuControl(String fragment) {
+    private void menuControl(int id) {
         log("menuControl");
-        HashMap<String, List<ImageButton>> map = new HashMap<>();
-        map.put("프로필", Collections.singletonList(binding.buttonMenu));
+        HashMap<Integer, List<ImageButton>> map = new HashMap<>();
+        map.put(R.id.navigation_profile, Collections.singletonList(binding.buttonMenu));
         // Arrays.asList
 
-        for (String key : map.keySet()) {
-            if(key.equals(fragment)) {
+        for (int key : map.keySet()) {
+            if(key == id) {
                 for (ImageButton b : map.get(key)) {
                     b.setVisibility(View.VISIBLE);
                 }
@@ -169,7 +165,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");
-        if (resultCode == Codes.LOGOUT && requestCode == Codes.MENU_ACTIVITY) {
+        if (resultCode == Codes.LOGOUT && requestCode == Codes.MENU) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }
