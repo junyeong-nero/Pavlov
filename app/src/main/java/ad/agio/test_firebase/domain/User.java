@@ -22,6 +22,7 @@ public class User {
     private float age = 0F;
     private float manner = 0F;
     private boolean isMatching = false;
+    private int status = Status.ON;
 
     // 산책장소를 저장
     private ArrayList<WalkPoint> walkPoints = new ArrayList<>();
@@ -35,15 +36,22 @@ public class User {
     }
 
     // 강아지
-
-    private String dog_name = "네로";
-    private String dog_breed = "길고양이";
+    private String dog_name = "바둑이";
+    private String dog_breed = "진돗개";
     private String dog_sex = "남자";
-    private String dog_serial = "";
-    private float dog_age = 10F;
+    private String dog_serial = "없음";
+    private float dog_age = 7F;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public ArrayList<WalkPoint> getWalkPoints() {

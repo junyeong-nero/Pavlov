@@ -49,7 +49,7 @@ public class ChatFragment extends Fragment {
         GraphicComponents g = new GraphicComponents(requireContext());
         binding.layout.removeAllViews();
 
-        userController.readChat(chatId -> {
+        userController.readChatId(chatId -> {
             log(chatId);
             View view = getLayoutInflater().inflate(R.layout.inflater_chat_thumb, null);
             TextView t1 = view.findViewById(R.id.title);

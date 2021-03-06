@@ -271,12 +271,7 @@ public class MatchController {
     private void addChat(Chat chat) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         log(gson.toJson(mChat));
-
-        if(!currentUser.getArrayChatId().contains(chat.chatId)) {
-            String temp = currentUser.getArrayChatId() + chat.chatId + "|";
-            userController.updateUser("arrayChatId", temp);
-            currentUser.setArrayChatId(temp);
-        }
+        userController.writeChatId(chat);
     }
 
     private void addMeeting(Chat chat) {

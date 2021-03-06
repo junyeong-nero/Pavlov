@@ -23,6 +23,7 @@ import ad.agio.test_firebase.controller.AuthController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
+import ad.agio.test_firebase.domain.Status;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.fragments.ChatFragment;
 import ad.agio.test_firebase.fragments.HomeFragment;
@@ -74,11 +75,13 @@ public class HomeActivity extends AppCompatActivity {
                 .replace(R.id.nav_host_fragment, new ChatFragment(), "ChatFragment")
                 .commit());
 
-        serviceStart();
-
         matchController.setContext(this);
         appointController.setContext(this);
-        userController.readMe(me -> currentUser = me);
+        userController.readMe(me -> {
+            currentUser = me;
+            if(currentUser.getStatus() == Status.ON) // 켜져있을때만 알람을 받는다.
+                serviceStart();
+        });
         binding.buttonMenu.setOnClickListener(v -> startActivityForResult(
                 new Intent(this, MenuActivity.class), Codes.MENU));
 

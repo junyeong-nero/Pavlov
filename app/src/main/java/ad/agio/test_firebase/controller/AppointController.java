@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 import ad.agio.test_firebase.domain.Chat;
 import ad.agio.test_firebase.domain.Meeting;
+import ad.agio.test_firebase.domain.Status;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.utils.Utils;
 
@@ -65,6 +66,7 @@ public class AppointController {
                     if (data.exists())
                         list.add(data.getValue(User.class));
                 }
+//                if(currentUser.getStatus() == Status.ON) // 켜져있을때만 알람을 받는다.
                 receiveConsumer.accept(list);
             }
 
@@ -182,12 +184,7 @@ public class AppointController {
     private void addChat(Chat chat) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         log(gson.toJson(mChat));
-
-        if(!currentUser.getArrayChatId().contains(chat.chatId)) {
-            String temp = currentUser.getArrayChatId() + chat.chatId + "|";
-            userController.updateUser("arrayChatId", temp);
-            currentUser.setArrayChatId(temp);
-        }
+        userController.writeChatId(chat);
     }
 
     private void addMeeting(Chat chat) {

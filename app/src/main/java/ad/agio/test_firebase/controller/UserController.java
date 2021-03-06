@@ -50,7 +50,7 @@ public class UserController {
     /**
      * Firestore 에 업로드 되어있고, type 이 public 인 사용자들을 읽습니다.
      * Firestore rule 에 의해서 type 이 public 이거나 자신의 프로필만 읽을 수 있다.
-     * @param consumer
+     * @param consumer consumer
      */
 
     // TODO 모든 사람들이 두번씩 읽히는 버그.
@@ -72,7 +72,7 @@ public class UserController {
 
     /**
      * 데이터베이스에 업로드 되어있는 자신의 프로필을 읽습니다.
-     * @param consumer
+     * @param consumer consumer
      */
     public void readMe(Consumer<User> consumer) {
         if(authController.isAuth())
@@ -93,12 +93,9 @@ public class UserController {
         db.collection("users")
                 .document(uid)
                 .get()
-                .addOnCompleteListener(snapshot -> {
-                    consumer.accept(snapshot.getResult().toObject(User.class));
-                })
-                .addOnFailureListener(snapshot -> {
-                    consumer.accept(null);
-                });
+                .addOnCompleteListener(snapshot -> consumer.accept(snapshot.getResult()
+                        .toObject(User.class)))
+                .addOnFailureListener(snapshot -> consumer.accept(null));
     }
 
     /**
@@ -140,14 +137,14 @@ public class UserController {
         updateUser("walkPoints", walkPoints);
     }
 
-    public void addStatus() {
-
+    public void setStatus(int status) {
+        updateUser("status", status);
+        currentUser.setStatus(status);
     }
 
     /**
      * 프로필 이미지를 업로드 합니다.
-     * @param path
-     * @throws FileNotFoundException
+     * @param path 파일경로
      */
     public void writeProfileImage(String path) throws FileNotFoundException {
         if(authController.isAuth()) {
@@ -165,7 +162,6 @@ public class UserController {
 
     /**
      * 프로필 이미지의 경로를 읽어옵니다.
-     * @return
      */
     public void readProfileImage(String uid, Consumer<byte[]> consumer) {
         if (authController.isAuth()) {
@@ -185,30 +181,32 @@ public class UserController {
         }
     }
 
-    public void writeChat(Chat chat) {
-        if(!currentUser.getArrayChatId().contains(chat.chatId)) {
-            String temp = currentUser.getArrayChatId() + chat.chatId + "|";
+    public void writeChatId(Chat chat) {
+        ArrayList<String> list = readChatId();
+        if(!list.contains(chat.chatId)) {
+            list.add(chat.chatId);
+            String temp = TextUtils.join("|", list);
             updateUser("arrayChatId", temp);
             currentUser.setArrayChatId(temp);
         }
     }
 
-    public void readChat(Consumer<String> consumer) {
-        ArrayList<String> split = readChat();
+    public void readChatId(Consumer<String> consumer) {
+        ArrayList<String> split = readChatId();
         for (String chatId : split) {
             if(!chatId.equals(""))
                 consumer.accept(chatId);
         }
     }
 
-    public ArrayList<String> readChat() {
+    public ArrayList<String> readChatId() {
         String[] split = currentUser.getArrayChatId().split("\\|");
         return new ArrayList<>(Arrays.asList(split));
     }
 
     public void removeChat(String chatId) {
         if(currentUser.getArrayChatId().contains(chatId)) {
-            ArrayList<String> arr = readChat();
+            ArrayList<String> arr = readChatId();
             arr.remove(chatId);
             String temp = TextUtils.join("|", arr);
             currentUser.setArrayChatId(temp);
