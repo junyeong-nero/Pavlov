@@ -13,7 +13,7 @@ public class Meeting {
     @NonNull
     @Override
     public String toString() {
-        return "약속장소 : " + place + "\n"
+        return "약속장소 : " + place.name + "\n"
                 + "약속시간 : " + time.toString();
     }
 }

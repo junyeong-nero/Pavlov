@@ -167,7 +167,7 @@ public class OtherProfileActivity extends AppCompatActivity {
     private void buttonAppointment() {
         binding.buttonAppointment.setText("약속");
         binding.buttonAppointment.setBackgroundTintList(ColorStateList.valueOf(
-                ContextCompat.getColor(this, R.color.colorPrimary)));
+                ContextCompat.getColor(this, R.color.colorOnPrimary)));
 //        binding.buttonAppointment.setBackgroundColor(
 //                ContextCompat.getColor(this, R.color.colorPrimaryVariant));
         binding.buttonAppointment.setOnClickListener(v -> {

@@ -104,8 +104,8 @@ public class ChatActivity extends AppCompatActivity {
 
             mChat.readAllUsers(users -> {
                 for (User user : users) {
-                    @SuppressLint("InflateParams") View view =
-                            getLayoutInflater().inflate(R.layout.inflater_profile, null);
+                    View view = getLayoutInflater().inflate(R.layout.inflater_profile,
+                                    userLayout, false);
                     Button nick = view.findViewById(R.id.text_nickname);
                     nick.setText(user.getUserName());
                     nick.setOnClickListener(v -> startOtherProfileActivity(user.getUid()));
