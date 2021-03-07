@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -104,27 +106,49 @@ public class ProfileFragment extends Fragment {
         if(!isAdded())
             return;
 
-        binding.layoutUser.removeAllViews();
-        try {
-            JSONObject obj = new JSONObject(user.toString());
-            Iterator<String> iterator = obj.keys();
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                if(isAdded()) {
-                    TextView textView = new TextView(requireContext());
-                    textView.setText(next);
-                    binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT);
+        binding.textName.setText(user.getUserName());
+        binding.textNeighbor.setText(user.getNeighbor());
+        drawPlace(user);
 
-                    EditText editText = new EditText(requireContext());
-                    editText.setText(obj.getString(next));
-                    binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT);
-                }
-            }
+//        binding.layoutUser.removeAllViews();
+//        try {
+//            JSONObject obj = new JSONObject(user.toString());
+//            Iterator<String> iterator = obj.keys();
+//            while (iterator.hasNext()) {
+//                String next = iterator.next();
+//                if(isAdded()) {
+//                    TextView textView = new TextView(requireContext());
+//                    textView.setText(next);
+//                    binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT,
+//                            ViewGroup.LayoutParams.WRAP_CONTENT);
+//
+//                    EditText editText = new EditText(requireContext());
+//                    editText.setText(obj.getString(next));
+//                    binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT,
+//                            ViewGroup.LayoutParams.WRAP_CONTENT);
+//                }
+//            }
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+    }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+    private void drawPlace(User user) {
+        binding.layoutPlace.removeAllViews();
+        for (WalkPoint wp : user.getWalkPoints()) {
+            log(wp.name);
+            View view = getLayoutInflater().inflate(R.layout.inflater_place, null);
+            TextView text = view.findViewById(R.id.text);
+            text.setText(wp.name);
+
+            ImageButton button = view.findViewById(R.id.button);
+            button.setOnClickListener(v -> {
+                userController.removeWalkPoint(wp);
+                drawPlace(currentUser);
+            });
+
+            binding.layoutPlace.addView(view);
         }
     }
 

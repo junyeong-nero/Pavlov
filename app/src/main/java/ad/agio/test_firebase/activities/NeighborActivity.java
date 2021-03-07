@@ -131,11 +131,6 @@ public class NeighborActivity extends AppCompatActivity implements OnMapReadyCal
                                     R.string.neighbor_activity_address_explain,
                                     getAddress(lastKnownLocation.getLatitude(),
                                             lastKnownLocation.getLongitude())));
-//                            binding.textNeighbor2.setText(
-//                                    "'" +
-//                                    getAddress(lastKnownLocation.getLatitude(),
-//                                            lastKnownLocation.getLongitude())
-//                                    + "' 입니다");
                         }
                     } else {
                         log("Current location is null. Using defaults.");

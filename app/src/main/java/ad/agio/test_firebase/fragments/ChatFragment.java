@@ -36,13 +36,12 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentChatBinding.inflate(inflater, container, false);
-        userController.readMe(me -> draw(me.getArrayChatId()));
+        drawChatList();
 
         return binding.getRoot();
     }
 
-    private void draw(String rawData) {
-
+    private void drawChatList() {
         if(!isAdded()) // check fragment is attaching
             return;
 
@@ -51,7 +50,8 @@ public class ChatFragment extends Fragment {
 
         userController.readChatId(chatId -> {
             log(chatId);
-            View view = getLayoutInflater().inflate(R.layout.inflater_chat_thumb, null);
+            View view = getLayoutInflater().inflate(R.layout.inflater_chat_thumb,
+                    binding.layout, false);
             TextView t1 = view.findViewById(R.id.title);
             TextView t2 = view.findViewById(R.id.subtitle);
 
@@ -82,7 +82,7 @@ public class ChatFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         log("onActivityResult");
         if (requestCode == Codes.CHAT) {
-            userController.readMe(me -> draw(me.getArrayChatId()));
+            drawChatList();
         }
     }
 }

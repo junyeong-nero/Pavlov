@@ -2,6 +2,8 @@ package ad.agio.test_firebase.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -79,8 +81,13 @@ public class HomeActivity extends AppCompatActivity {
         appointController.setContext(this);
         userController.readMe(me -> {
             currentUser = me;
-            if(currentUser.getStatus() == Status.ON) // 켜져있을때만 알람을 받는다.
+            if(currentUser.getStatus() == Status.ON) {
+                // 켜져있을때만 알람을 받는다.
                 serviceStart();
+                binding.buttonStatus.setImageResource(R.drawable.background_circle_colorful);
+            } else {
+                binding.buttonStatus.setImageResource(R.drawable.background_circle);
+            }
         });
         binding.buttonMenu.setOnClickListener(v -> startActivityForResult(
                 new Intent(this, MenuActivity.class), Codes.MENU));

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -26,10 +27,12 @@ import java.util.Iterator;
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.databinding.ActivityOtherProfileBinding;
 import ad.agio.test_firebase.domain.User;
+import ad.agio.test_firebase.domain.WalkPoint;
 import ad.agio.test_firebase.services.AppointService;
 
 import static ad.agio.test_firebase.activities.HomeActivity.appointController;
 import static ad.agio.test_firebase.activities.HomeActivity.authController;
+import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
 import static ad.agio.test_firebase.activities.HomeActivity.matchController;
 import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
@@ -180,25 +183,28 @@ public class OtherProfileActivity extends AppCompatActivity {
     }
 
     private void drawProfile(User user) {
-        log("drawProfile");
+        binding.textName.setText(user.getUserName());
+        binding.textNeighbor.setText(user.getNeighbor());
+        drawPlace(user);
         drawProfileImage(user);
-        binding.layoutUser.removeAllViews();
-        try {
-            JSONObject obj = new JSONObject(user.toString());
-            Iterator<String> iterator = obj.keys();
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                TextView textView = new TextView(this);
-                textView.setText(next);
-                binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
 
-                EditText editText = new EditText(this);
-                editText.setText(obj.getString(next));
-                binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            }
+    private void drawPlace(User user) {
+        binding.layoutPlace.removeAllViews();
+        for (WalkPoint wp : user.getWalkPoints()) {
+            log(wp.name);
+            View view = getLayoutInflater().inflate(R.layout.inflater_place,
+                    binding.layoutPlace, false);
+            TextView text = view.findViewById(R.id.text);
+            text.setText(wp.name);
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+            ImageButton button = view.findViewById(R.id.button);
+            button.setOnClickListener(v -> {
+                userController.removeWalkPoint(wp);
+                drawPlace(currentUser);
+            });
+
+            binding.layoutPlace.addView(view);
         }
     }
 
