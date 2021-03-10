@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -49,19 +50,22 @@ public class SearchFragment extends Fragment {
         // 쿼리를 포함하고 있는 사람을 뽑는다.
 
         binding.button.setOnClickListener(v -> search(condition));
-
         binding.editQuery.setOnKeyListener((v, actionId, event) -> {
-            if (actionId == KeyEvent.KEYCODE_ENTER) {
+            if (actionId == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
                 search(condition);
+                return true;
             }
             return false;
         });
     }
 
     public void search(Predicate<User> condition) {
+        log("search");
         binding.textLog.removeAllViews();
         userController.readAllUsers(user -> {
             if (user != null && condition.test(user)) {
+                log(user.getUserName());
+
                 View view = getLayoutInflater().inflate(R.layout.inflater_profile,
                         binding.textLog, false);
                 Button button = view.findViewById(R.id.text_nickname);

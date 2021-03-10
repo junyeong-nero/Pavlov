@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 import ad.agio.test_firebase.domain.Chat;
@@ -62,7 +63,8 @@ public class UserController {
                 .addOnCompleteListener(snapshot -> {
                     if (snapshot.isSuccessful()) {
                         for (QueryDocumentSnapshot post : snapshot.getResult()) {
-                            consumer.accept(post.toObject(User.class));
+                            User user = post.toObject(User.class);
+                            consumer.accept(user);
                         }
                     }
                 })
