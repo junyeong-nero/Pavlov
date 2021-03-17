@@ -13,15 +13,22 @@ import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import ad.agio.test_firebase.R;
 import ad.agio.test_firebase.controller.AppointController;
 import ad.agio.test_firebase.controller.AuthController;
+import ad.agio.test_firebase.controller.DataController;
 import ad.agio.test_firebase.controller.MatchController;
 import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityHomeBinding;
@@ -33,6 +40,7 @@ import ad.agio.test_firebase.fragments.NoInternetFragment;
 import ad.agio.test_firebase.fragments.ProfileFragment;
 import ad.agio.test_firebase.fragments.SearchFragment;
 import ad.agio.test_firebase.services.AppointService;
+import ad.agio.test_firebase.services.AppointWorker;
 import ad.agio.test_firebase.utils.Codes;
 import ad.agio.test_firebase.utils.Utils;
 
@@ -59,7 +67,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         consumers = new HashMap<>();
         consumers.put(R.id.navigation_home, t -> getSupportFragmentManager().beginTransaction()
                 .replace(R.id.nav_host_fragment, new HomeFragment(), "HomeFragment")
@@ -83,7 +90,7 @@ public class HomeActivity extends AppCompatActivity {
             currentUser = me;
             if(currentUser.getStatus() == Status.ON) {
                 // 켜져있을때만 알람을 받는다.
-                serviceStart();
+                startWork();
                 binding.buttonStatus.setImageResource(R.drawable.background_circle_colorful);
             } else {
                 binding.buttonStatus.setImageResource(R.drawable.background_circle);
@@ -136,14 +143,26 @@ public class HomeActivity extends AppCompatActivity {
 
         for (int key : map.keySet()) {
             if(key == id) {
-                for (ImageButton b : map.get(key)) {
+                for (ImageButton b : Objects.requireNonNull(map.get(key))) {
                     b.setVisibility(View.VISIBLE);
                 }
             } else {
-                for (ImageButton b : map.get(key)) {
+                for (ImageButton b : Objects.requireNonNull(map.get(key))) {
                     b.setVisibility(View.GONE);
                 }
             }
+        }
+    }
+
+    private void startWork() {
+        log("workStart");
+        if(authController.isAuth()) {
+            WorkRequest wr =
+                    new PeriodicWorkRequest.Builder(AppointWorker.class, 15, TimeUnit.MINUTES)
+                            .build();
+            WorkManager
+                    .getInstance(this)
+                    .enqueue(wr);
         }
     }
 
@@ -169,6 +188,12 @@ public class HomeActivity extends AppCompatActivity {
         log("finishAndRemoveTask");
         appointController.pauseReceive();
         matchController.pauseReceive();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        startWork();
     }
 
     @Override

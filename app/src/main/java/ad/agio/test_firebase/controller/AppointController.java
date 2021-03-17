@@ -86,8 +86,32 @@ public class AppointController {
         if (authController.isAuth()) {
             log("startReceive");
             db.setValue("empty")
-                    .addOnSuccessListener(task -> db.addValueEventListener(receiveListener));
+                    .addOnCompleteListener(task -> db.addValueEventListener(receiveListener));
         }
+    }
+
+    /**
+     * 데이터를 읽습니다 .
+     * @param consumer consumer
+     */
+    public void readReceive(Consumer<ArrayList<User>> consumer) {
+        this.receiveConsumer = consumer;
+        db.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        ArrayList<User> list = new ArrayList<>();
+                        for (DataSnapshot data : task.getResult().getChildren()) {
+                            if (data.exists())
+                                list.add(data.getValue(User.class));
+                        }
+                        receiveConsumer.accept(list);
+                    }
+                });
+
+    }
+
+    public void setEmpty() {
+        db.setValue("empty");
     }
 
     /**

@@ -44,7 +44,6 @@ public class AppointService extends IntentService {
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
 
     private final class ServiceHandler extends Handler {
-
         public ServiceHandler(Looper looper) {
             super(looper);
         }
@@ -111,15 +110,15 @@ public class AppointService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "service restart", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, AppointService.class);
-        startService(intent);
+//        Toast.makeText(this, "service restart", Toast.LENGTH_SHORT).show();
+//        Intent intent = new Intent(this, AppointService.class);
+//        startService(intent);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        Intent intent = new Intent(this, AppointService.class);
-        startService(intent);
+//        Intent intent = new Intent(this, AppointService.class);
+//        startService(intent);
     }
 
     public void prepare() {

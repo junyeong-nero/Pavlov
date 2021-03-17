@@ -99,10 +99,10 @@ public class OtherProfileActivity extends AppCompatActivity {
     }
 
     private void serviceStart() {
-        if(authController.isAuth()) {
-            Intent intent = new Intent(this, AppointService.class);
-            startService(intent);
-        }
+//        if(authController.isAuth()) {
+//            Intent intent = new Intent(this, AppointService.class);
+//            startService(intent);
+//        }
     }
 
     private void init() {

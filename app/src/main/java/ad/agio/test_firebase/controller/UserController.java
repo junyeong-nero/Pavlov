@@ -53,8 +53,6 @@ public class UserController {
      * Firestore rule 에 의해서 type 이 public 이거나 자신의 프로필만 읽을 수 있다.
      * @param consumer consumer
      */
-
-    // TODO 모든 사람들이 두번씩 읽히는 버그.
     public void readAllUsers(Consumer<User> consumer) {
         log("readAllUsers");
         db.collection("users")
