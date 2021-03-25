@@ -109,29 +109,17 @@ public class ProfileFragment extends Fragment {
         binding.textName.setText(user.getUserName());
         binding.textNeighbor.setText(user.getNeighbor());
         drawPlace(user);
+        drawTags(user);
+    }
 
-//        binding.layoutUser.removeAllViews();
-//        try {
-//            JSONObject obj = new JSONObject(user.toString());
-//            Iterator<String> iterator = obj.keys();
-//            while (iterator.hasNext()) {
-//                String next = iterator.next();
-//                if(isAdded()) {
-//                    TextView textView = new TextView(requireContext());
-//                    textView.setText(next);
-//                    binding.layoutUser.addView(textView, ViewGroup.LayoutParams.MATCH_PARENT,
-//                            ViewGroup.LayoutParams.WRAP_CONTENT);
-//
-//                    EditText editText = new EditText(requireContext());
-//                    editText.setText(obj.getString(next));
-//                    binding.layoutUser.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT,
-//                            ViewGroup.LayoutParams.WRAP_CONTENT);
-//                }
-//            }
-//
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+    private void drawTags(User user) {
+        binding.layoutTags.removeAllViews();
+        for (String tag : user.getTags()) {
+            View view = getLayoutInflater().inflate(R.layout.inflater_tag, binding.layoutTags, false);
+            TextView textView = view.findViewById(R.id.text);
+            textView.setText(tag);
+            binding.layoutTags.addView(view);
+        }
     }
 
     private void drawPlace(User user) {

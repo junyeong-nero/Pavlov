@@ -10,31 +10,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.util.Iterator;
 
 import ad.agio.test_firebase.R;
+import ad.agio.test_firebase.controller.AppointController;
+import ad.agio.test_firebase.controller.MatchController;
+import ad.agio.test_firebase.controller.UserController;
 import ad.agio.test_firebase.databinding.ActivityOtherProfileBinding;
 import ad.agio.test_firebase.domain.User;
 import ad.agio.test_firebase.domain.WalkPoint;
-import ad.agio.test_firebase.services.AppointService;
-
-import static ad.agio.test_firebase.activities.HomeActivity.appointController;
-import static ad.agio.test_firebase.activities.HomeActivity.authController;
-import static ad.agio.test_firebase.activities.HomeActivity.currentUser;
-import static ad.agio.test_firebase.activities.HomeActivity.matchController;
-import static ad.agio.test_firebase.activities.HomeActivity.userController;
 
 public class OtherProfileActivity extends AppCompatActivity {
 
@@ -46,12 +35,24 @@ public class OtherProfileActivity extends AppCompatActivity {
     private boolean isReceiving;
 
     private ActivityOtherProfileBinding binding;
+    private UserController userController;
+    private MatchController matchController;
+    private AppointController appointController;
+
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityOtherProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        userController = new UserController();
+        matchController = new MatchController();
+        appointController = new AppointController();
+
+        matchController.setContext(this);
+        appointController.setContext(this);
+        userController.readMe(me -> currentUser = me);
 
         cleanNotification();
 

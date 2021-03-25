@@ -49,7 +49,7 @@ public class UserController {
     }
 
     /**
-     * Firestore 에 업로드 되어있고, type 이 public 인 사용자들을 읽습니다.
+     * Firestore 에 업로드 되어있고Ma, type 이 public 인 사용자들을 읽습니다.
      * Firestore rule 에 의해서 type 이 public 이거나 자신의 프로필만 읽을 수 있다.
      * @param consumer consumer
      */

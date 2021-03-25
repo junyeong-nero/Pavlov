@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @IgnoreExtraProperties
 public class User {
@@ -26,6 +27,16 @@ public class User {
 
     // 산책장소를 저장
     private ArrayList<WalkPoint> walkPoints = new ArrayList<>();
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
+    }
+
+    private ArrayList<String> tags = new ArrayList<>();
 
     public void addWalkPoint(WalkPoint walkPoint) {
         walkPoints.add(walkPoint);

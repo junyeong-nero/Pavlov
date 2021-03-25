@@ -68,10 +68,12 @@ public class AppointWorker extends Worker {
         appointController.setEmpty();
         appointController.failureListener = none -> {
             log("finish");
+            dataController.deleteData("appoint_uid");
         };
         appointController.successListener = chat -> {
             Intent intent = new Intent(appointController.getContext(), ChatActivity.class);
             intent.putExtra("chatId", chat.chatId);
+            dataController.deleteData("appoint_uid");
             context.startActivity(intent);
         };
     }
